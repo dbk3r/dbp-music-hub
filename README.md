@@ -458,6 +458,28 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 - Verbesserte Error-Handling und Logging
 - Nonce-Prüfung für alle AJAX-Requests
 
+### Version 1.3.2 (2025-12-25)
+
+#### Kritische Bugfixes
+- 🐛 **wpColorPicker-Fehler behoben**: Color Picker Script wird jetzt korrekt mit Abhängigkeiten geladen
+- 🐛 **Warenkorb-Button in Playlist**: "In den Warenkorb"-Button wird jetzt in Playlist-Tracklisten angezeigt
+- 🐛 **Playlist-Menü**: Playlists erscheinen jetzt korrekt unter "Music Hub" im Admin-Menü
+- 🐛 **Modal-System**: Lizenzauswahl-Modal funktioniert jetzt vollständig mit korrekten CSS-Klassen
+- 🐛 **Script-Enqueuing**: Alle JavaScript-Abhängigkeiten korrekt registriert
+
+#### Verbesserungen
+- ✅ admin/js/admin-settings.js hinzugefügt für Color Picker Initialisierung
+- ✅ Media-Upload-Unterstützung für zukünftige Logo-Features
+- ✅ Besseres Error-Handling in AJAX-Calls
+- ✅ `dbp-open-license-modal` Klasse zu Warenkorb-Buttons hinzugefügt
+- ✅ Playlist CPT `show_in_menu` korrekt auf 'dbp-music-hub-dashboard' gesetzt
+
+#### Technische Details
+- wp-color-picker als Script-Abhängigkeit in admin-settings.js hinzugefügt
+- wp_localize_script für AJAX-URL und Nonce bereits vorhanden
+- CPT show_in_menu korrekt konfiguriert für Integration in Music Hub Menü
+- Inline-Script aus render_settings_page entfernt, verwendet jetzt separate JS-Datei
+
 ### Version 1.2.1 (2025-12-25)
 
 #### Bugfixes
