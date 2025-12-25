@@ -27,17 +27,63 @@ class DBP_Admin_Dashboard {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_dashboard_assets( $hook_suffix ) {
+		// ALLE möglichen Hook-Varianten für Dashboard
 		$valid_hooks = array(
-			'toplevel_page_dbp-music-hub-dashboard',
+			// Top-level als Music Hub
 			'toplevel_page_dbp-music-hub',
-			'dbp-music-hub_page_dbp-music-hub-dashboard'
+			'toplevel_page_dbp-music-hub-dashboard',
+			
+			// Submenu variations
+			'dbp-music-hub_page_dbp-music-hub-dashboard',
+			'music-hub_page_dbp-dashboard',
+			'admin_page_dbp-music-hub-dashboard',
+			
+			// Mit verschiedenen Präfixen
+			'dbp_page_dbp-dashboard',
+			'music_hub_page_dbp-dashboard',
+			
+			// Ohne Präfix
+			'page_dbp-music-hub',
+			'page_dbp-dashboard',
+			
+			// Mit Underscores
+			'toplevel_page_dbp_music_hub',
+			'dbp-music-hub_page_dbp_music_hub_dashboard',
 		);
 
-		if ( ! in_array( $hook_suffix, $valid_hooks ) ) {
-			return;
+		error_log( '=== DBP DASHBOARD DEBUG ===' );
+		error_log( 'Current hook: ' . $hook_suffix );
+		error_log( 'Valid hooks: ' . print_r( $valid_hooks, true ) );
+
+		if ( ! in_array( $hook_suffix, $valid_hooks, true ) ) {
+			// FALLBACK: Wenn aktueller Screen DBP Music Hub ist, trotzdem laden
+			$screen = get_current_screen();
+			if ( $screen && (
+				strpos( $screen->id, 'dbp-music-hub' ) !== false ||
+				strpos( $screen->id, 'music-hub' ) !== false ||
+				strpos( $screen->id, 'dbp-dashboard' ) !== false
+			) ) {
+				error_log( '🔥 FALLBACK ACTIVATED - Loading scripts via screen ID: ' . $screen->id );
+				// Nicht returnen, sondern weitermachen mit Enqueue
+			} else {
+				// TEMPORÄR: Admin-Notice anzeigen
+				add_action( 'admin_notices', function() use ( $hook_suffix ) {
+					echo '<div class="notice notice-warning">';
+					echo '<p><strong>DBP Dashboard:</strong> Scripts NOT loaded. Hook: <code>' . esc_html( $hook_suffix ) . '</code></p>';
+					echo '</div>';
+				});
+				return;
+			}
+		} else {
+			// Scripts wurden geladen - Success Notice
+			add_action( 'admin_notices', function() use ( $hook_suffix ) {
+				echo '<div class="notice notice-success is-dismissible">';
+				echo '<p><strong>✅ DBP Dashboard:</strong> Scripts loaded! Hook: <code>' . esc_html( $hook_suffix ) . '</code></p>';
+				echo '</div>';
+			});
 		}
 
-		error_log( 'DBP Dashboard - Hook: ' . $hook_suffix );
+		error_log( '✅ DBP Dashboard - Scripts enqueued for hook: ' . $hook_suffix );
 
 		wp_enqueue_style(
 			'dbp-dashboard',
