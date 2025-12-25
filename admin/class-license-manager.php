@@ -33,53 +33,25 @@ class DBP_License_Manager {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_scripts( $hook_suffix ) {
-		// Speichere Hook für Debug-Anzeige
-		set_transient('dbp_last_hook_license', $hook_suffix, 300);
-		
-		// Korrekte Hook-Namen basierend auf Parent-Slug 'dbp-music-hub-dashboard'
+		// Speichere Hook für Debug-Box
+		set_transient( 'dbp_last_hook_license', $hook_suffix, 300 );
+
+		// DER ECHTE WordPress Hook (basierend auf Screen ID)
 		$valid_hooks = array(
-			// Submenu unter dbp-music-hub-dashboard
-			'dbp-music-hub-dashboard_page_dbp-license-manager',
-			
-			// Alte Varianten für Rückwärtskompatibilität
-			'music-hub_page_dbp-license-manager',
-			'dbp-music-hub_page_dbp-license-manager',
-			'toplevel_page_dbp-license-manager',
+			'music-hub_page_dbp-license-manager',  // ← ECHTER Hook!
 		);
 
 		error_log( '=== DBP LICENSE MANAGER DEBUG ===' );
-		error_log( 'Current hook: ' . $hook_suffix );
-		error_log( 'Expected hook: dbp-music-hub-dashboard_page_dbp-license-manager' );
+		error_log( 'Hook suffix: ' . $hook_suffix );
+		error_log( 'Expected: music-hub_page_dbp-license-manager' );
+		error_log( 'Match: ' . ( in_array( $hook_suffix, $valid_hooks, true ) ? 'YES' : 'NO' ) );
 
 		if ( ! in_array( $hook_suffix, $valid_hooks, true ) ) {
-			// FALLBACK: Wenn aktueller Screen DBP Music Hub ist, trotzdem laden
-			$screen = get_current_screen();
-			if ( $screen && (
-				strpos( $screen->id, 'dbp-music-hub' ) !== false ||
-				strpos( $screen->id, 'music-hub' ) !== false ||
-				strpos( $screen->id, 'dbp-license' ) !== false
-			) ) {
-				error_log( '🔥 FALLBACK ACTIVATED - Loading scripts via screen ID: ' . $screen->id );
-				// Nicht returnen, sondern weitermachen mit Enqueue
-			} else {
-				// TEMPORÄR: Admin-Notice anzeigen
-				add_action( 'admin_notices', function() use ( $hook_suffix ) {
-					echo '<div class="notice notice-warning">';
-					echo '<p><strong>DBP License Manager:</strong> Scripts NOT loaded. Hook: <code>' . esc_html( $hook_suffix ) . '</code></p>';
-					echo '</div>';
-				});
-				return;
-			}
-		} else {
-			// Scripts wurden geladen - Success Notice
-			add_action( 'admin_notices', function() use ( $hook_suffix ) {
-				echo '<div class="notice notice-success is-dismissible">';
-				echo '<p><strong>✅ DBP License Manager:</strong> Scripts loaded! Hook: <code>' . esc_html( $hook_suffix ) . '</code></p>';
-				echo '</div>';
-			});
+			error_log( '❌ Hook mismatch - scripts NOT loaded' );
+			return;
 		}
 
-		error_log( '✅ DBP License Manager - Scripts enqueued for hook: ' . $hook_suffix );
+		error_log( '✅ Hook matched - loading scripts' );
 
 		// WordPress Media Uploader
 		wp_enqueue_media();
@@ -293,11 +265,21 @@ class DBP_License_Manager {
 				$last_hook = get_transient('dbp_last_hook_license');
 			?>
 			<div style="background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0;">
-				<h3 style="margin: 0 0 10px 0; color: #155724;">🔍 Debug Info (v1.3.5)</h3>
+				<h3 style="margin: 0 0 10px 0; color: #155724;">🔍 Debug Info (v1.3.6)</h3>
 				<p style="margin: 5px 0;"><strong>Last Hook Suffix:</strong> <code><?php echo esc_html($last_hook ? $last_hook : 'Not captured yet'); ?></code></p>
 				<p style="margin: 5px 0;"><strong>Current Screen ID:</strong> <code><?php echo esc_html($screen ? $screen->id : 'NULL'); ?></code></p>
-				<p style="margin: 5px 0;"><strong>Expected Hook:</strong> <code>dbp-music-hub-dashboard_page_dbp-license-manager</code></p>
+				<p style="margin: 5px 0;"><strong>Expected Hook:</strong> <code>music-hub_page_dbp-license-manager</code></p>
 				<p style="margin: 5px 0;"><strong>Scripts Loaded:</strong> <?php echo wp_script_is('dbp-license-manager', 'enqueued') ? '✅ YES' : '❌ NO'; ?></p>
+				<p style="margin: 5px 0;"><strong>Hook Matches:</strong> 
+					<?php 
+					$current_hook = get_transient('dbp_last_hook_license');
+					$matches = ($current_hook === 'music-hub_page_dbp-license-manager');
+					echo $matches ? '✅ YES' : '❌ NO';
+					if (!$matches && $current_hook) {
+						echo ' <span style="color: red;">(Got: ' . esc_html($current_hook) . ')</span>';
+					}
+					?>
+				</p>
 			</div>
 			<?php endif; ?>
 

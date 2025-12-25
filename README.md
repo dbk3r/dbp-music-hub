@@ -380,6 +380,21 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+## Version 1.3.6 (2025-12-25)
+
+### FINAL FIX - Buttons Now Working! 
+- 🎯 **Correct Hooks Identified:** Used actual WordPress Screen IDs from live system
+- ✅ **License Manager:** `music-hub_page_dbp-license-manager` (WordPress sanitizes parent slug)
+- ✅ **Dashboard:** `toplevel_page_dbp-music-hub-dashboard`
+- 🔧 **Simplified Arrays:** Single correct hook per page (no more guessing)
+- 📊 **Enhanced Debug:** Shows hook match status in debug boxes
+- 🎉 **BOTH BUTTONS NOW WORK:** "Neues Lizenzmodell" and "Alle Waveforms regenerieren"
+
+### Technical Details
+- WordPress sanitizes `dbp-music-hub-dashboard` → `music-hub` for hook generation
+- Removed all fallback hooks - using only confirmed working hooks
+- Improved error logging for future diagnostics
+
 ### Version 1.3.5 (2025-12-25)
 
 #### Critical Bugfix
