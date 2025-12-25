@@ -79,18 +79,27 @@ class DBP_Music_Hub {
 		// Waveform-Klasse (v1.1.0)
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-waveform-generator.php';
 
-		// Admin-Klassen
+		// Admin-Klassen später laden (bei admin_menu), damit WP-Admin-Funktionen vorhanden sind
 		if ( is_admin() ) {
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
-			
-			// Custom Admin-Bereich (v1.2.0)
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-menu.php';
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-dashboard.php';
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-audio-manager.php';
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
+			add_action( 'admin_menu', array( $this, 'load_admin_dependencies' ) );
 		}
+	}
+
+	/**
+	 * Admin-Abhängigkeiten laden (auf admin_menu)
+	 */
+	public function load_admin_dependencies() {
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-menu.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-dashboard.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-audio-manager.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
+
+		// Admin-Instanzen erstellen (erst nach Laden der Klassen)
+		new DBP_Admin_Settings();
+		new DBP_Admin_Menu();
 	}
 
 	/**
@@ -150,15 +159,7 @@ class DBP_Music_Hub {
 
 		// Admin-Einstellungen initialisieren
 		if ( is_admin() ) {
-			new DBP_Admin_Settings();
-			
-			// Custom Admin-Bereich initialisieren (v1.2.0)
-			new DBP_Admin_Menu();
-			new DBP_Admin_Dashboard();
-			new DBP_Audio_Manager();
-			new DBP_Bulk_Upload();
-			new DBP_WooCommerce_Sync_UI();
-			new DBP_Taxonomy_Manager();
+			// Admin-Klassen werden bei 'admin_menu' geladen und instanziiert
 		}
 
 		// Hook für Erweiterungen

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # MySQL-Datenbank
-  db: 
+  db:  
     image: mysql:8.0
     container_name: dbp-music-hub-db
     restart: unless-stopped
@@ -15,12 +15,12 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - dbp-network
-    command: '--default-authentication-plugin=mysql_native_password'
+    command: '--default-authentication-plugin=mysql_native_password --max_allowed_packet=256M'
 
   # WordPress mit PHP 7.4
   wordpress:
     image: wordpress:php8.1-apache
-    container_name:  dbp-music-hub-wordpress
+    container_name: dbp-music-hub-wordpress
     restart: unless-stopped
     depends_on:
       - db
@@ -36,31 +36,24 @@ services:
         define('WP_DEBUG', true);
         define('WP_DEBUG_LOG', true);
         define('WP_DEBUG_DISPLAY', false);
+      # PHP Upload-Limits als Umgebungsvariablen
+      PHP_UPLOAD_MAX_FILESIZE: 256M
+      PHP_POST_MAX_SIZE: 256M
+      PHP_MEMORY_LIMIT: 512M
+      PHP_MAX_EXECUTION_TIME: 1200
+      PHP_MAX_INPUT_TIME: 1200
     volumes:
       # WordPress-Dateien persistent speichern
       - wordpress_data:/var/www/html
-      # Ihr Plugin direkt mounten (ändern Sie den Pfad entsprechend Ihrer Ordnerstruktur)
+      # Ihr Plugin direkt mounten
       - ./:/var/www/html/wp-content/plugins/dbp-music-hub
       # Upload-Ordner für Audio-Dateien
       - ./uploads:/var/www/html/wp-content/uploads
+      # PHP-Konfiguration für Upload-Limits
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - dbp-network
 
-  # phpMyAdmin (optional, für Datenbank-Verwaltung)
-  phpmyadmin:
-    image:  phpmyadmin: latest
-    container_name: dbp-music-hub-phpmyadmin
-    restart: unless-stopped
-    depends_on:
-      - db
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: rootpassword
-    networks:
-      - dbp-network
 
   # WP-CLI (optional, für WordPress-Verwaltung über CLI)
   wpcli:
@@ -74,9 +67,9 @@ services:
       - ./:/var/www/html/wp-content/plugins/dbp-music-hub
     networks:
       - dbp-network
-    user: "33:33"
+    user:  "33:33"
     entrypoint: wp
-    command: --info
+    command:  --info
 
 volumes:
   db_data:
@@ -84,4 +77,4 @@ volumes:
 
 networks:
   dbp-network:
-    driver: bridge
+    driver:  bridge
