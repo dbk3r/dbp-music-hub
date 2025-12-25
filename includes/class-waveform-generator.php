@@ -124,7 +124,7 @@ class DBP_Waveform_Generator {
 	}
 
 	/**
-	 * Waveform-Daten abrufen
+	 * Waveform-Daten abrufen (mit Cache-Integration)
 	 *
 	 * @param int $audio_id Audio Post ID.
 	 * @return array|false Waveform-Daten oder false.
@@ -136,6 +136,17 @@ class DBP_Waveform_Generator {
 			return false;
 		}
 
+		// Versuche Daten aus Cache zu laden, wenn Waveform-Cache-Klasse verfügbar
+		if ( class_exists( 'DBP_Waveform_Cache' ) ) {
+			$cache_instance = new DBP_Waveform_Cache();
+			$cached_data = $cache_instance->get_cached_waveform( $audio_id );
+			
+			if ( false !== $cached_data && is_array( $cached_data ) ) {
+				return $cached_data;
+			}
+		}
+
+		// Fallback: Daten aus Post Meta laden
 		$audio_file = get_post_meta( $audio_id, '_dbp_audio_file_url', true );
 		$preview_file = get_post_meta( $audio_id, '_dbp_audio_preview_file_url', true );
 		$player_file = ! empty( $preview_file ) ? $preview_file : $audio_file;
@@ -146,7 +157,7 @@ class DBP_Waveform_Generator {
 
 		return array(
 			'audio_url'       => esc_url( $player_file ),
-			'waveform_peaks'  => get_post_meta( $audio_id, '_dbp_waveform_peaks', true ),
+			'peaks'           => get_post_meta( $audio_id, '_dbp_waveform_peaks', true ),
 			'generated_at'    => get_post_meta( $audio_id, '_dbp_waveform_generated_at', true ),
 		);
 	}

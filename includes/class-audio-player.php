@@ -182,10 +182,20 @@ class DBP_Audio_Player {
 		$artist   = get_post_meta( $audio_id, '_dbp_audio_artist', true );
 		$show_download = $show_download && get_option( 'dbp_show_download_button', true );
 
+		// Cached Peaks abrufen wenn verfügbar
+		$peaks_data = '';
+		if ( class_exists( 'DBP_Waveform_Generator' ) ) {
+			$waveform_gen = new DBP_Waveform_Generator();
+			$waveform_data = $waveform_gen->get_waveform_data( $audio_id );
+			if ( $waveform_data && ! empty( $waveform_data['peaks'] ) ) {
+				$peaks_data = ' data-peaks="' . esc_attr( wp_json_encode( $waveform_data['peaks'] ) ) . '"';
+			}
+		}
+
 		ob_start();
 		?>
 		<div class="dbp-waveform-player-wrapper">
-		<div class="dbp-waveform-player" data-audio-id="<?php echo esc_attr( $audio_id ); ?>" data-audio-url="<?php echo esc_url( $player_file ); ?>">
+		<div class="dbp-waveform-player" data-audio-id="<?php echo esc_attr( $audio_id ); ?>" data-audio-url="<?php echo esc_url( $player_file ); ?>"<?php echo $peaks_data; ?>>
 			<div class="dbp-waveform-info">
 				<h4 class="dbp-waveform-title"><?php echo esc_html( $title ); ?></h4>
 				<?php if ( $artist ) : ?>

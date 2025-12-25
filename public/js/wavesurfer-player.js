@@ -1,70 +1,43 @@
 /**
  * WaveSurfer Player
- * Integriert WaveSurfer.js für Waveform-Visualisierung
+ * Integriert WaveSurfer.js für Waveform-Visualisierung mit Lazy Loading und Caching
  */
 
 (function() {
 	'use strict';
 
-	// Alle Waveform-Player initialisieren
-	document.addEventListener('DOMContentLoaded', function() {
-		const waveformContainers = document.querySelectorAll('.dbp-waveform-container');
-		
-		waveformContainers.forEach(container => {
-			// Prüfen ob bereits initialisiert
-			if (container.dataset.wsInitialized === 'true') {
-				return;
-			}
-			
-			const audioUrl = container.dataset.audioUrl;
-			if (!audioUrl) {
-				return;
-			}
-			
-			// WaveSurfer initialisieren
-			const wavesurfer = WaveSurfer.create({
-				container: container,
-				waveColor: container.dataset.waveColor || '#ddd',
-				progressColor: container.dataset.progressColor || '#4a90e2',
-				cursorColor: container.dataset.cursorColor || '#4a90e2',
-				height: parseInt(container.dataset.height) || 128,
-				responsive: true,
-				normalize: container.dataset.normalize === 'true',
-				barWidth: 2,
-				barGap: 1,
-				backend: 'WebAudio'
-			});
-			
-			// Als initialisiert markieren
-			container.dataset.wsInitialized = 'true';
-			
-			// Audio laden
-			wavesurfer.load(audioUrl);
-			
-			// Event Listener für Fehler
-			wavesurfer.on('error', function(e) {
-				console.error('WaveSurfer error:', e);
-			});
-			
-			// Play/Pause Events
-			wavesurfer.on('ready', function() {
-				container.classList.add('ws-ready');
-			});
-			
-			// Cleanup bei Page-Unload
-			window.addEventListener('beforeunload', function() {
-				if (wavesurfer) {
-					wavesurfer.destroy();
+	// Intersection Observer für Lazy Loading
+	let waveformObserver;
+	
+	if ('IntersectionObserver' in window) {
+		waveformObserver = new IntersectionObserver(function(entries) {
+			entries.forEach(function(entry) {
+				if (entry.isIntersecting) {
+					const playerElement = entry.target;
+					if (!playerElement.dataset.wsInitialized) {
+						initWaveformPlayer(playerElement);
+						waveformObserver.unobserve(playerElement);
+					}
 				}
 			});
+		}, {
+			rootMargin: '50px'
 		});
-	});
+	}
 
-	// Alte initWaveformPlayer Funktion für Kompatibilität
-	const waveformPlayers = document.querySelectorAll('.dbp-waveform-player');
-	
-	waveformPlayers.forEach(function(playerElement) {
-		initWaveformPlayer(playerElement);
+	// Alle Waveform-Player initialisieren
+	document.addEventListener('DOMContentLoaded', function() {
+		const waveformPlayers = document.querySelectorAll('.dbp-waveform-player');
+		
+		waveformPlayers.forEach(function(playerElement) {
+			// Mit Intersection Observer für Lazy Loading
+			if (waveformObserver) {
+				waveformObserver.observe(playerElement);
+			} else {
+				// Fallback: Sofort initialisieren
+				initWaveformPlayer(playerElement);
+			}
+		});
 	});
 
 	/**
@@ -73,6 +46,7 @@
 	function initWaveformPlayer(container) {
 		const audioUrl = container.dataset.audioUrl;
 		const audioId = container.dataset.audioId;
+		const cachedPeaks = container.dataset.peaks;
 		
 		if (!audioUrl || typeof WaveSurfer === 'undefined') {
 			console.error('WaveSurfer not loaded or audio URL missing');
@@ -100,16 +74,19 @@
 		}
 
 		// Prüfen ob bereits initialisiert
-		if (waveformDiv.dataset.wsInitialized === 'true') {
+		if (waveformDiv.dataset.wsInitialized === 'true' || container.dataset.wsInitialized === 'true') {
 			return;
 		}
 
-		// Loading-State anzeigen
-		waveformDiv.innerHTML = '<div class="dbp-waveform-loading">Waveform wird geladen...</div>';
+		// Als initialisiert markieren
+		container.dataset.wsInitialized = 'true';
+
+		// Loading-Indicator anzeigen
+		showLoadingIndicator(waveformDiv);
 
 		try {
 			// WaveSurfer initialisieren
-			const wavesurfer = WaveSurfer.create({
+			const wavesurferOptions = {
 				container: waveformDiv,
 				waveColor: options.waveColor,
 				progressColor: options.progressColor,
@@ -126,26 +103,42 @@
 				hideScrollbar: true,
 				autoCenter: true,
 				minPxPerSec: 50
-			});
+			};
+
+			// Cached Peaks hinzufügen wenn verfügbar
+			if (cachedPeaks) {
+				try {
+					wavesurferOptions.peaks = JSON.parse(cachedPeaks);
+					wavesurferOptions.backend = 'MediaElement'; // Verwende MediaElement für gecachte Peaks
+				} catch (e) {
+					console.warn('Failed to parse cached peaks:', e);
+				}
+			}
+
+			const wavesurfer = WaveSurfer.create(wavesurferOptions);
 
 			// Als initialisiert markieren
 			waveformDiv.dataset.wsInitialized = 'true';
 
 			// Timeline Plugin (optional)
 			if (typeof WaveSurfer.Timeline !== 'undefined') {
-				wavesurfer.registerPlugin(
-					WaveSurfer.Timeline.create({
-						height: 20,
-						insertPosition: 'beforebegin',
-						timeInterval: 5,
-						primaryLabelInterval: 10,
-						secondaryLabelInterval: 5,
-						style: {
-							fontSize: '10px',
-							color: '#999'
-						}
-					})
-				);
+				try {
+					wavesurfer.registerPlugin(
+						WaveSurfer.Timeline.create({
+							height: 20,
+							insertPosition: 'beforebegin',
+							timeInterval: 5,
+							primaryLabelInterval: 10,
+							secondaryLabelInterval: 5,
+							style: {
+								fontSize: '10px',
+								color: '#999'
+							}
+						})
+					);
+				} catch (e) {
+					console.warn('Timeline plugin failed to load:', e);
+				}
 			}
 
 			// Audio laden
@@ -154,25 +147,19 @@
 			// Events
 			wavesurfer.on('ready', function() {
 				// Loading entfernen
-				const loading = waveformDiv.querySelector('.dbp-waveform-loading');
-				if (loading) {
-					loading.remove();
-				}
+				hideLoadingIndicator(waveformDiv);
 
 				// Dauer aktualisieren
 				updateDuration(container, wavesurfer.getDuration());
 			});
 
 			wavesurfer.on('loading', function(percent) {
-				const loading = waveformDiv.querySelector('.dbp-waveform-loading');
-				if (loading) {
-					loading.textContent = 'Lädt ' + percent + '%...';
-				}
+				updateLoadingIndicator(waveformDiv, percent);
 			});
 
 			wavesurfer.on('error', function(error) {
 				console.error('WaveSurfer error:', error);
-				waveformDiv.innerHTML = '<div class="dbp-waveform-error">Fehler beim Laden der Waveform</div>';
+				showErrorIndicator(waveformDiv, 'Fehler beim Laden der Waveform');
 			});
 
 			wavesurfer.on('audioprocess', function() {
@@ -241,8 +228,42 @@
 
 		} catch (error) {
 			console.error('Failed to initialize WaveSurfer:', error);
-			waveformDiv.innerHTML = '<div class="dbp-waveform-error">Waveform konnte nicht initialisiert werden</div>';
+			showErrorIndicator(waveformDiv, 'Waveform konnte nicht initialisiert werden');
 		}
+	}
+
+	/**
+	 * Loading-Indicator anzeigen
+	 */
+	function showLoadingIndicator(container) {
+		container.innerHTML = '<div class="dbp-waveform-loading"><span class="dbp-loading-spinner"></span><span class="dbp-loading-text">Waveform wird geladen...</span></div>';
+	}
+
+	/**
+	 * Loading-Indicator verstecken
+	 */
+	function hideLoadingIndicator(container) {
+		const loading = container.querySelector('.dbp-waveform-loading');
+		if (loading) {
+			loading.remove();
+		}
+	}
+
+	/**
+	 * Loading-Indicator aktualisieren
+	 */
+	function updateLoadingIndicator(container, percent) {
+		const loadingText = container.querySelector('.dbp-loading-text');
+		if (loadingText) {
+			loadingText.textContent = 'Lädt ' + percent + '%...';
+		}
+	}
+
+	/**
+	 * Fehler-Indicator anzeigen
+	 */
+	function showErrorIndicator(container, message) {
+		container.innerHTML = '<div class="dbp-waveform-error"><span class="dbp-error-icon">⚠</span><span>' + message + '</span></div>';
 	}
 
 	/**
