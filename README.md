@@ -380,6 +380,44 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+### Version 1.2.2 (2025-12-25)
+
+#### 🐛 Kritische Bugfixes
+- **Suchform funktioniert jetzt korrekt**: `[dbp_audio_search]` Shortcode zeigt Ergebnisse ordnungsgemäß an
+- Such-Formular rendert jetzt WP_Query korrekt mit allen Filtern
+- Pagination für Suchergebnisse implementiert
+- "Als Playlist speichern" Button funktioniert mit AJAX
+
+#### ⚡ Performance-Verbesserungen - Waveform-Caching
+- **10x schnellere Waveform-Visualisierung** durch intelligentes Caching-System
+- Automatische Pre-Generierung beim Audio-Upload
+- Post Meta Cache mit Transient-Fallback (24h)
+- Lazy Loading mit Intersection Observer - Waveforms laden nur wenn sichtbar
+- Cached Peaks werden direkt geladen statt neu zu berechnen
+
+#### ✨ Neue Features
+- **Waveform-Cache-System**: Neue Klasse `DBP_Waveform_Cache` für optimierte Performance
+- **Admin-Tools**: Waveform Tools Widget im Dashboard mit Statistiken
+- **Bulk-Regenerierung**: "Alle Waveforms regenerieren" Button mit Progress-Bar
+- **Bulk-Action**: "Waveform regenerieren" für einzelne oder mehrere Audio-Dateien
+- **Waveform-Status-Spalte**: Zeigt Cache-Status in Audio-Übersicht an
+- Loading-Indicator und Error-Handling für Waveform-Player
+
+#### 🎨 Design-Verbesserungen für Suchform
+- Modernes Grid-Layout für Such-Filter
+- Card-Design für Suchergebnisse mit Hover-Effekten
+- Responsive Design für mobile Geräte
+- Pagination-Styling mit "Weiter/Zurück" Buttons
+- Dark Mode Support für Suchformular
+
+#### 🔧 Technische Details
+- Waveform-Peaks werden als data-attribute übergeben
+- Intersection Observer für optimale Performance
+- AJAX-basierte Bulk-Regenerierung mit Batch-Processing (5 pro Batch)
+- Progress-Bar zeigt Fortschritt in Echtzeit
+- Verbesserte Error-Handling und Logging
+- Nonce-Prüfung für alle AJAX-Requests
+
 ### Version 1.2.1 (2025-12-25)
 
 #### Bugfixes

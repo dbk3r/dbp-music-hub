@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.2.1' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.2.2' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -79,6 +79,11 @@ class DBP_Music_Hub {
 		// Waveform-Klasse (v1.1.0)
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-waveform-generator.php';
 
+		// Waveform-Cache-Klasse (v1.2.2)
+		if ( get_option( 'dbp_enable_waveform', false ) ) {
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-waveform-cache.php';
+		}
+
 		// Search-to-Playlist (v1.2.1)
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-search-playlist.php';
 
@@ -133,6 +138,11 @@ class DBP_Music_Hub {
 		// Waveform Generator initialisieren (v1.1.0)
 		if ( get_option( 'dbp_enable_waveform', false ) ) {
 			new DBP_Waveform_Generator();
+		}
+
+		// Waveform Cache initialisieren (v1.2.2)
+		if ( get_option( 'dbp_enable_waveform', false ) && class_exists( 'DBP_Waveform_Cache' ) ) {
+			new DBP_Waveform_Cache();
 		}
 
 		// WooCommerce Integration initialisieren
