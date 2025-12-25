@@ -65,13 +65,21 @@ Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwa
 - `[dbp_user_playlists]` - **NEU:** Playlists des aktuellen Users
 
 ### Admin-Bereich
+- **NEU (v1.2.0):** Eigenes Top-Level Admin-Menü "Music Hub"
+- **NEU (v1.2.0):** Dashboard mit Statistiken und Quick Actions
+- **NEU (v1.2.0):** Audio-Manager mit professioneller Data-Table
+- **NEU (v1.2.0):** Bulk-Upload mit Drag & Drop und ID3-Import
+- **NEU (v1.2.0):** WooCommerce-Sync Dashboard
+- **NEU (v1.2.0):** Kategorien & Genres Manager
 - Übersichtliche Meta Boxes für Audio-Details
-- **NEU:** Playlist-Editor mit Drag & Drop und AJAX-Suche
+- Playlist-Editor mit Drag & Drop und AJAX-Suche (v1.1.0)
 - WordPress Media Uploader für Audio-Dateien
 - Color Picker für Player-Anpassung
 - Einstellungs-Seite unter "Einstellungen → DBP Music Hub"
-- **NEU:** Playlist-Einstellungen (Auto-Play, Shuffle, Max Tracks)
-- **NEU:** Waveform-Einstellungen (Farben, Höhe, Normalisierung)
+- Playlist-Einstellungen (Auto-Play, Shuffle, Max Tracks) (v1.1.0)
+- Waveform-Einstellungen (Farben, Höhe, Normalisierung) (v1.1.0)
+- Upload-Einstellungen (Dateigröße, Formate, ID3-Import) (v1.2.0)
+- WooCommerce-Sync Einstellungen (v1.2.0)
 - Deutsche Übersetzung (i18n-ready)
 
 ## 📋 Systemanforderungen
@@ -371,6 +379,93 @@ A: Gehe zu "Playlists → Neue hinzufügen", gib einen Titel ein, suche nach Aud
 A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleibt erhalten.
 
 ## 📋 Changelog
+
+### Version 1.2.0 (2025-12-25)
+
+#### Neue Features - Custom Admin-Bereich
+- ✅ **Eigenes Top-Level Admin-Menü** - "Music Hub" mit eigenem Icon
+- ✅ **Dashboard mit Statistiken** - Übersicht über Audio-Dateien, Playlists, Produkte und Speicherplatz
+- ✅ **Audio-Manager mit Data-Table** - Professionelle Tabelle mit Sortierung, Filterung und Inline-Editing
+- ✅ **Bulk-Upload mit Drag & Drop** - Mehrere Audio-Dateien gleichzeitig hochladen
+- ✅ **ID3-Tag Auto-Import** - Automatisches Auslesen von Metadaten aus Audio-Dateien
+- ✅ **WooCommerce-Sync Dashboard** - Zentrale Verwaltung der WooCommerce-Integration
+- ✅ **Kategorien & Genres Manager** - Einfache Verwaltung von Taxonomien
+- ✅ **AJAX-Powered Interface** - Schnelle Interaktionen ohne Page-Reload
+- ✅ **Responsive Admin-Design** - Optimiert für Desktop und Mobile
+
+#### Admin-Menü Struktur
+```
+🎵 DBP Music Hub (Top-Level Menü)
+├── 📊 Dashboard
+├── 🎵 Audio-Dateien
+├── 📤 Bulk Upload
+├── 📝 Playlists
+├── 🛒 WooCommerce Sync
+├── 🏷️ Kategorien & Genres
+└── ⚙️ Einstellungen
+```
+
+#### Dashboard Features
+- Statistik-Karten mit Audio-Count, Playlist-Count, Produkt-Count und Speicherplatz
+- Letzte Uploads mit Quick-Actions
+- Top-verkaufte Tracks (bei WooCommerce-Integration)
+- Quick Actions für häufige Aufgaben
+- Aktivitäts-Feed mit letzten Änderungen
+
+#### Audio-Manager Features
+- WP_List_Table mit Sortierung nach allen Spalten
+- Filter nach Genre, Kategorie und WooCommerce-Status
+- Suche nach Titel, Künstler und Album
+- Bulk-Actions: Löschen, WC-Produkte erstellen, Taxonomien zuweisen
+- Inline-Editing für schnelle Änderungen
+- 20 Items pro Seite mit Pagination
+
+#### Bulk-Upload Features
+- Drag & Drop Upload-Zone
+- Parallele Uploads (konfigurierbar: 1-10 gleichzeitig)
+- ID3-Tag Import (Titel, Künstler, Album, Jahr, Genre)
+- Standard-Einstellungen für Genre, Kategorie, Preis und Lizenz
+- Auto-Erstellung von WooCommerce-Produkten (optional)
+- Fortschrittsanzeige mit Datei-Status
+- Upload-Queue Management
+
+#### WooCommerce-Sync Features
+- Übersichts-Statistiken (mit Produkt, ohne Produkt, verwaiste Produkte)
+- Sync-Tabelle mit Status-Icons
+- Bulk-Actions: Alle Produkte erstellen/synchronisieren/löschen
+- Einzelne Sync-Actions pro Audio-Datei
+- Letzte Synchronisation Timestamp
+- Real-Time Status-Updates
+
+#### Kategorien & Genres Manager
+- 3-Spalten-Layout für Kategorien, Tags und Genres
+- Term-Statistiken mit Top 5
+- Quick-Add und Quick-Delete
+- Bulk-Zuweisung mit Audio-Suche
+- AJAX-Search für Audio-Dateien
+- Inline-Bearbeitung von Terms
+
+#### Neue Einstellungen
+**Upload-Einstellungen:**
+- Max. Dateigröße (MB)
+- Erlaubte Formate (MP3, WAV, FLAC, OGG, M4A)
+- ID3-Tags automatisch importieren
+- Max. parallele Uploads
+
+**WooCommerce-Sync:**
+- Auto-Sync bei Audio-Save
+- Kategorien automatisch übernehmen
+- Tags automatisch übernehmen
+- Standard-Produkt-Status (veröffentlicht/Entwurf/ausstehend)
+
+#### Technische Verbesserungen
+- AJAX-basierte Admin-Interaktionen
+- Plupload Integration für zuverlässige Uploads
+- jsmediatags Library für Client-Side ID3-Parsing
+- getID3 (WordPress Core) für Server-Side ID3-Parsing
+- Responsive CSS mit Mobile-First Approach
+- WordPress Coding Standards
+- Vollständige i18n-Unterstützung (Deutsch)
 
 ### Version 1.1.0 (2025-12-25)
 

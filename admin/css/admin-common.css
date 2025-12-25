@@ -1,0 +1,233 @@
+/* DBP Music Hub - Common Admin Styles */
+
+/* Gemeinsame Admin-Styles */
+.dbp-dashboard,
+.dbp-wc-sync-dashboard,
+.dbp-taxonomy-manager,
+.dbp-bulk-upload-page {
+	max-width: 1400px;
+}
+
+/* Statistik-Karten */
+.dbp-dashboard-stats,
+.dbp-sync-stats,
+.dbp-taxonomy-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+	margin: 30px 0;
+}
+
+.dbp-stat-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 20px;
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dbp-stat-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dbp-stat-card.dbp-stat-success {
+	border-left: 4px solid #46b450;
+}
+
+.dbp-stat-card.dbp-stat-error {
+	border-left: 4px solid #dc3232;
+}
+
+.dbp-stat-card.dbp-stat-warning {
+	border-left: 4px solid #ffb900;
+}
+
+.dbp-stat-icon {
+	font-size: 48px;
+	color: #2271b1;
+	line-height: 1;
+}
+
+.dbp-stat-icon .dashicons {
+	width: 48px;
+	height: 48px;
+	font-size: 48px;
+}
+
+.dbp-stat-content h3 {
+	margin: 0;
+	font-size: 32px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.dbp-stat-content p {
+	margin: 5px 0 0;
+	color: #646970;
+	font-size: 14px;
+}
+
+/* Dashboard-Grid */
+.dbp-dashboard-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: 20px;
+	margin-top: 30px;
+}
+
+.dbp-dashboard-widget {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-widget-header {
+	padding: 15px 20px;
+	border-bottom: 1px solid #ddd;
+	background: #f9f9f9;
+	border-radius: 5px 5px 0 0;
+}
+
+.dbp-widget-header h2 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.dbp-widget-content {
+	padding: 20px;
+}
+
+/* Tabellen */
+.dbp-dashboard-widget table.widefat {
+	border: none;
+}
+
+.dbp-dashboard-widget table.widefat td {
+	padding: 10px;
+}
+
+.dbp-dashboard-widget .dbp-thumbnail {
+	width: 50px;
+}
+
+.dbp-dashboard-widget .dbp-thumbnail img {
+	display: block;
+	width: 50px;
+	height: 50px;
+	object-fit: cover;
+	border-radius: 3px;
+}
+
+/* Quick Actions */
+.dbp-quick-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.dbp-quick-actions .button-hero {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 15px 30px;
+	font-size: 16px;
+	height: auto;
+	text-align: center;
+}
+
+.dbp-quick-actions .button-hero .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+/* Aktivitäts-Liste */
+.dbp-activity-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.dbp-activity-list li {
+	padding: 12px 0;
+	border-bottom: 1px solid #f0f0f1;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.dbp-activity-list li:last-child {
+	border-bottom: none;
+}
+
+.dbp-activity-icon {
+	color: #2271b1;
+}
+
+.dbp-activity-text {
+	flex: 1;
+}
+
+.dbp-activity-time {
+	color: #646970;
+	font-size: 12px;
+}
+
+/* Count Badges */
+.dbp-count-badge {
+	display: inline-block;
+	background: #2271b1;
+	color: #fff;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 600;
+	margin-left: 5px;
+}
+
+/* Loading Spinner */
+.dbp-loading {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 3px solid #f3f3f3;
+	border-top: 3px solid #2271b1;
+	border-radius: 50%;
+	animation: dbp-spin 1s linear infinite;
+}
+
+@keyframes dbp-spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+/* Responsive */
+@media screen and (max-width: 1024px) {
+	.dbp-dashboard-stats,
+	.dbp-sync-stats {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	
+	.dbp-dashboard-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.dbp-dashboard-stats,
+	.dbp-sync-stats {
+		grid-template-columns: 1fr;
+	}
+}

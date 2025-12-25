@@ -1,0 +1,150 @@
+/* DBP Music Hub - Audio Manager Styles */
+
+/* Filter Bar */
+.dbp-audio-manager .tablenav.top {
+	margin-bottom: 20px;
+}
+
+.dbp-audio-manager .tablenav select {
+	margin-right: 10px;
+}
+
+/* Thumbnail Column */
+.widefat .column-thumbnail {
+	width: 60px;
+	text-align: center;
+}
+
+.widefat .column-thumbnail img,
+.widefat .column-thumbnail .dashicons {
+	width: 50px;
+	height: 50px;
+	border-radius: 3px;
+	object-fit: cover;
+}
+
+.widefat .column-thumbnail .dashicons {
+	color: #ddd;
+	display: block;
+	margin: 0 auto;
+}
+
+/* WC Product Status Column */
+.widefat .column-wc_product {
+	width: 120px;
+}
+
+.widefat .column-wc_product .dashicons {
+	vertical-align: middle;
+	margin-right: 5px;
+}
+
+/* Duration, Price Columns */
+.widefat .column-duration,
+.widefat .column-price {
+	width: 80px;
+}
+
+/* Genre Column */
+.widefat .column-genre {
+	width: 120px;
+}
+
+/* Date Column */
+.widefat .column-date {
+	width: 120px;
+}
+
+/* Row Hover */
+.widefat tbody tr:hover {
+	background-color: #f6f7f7;
+}
+
+/* Inline Edit Row */
+.widefat .inline-edit-row {
+	background: #f9f9f9;
+}
+
+.widefat .inline-edit-row .inline-edit-col {
+	padding: 15px;
+}
+
+.widefat .inline-edit-row label {
+	display: block;
+	margin-bottom: 10px;
+}
+
+.widefat .inline-edit-row input[type="text"],
+.widefat .inline-edit-row input[type="number"],
+.widefat .inline-edit-row select {
+	width: 100%;
+	max-width: 300px;
+}
+
+/* Quick Edit Actions */
+.inline-edit-save {
+	padding: 10px;
+	border-top: 1px solid #ddd;
+}
+
+/* Loading State */
+.dbp-audio-manager-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.dbp-audio-manager-loading::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 40px;
+	height: 40px;
+	margin: -20px 0 0 -20px;
+	border: 4px solid #f3f3f3;
+	border-top: 4px solid #2271b1;
+	border-radius: 50%;
+	animation: dbp-spin 1s linear infinite;
+}
+
+/* Empty State */
+.widefat .no-items td {
+	text-align: center;
+	padding: 40px;
+	color: #646970;
+}
+
+/* Bulk Action Notice */
+.dbp-bulk-notice {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-left: 4px solid #2271b1;
+	padding: 15px 20px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	z-index: 1000;
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+	.widefat .column-thumbnail,
+	.widefat .column-album,
+	.widefat .column-genre,
+	.widefat .column-duration {
+		display: none;
+	}
+}
