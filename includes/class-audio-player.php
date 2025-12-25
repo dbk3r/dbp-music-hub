@@ -101,6 +101,7 @@ class DBP_Audio_Player {
 		// Player HTML
 		ob_start();
 		?>
+		<div class="dbp-audio-player-wrapper">
 		<div class="dbp-audio-player" data-audio-id="<?php echo esc_attr( $audio_id ); ?>">
 			<audio class="dbp-audio-element" preload="metadata">
 				<source src="<?php echo esc_url( $player_file ); ?>" type="audio/mpeg">
@@ -153,6 +154,7 @@ class DBP_Audio_Player {
 			</div>
 			<?php endif; ?>
 		</div>
+		</div>
 		<?php
 		$html = ob_get_clean();
 
@@ -182,6 +184,7 @@ class DBP_Audio_Player {
 
 		ob_start();
 		?>
+		<div class="dbp-waveform-player-wrapper">
 		<div class="dbp-waveform-player" data-audio-id="<?php echo esc_attr( $audio_id ); ?>" data-audio-url="<?php echo esc_url( $player_file ); ?>">
 			<div class="dbp-waveform-info">
 				<h4 class="dbp-waveform-title"><?php echo esc_html( $title ); ?></h4>
@@ -233,6 +236,7 @@ class DBP_Audio_Player {
 				<?php esc_html_e( 'Dies ist eine Vorschau. Die vollständige Version ist nach dem Kauf verfügbar.', 'dbp-music-hub' ); ?>
 			</div>
 			<?php endif; ?>
+		</div>
 		</div>
 		<?php
 

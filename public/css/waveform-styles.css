@@ -3,6 +3,45 @@
  * Styling für WaveSurfer.js Waveform-Player
  */
 
+/* Container mit max-width für Waveform-Player */
+.dbp-waveform-player-wrapper {
+	max-width: 800px;
+	margin: 0 auto;
+	width: 100%;
+	padding: 20px 0;
+}
+
+.dbp-waveform-container {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.dbp-waveform-controls {
+	max-width: 800px;
+	margin: 10px auto 0;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 820px) {
+	.dbp-waveform-player-wrapper {
+		max-width: 100%;
+		padding: 20px 15px;
+	}
+}
+
+@media (max-width: 480px) {
+	.dbp-waveform-container {
+		height: 80px !important;
+	}
+	
+	.dbp-waveform-controls {
+		flex-wrap: wrap;
+	}
+}
+
 /* Waveform Player Container */
 .dbp-waveform-player {
 	background: #fff;

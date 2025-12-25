@@ -458,6 +458,29 @@ class DBP_Audio_Shortcodes {
 					echo '<div class="dbp-search-results" style="margin-top: 30px;">';
 					echo '<h3>' . esc_html__( 'Suchergebnisse:', 'dbp-music-hub' ) . ' ' . esc_html( $search_query->found_posts ) . '</h3>';
 					
+					// Audio-IDs sammeln für Playlist-Button
+					$audio_ids = array();
+					while ( $search_query->have_posts() ) {
+						$search_query->the_post();
+						if ( get_post_type() === 'dbp_audio' ) {
+							$audio_ids[] = get_the_ID();
+						}
+					}
+					wp_reset_postdata();
+					
+					// Playlist-Button anzeigen wenn Playlists aktiviert und Audio-IDs vorhanden
+					if ( ! empty( $audio_ids ) && get_option( 'dbp_enable_playlists', true ) ) {
+						echo '<div class="dbp-search-actions" style="margin-bottom: 20px;">';
+						echo sprintf(
+							'<button class="dbp-save-search-playlist button button-primary" data-audio-ids="%s" data-search-term="%s" data-nonce="%s">%s</button>',
+							esc_attr( implode( ',', $audio_ids ) ),
+							esc_attr( $current_search ),
+							wp_create_nonce( 'dbp_search_playlist_nonce' ),
+							esc_html__( 'Als Playlist speichern', 'dbp-music-hub' )
+						);
+						echo '</div>';
+					}
+					
 					// Shortcode für Liste nutzen
 					$list_atts = array(
 						'category' => $current_category,
@@ -467,6 +490,48 @@ class DBP_Audio_Shortcodes {
 					echo do_shortcode( '[dbp_audio_list ' . http_build_query( $list_atts, '', ' ' ) . ']' );
 					
 					echo '</div>';
+					
+					// JavaScript für Playlist-Button
+					if ( ! empty( $audio_ids ) && get_option( 'dbp_enable_playlists', true ) ) {
+						?>
+						<script>
+						jQuery(document).ready(function($) {
+							$(".dbp-save-search-playlist").on("click", function() {
+								var button = $(this);
+								var audioIds = button.data("audio-ids").toString().split(",");
+								var searchTerm = button.data("search-term");
+								var nonce = button.data("nonce");
+								
+								button.prop("disabled", true).text("<?php echo esc_js__( 'Wird gespeichert...', 'dbp-music-hub' ); ?>");
+								
+								$.ajax({
+									url: "<?php echo admin_url( 'admin-ajax.php' ); ?>",
+									type: "POST",
+									data: {
+										action: "dbp_save_search_playlist",
+										audio_ids: audioIds,
+										search_term: searchTerm,
+										nonce: nonce
+									},
+									success: function(response) {
+										if (response.success) {
+											alert(response.data.message);
+											window.location.href = response.data.edit_url;
+										} else {
+											alert(response.data.message);
+											button.prop("disabled", false).text("<?php echo esc_js__( 'Als Playlist speichern', 'dbp-music-hub' ); ?>");
+										}
+									},
+									error: function() {
+										alert("<?php echo esc_js__( 'Fehler beim Speichern', 'dbp-music-hub' ); ?>");
+										button.prop("disabled", false).text("<?php echo esc_js__( 'Als Playlist speichern', 'dbp-music-hub' ); ?>");
+									}
+								});
+							});
+						});
+						</script>
+						<?php
+					}
 				} else {
 					echo '<div class="dbp-no-results" style="margin-top: 20px;">';
 					echo '<p>' . esc_html__( 'Keine Ergebnisse gefunden.', 'dbp-music-hub' ) . '</p>';

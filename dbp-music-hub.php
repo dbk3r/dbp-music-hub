@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.2.0' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.2.1' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -79,27 +79,19 @@ class DBP_Music_Hub {
 		// Waveform-Klasse (v1.1.0)
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-waveform-generator.php';
 
-		// Admin-Klassen später laden (bei admin_menu), damit WP-Admin-Funktionen vorhanden sind
+		// Search-to-Playlist (v1.2.1)
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-search-playlist.php';
+
+		// Admin-Klassen IMMER laden wenn is_admin(), aber FRÜH (nicht erst bei admin_menu)
 		if ( is_admin() ) {
-			add_action( 'admin_menu', array( $this, 'load_admin_dependencies' ) );
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-menu.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-dashboard.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-audio-manager.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
 		}
-	}
-
-	/**
-	 * Admin-Abhängigkeiten laden (auf admin_menu)
-	 */
-	public function load_admin_dependencies() {
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-menu.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-dashboard.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-audio-manager.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
-
-		// Admin-Instanzen erstellen (erst nach Laden der Klassen)
-		new DBP_Admin_Settings();
-		new DBP_Admin_Menu();
 	}
 
 	/**
@@ -157,9 +149,13 @@ class DBP_Music_Hub {
 			new DBP_Playlist_Shortcodes();
 		}
 
-		// Admin-Einstellungen initialisieren
+		// Search-to-Playlist initialisieren (v1.2.1)
+		new DBP_Search_Playlist();
+
+		// Admin-Einstellungen und Menü initialisieren
 		if ( is_admin() ) {
-			// Admin-Klassen werden bei 'admin_menu' geladen und instanziiert
+			new DBP_Admin_Settings();
+			new DBP_Admin_Menu();
 		}
 
 		// Hook für Erweiterungen
