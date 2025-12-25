@@ -28,24 +28,69 @@ class DBP_Audio_Search {
 	 * @param WP_Query $query WordPress Query-Objekt.
 	 */
 	public function modify_search_query( $query ) {
-		// Nur Frontend-Suche
-		if ( is_admin() || ! $query->is_search() || ! $query->is_main_query() ) {
-			return;
+		// Nur bei Frontend-Suche, nicht im Admin
+		if ( ! is_admin() && $query->is_search() && $query->is_main_query() ) {
+			
+			// dbp_audio und dbp_playlist zu Post-Types hinzufügen
+			$post_types = $query->get( 'post_type' );
+			
+			if ( empty( $post_types ) ) {
+				$post_types = array( 'post', 'page', 'dbp_audio', 'dbp_playlist' );
+			} elseif ( is_array( $post_types ) ) {
+				$post_types[] = 'dbp_audio';
+				$post_types[] = 'dbp_playlist';
+			}
+			
+			$query->set( 'post_type', $post_types );
+			
+			// Meta-Query für Künstler und Album
+			$search_term = $query->get( 's' );
+			
+			if ( ! empty( $search_term ) ) {
+				$meta_query = array(
+					'relation' => 'OR',
+					array(
+						'key'     => 'dbp_artist',
+						'value'   => $search_term,
+						'compare' => 'LIKE',
+					),
+					array(
+						'key'     => 'dbp_album',
+						'value'   => $search_term,
+						'compare' => 'LIKE',
+					),
+				);
+				
+				$query->set( 'meta_query', $meta_query );
+			}
+			
+			// Tax-Query für Genre, Kategorie, Tags
+			$tax_query = array(
+				'relation' => 'OR',
+				array(
+					'taxonomy' => 'dbp_audio_genre',
+					'field'    => 'name',
+					'terms'    => $search_term,
+					'operator' => 'LIKE',
+				),
+				array(
+					'taxonomy' => 'dbp_audio_category',
+					'field'    => 'name',
+					'terms'    => $search_term,
+					'operator' => 'LIKE',
+				),
+				array(
+					'taxonomy' => 'dbp_audio_tag',
+					'field'    => 'name',
+					'terms'    => $search_term,
+					'operator' => 'LIKE',
+				),
+			);
+			
+			$query->set( 'tax_query', $tax_query );
 		}
-
-		// Audio Post Type zur Suche hinzufügen
-		$post_types = $query->get( 'post_type' );
 		
-		if ( empty( $post_types ) ) {
-			$post_types = array( 'post', 'page', 'dbp_audio' );
-		} elseif ( is_array( $post_types ) ) {
-			$post_types[] = 'dbp_audio';
-		}
-
-		$query->set( 'post_type', $post_types );
-
-		// Hook für weitere Anpassungen
-		do_action( 'dbp_audio_search_query_modified', $query );
+		return $query;
 	}
 
 	/**

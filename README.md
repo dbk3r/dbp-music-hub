@@ -380,6 +380,25 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+### Version 1.2.1 (2025-12-25)
+
+#### Bugfixes
+- 🐛 **Admin-Menü Fix**: Custom Admin-Bereich "Music Hub" wird jetzt korrekt in WordPress-Seitenleiste angezeigt
+- 🐛 **Waveform-Player**: Flackern behoben durch Initialisierungs-Check und Cleanup
+- 🐛 **Player-Breite**: max-width 800px, responsive & zentriert (Desktop + Mobile)
+- 🐛 **Such-Funktion**: Audio-Dateien werden jetzt korrekt in Suchergebnissen gefunden
+
+#### Neue Features
+- ✨ **Search-to-Playlist**: Button "Als Playlist speichern" bei Suchergebnissen
+- ✨ Suchergebnisse können direkt als Playlist gespeichert werden
+- ✨ Temporäre Session-Playlists für schnellen Zugriff
+
+#### Technische Verbesserungen
+- Admin-Klassen werden jetzt früher geladen (bei `plugins_loaded` statt `admin_menu`)
+- WaveSurfer.js Initialisierung verbessert mit Cleanup
+- Responsive CSS für Player auf allen Geräten
+- Meta-Query und Tax-Query für verbesserte Suche
+
 ### Version 1.2.0 (2025-12-25)
 
 #### Neue Features - Custom Admin-Bereich
