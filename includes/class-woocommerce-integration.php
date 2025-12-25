@@ -23,14 +23,14 @@ class DBP_WooCommerce_Integration {
 			return;
 		}
 
-		// Nur wenn WooCommerce-Integration aktiviert ist
-		if ( ! get_option( 'dbp_enable_woocommerce', true ) ) {
-			return;
-		}
-
-		add_action( 'publish_dbp_audio', array( $this, 'create_product_on_publish' ), 10, 2 );
-		add_action( 'save_post_dbp_audio', array( $this, 'sync_product_on_update' ), 20, 2 );
-		add_action( 'before_delete_post', array( $this, 'delete_product_on_delete' ) );
+		// v1.4.0: Auto-product creation removed
+		// Products are now manually assigned to audio variations
+		// Keeping class for backward compatibility and future WooCommerce features
+		
+		// v1.4.0: Removed auto-sync hooks
+		// add_action( 'publish_dbp_audio', array( $this, 'create_product_on_publish' ), 10, 2 );
+		// add_action( 'save_post_dbp_audio', array( $this, 'sync_product_on_update' ), 20, 2 );
+		// add_action( 'before_delete_post', array( $this, 'delete_product_on_delete' ) );
 	}
 
 	/**

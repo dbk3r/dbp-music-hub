@@ -128,15 +128,7 @@ class DBP_Admin_Settings {
 			)
 		);
 
-		register_setting(
-			'dbp_music_hub_settings',
-			'dbp_enable_woocommerce',
-			array(
-				'type'              => 'boolean',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'default'           => true,
-			)
-		);
+		// v1.4.0: Removed dbp_enable_woocommerce setting (auto-product creation removed)
 
 		// Playlist-Einstellungen (v1.1.0)
 		register_setting(
@@ -271,46 +263,7 @@ class DBP_Admin_Settings {
 			)
 		);
 
-		// WooCommerce Sync-Einstellungen (v1.2.0)
-		register_setting(
-			'dbp_music_hub_settings',
-			'dbp_auto_sync_wc',
-			array(
-				'type'              => 'boolean',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'default'           => true,
-			)
-		);
-
-		register_setting(
-			'dbp_music_hub_settings',
-			'dbp_sync_categories',
-			array(
-				'type'              => 'boolean',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'default'           => true,
-			)
-		);
-
-		register_setting(
-			'dbp_music_hub_settings',
-			'dbp_sync_tags',
-			array(
-				'type'              => 'boolean',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'default'           => true,
-			)
-		);
-
-		register_setting(
-			'dbp_music_hub_settings',
-			'dbp_default_product_status',
-			array(
-				'type'              => 'string',
-				'sanitize_callback' => array( $this, 'sanitize_product_status' ),
-				'default'           => 'publish',
-			)
-		);
+		// v1.4.0: Removed WooCommerce auto-sync settings (replaced with manual product/variation assignment)
 
 		// PDF-Einstellungen (v1.3.1)
 		register_setting(
@@ -546,14 +499,7 @@ class DBP_Admin_Settings {
 			'dbp_player_section'
 		);
 
-		// Fields - Integration
-		add_settings_field(
-			'dbp_enable_woocommerce',
-			__( 'WooCommerce-Integration', 'dbp-music-hub' ),
-			array( $this, 'render_woocommerce_field' ),
-			'dbp-music-hub',
-			'dbp_integration_section'
-		);
+		// v1.4.0: Removed dbp_enable_woocommerce field (auto-product creation removed)
 
 		// Fields - Playlist (v1.1.0)
 		add_settings_field(
@@ -662,38 +608,7 @@ class DBP_Admin_Settings {
 			'dbp_upload_section'
 		);
 
-		// Fields - WooCommerce Sync (v1.2.0)
-		add_settings_field(
-			'dbp_auto_sync_wc',
-			__( 'Auto-Sync bei Audio-Save', 'dbp-music-hub' ),
-			array( $this, 'render_auto_sync_wc_field' ),
-			'dbp-music-hub',
-			'dbp_wc_sync_section'
-		);
-
-		add_settings_field(
-			'dbp_sync_categories',
-			__( 'Kategorien übernehmen', 'dbp-music-hub' ),
-			array( $this, 'render_sync_categories_field' ),
-			'dbp-music-hub',
-			'dbp_wc_sync_section'
-		);
-
-		add_settings_field(
-			'dbp_sync_tags',
-			__( 'Tags übernehmen', 'dbp-music-hub' ),
-			array( $this, 'render_sync_tags_field' ),
-			'dbp-music-hub',
-			'dbp_wc_sync_section'
-		);
-
-		add_settings_field(
-			'dbp_default_product_status',
-			__( 'Standard-Produkt-Status', 'dbp-music-hub' ),
-			array( $this, 'render_product_status_field' ),
-			'dbp-music-hub',
-			'dbp_wc_sync_section'
-		);
+		// v1.4.0: Removed WooCommerce auto-sync fields (replaced with manual product/variation assignment)
 
 		// Fields - License PDF (v1.3.1)
 		add_settings_field(
@@ -977,28 +892,7 @@ class DBP_Admin_Settings {
 		<?php
 	}
 
-	/**
-	 * WooCommerce-Feld rendern
-	 */
-	public function render_woocommerce_field() {
-		$value    = get_option( 'dbp_enable_woocommerce', true );
-		$wc_active = class_exists( 'WooCommerce' );
-		?>
-		<label>
-			<input type="checkbox" name="dbp_enable_woocommerce" id="dbp_enable_woocommerce" value="1" <?php checked( $value, true ); ?> <?php disabled( ! $wc_active ); ?> />
-			<?php esc_html_e( 'WooCommerce-Integration aktivieren', 'dbp-music-hub' ); ?>
-		</label>
-		<?php if ( ! $wc_active ) : ?>
-		<p class="description" style="color: #d63638;">
-			<?php esc_html_e( 'WooCommerce ist nicht installiert oder aktiviert.', 'dbp-music-hub' ); ?>
-		</p>
-		<?php else : ?>
-		<p class="description">
-			<?php esc_html_e( 'Erstellt automatisch WooCommerce-Produkte für Audio-Dateien.', 'dbp-music-hub' ); ?>
-		</p>
-		<?php endif; ?>
-		<?php
-	}
+	// v1.4.0: Removed render_woocommerce_field() - auto-product creation removed
 
 	/**
 	 * Enable Playlists Feld rendern (v1.1.0)
@@ -1209,70 +1103,7 @@ class DBP_Admin_Settings {
 		<?php
 	}
 
-	/**
-	 * Auto Sync WC Feld rendern (v1.2.0)
-	 */
-	public function render_auto_sync_wc_field() {
-		$value = get_option( 'dbp_auto_sync_wc', true );
-		?>
-		<label>
-			<input type="checkbox" name="dbp_auto_sync_wc" id="dbp_auto_sync_wc" value="1" <?php checked( $value, true ); ?> />
-			<?php esc_html_e( 'Automatische Synchronisation aktivieren', 'dbp-music-hub' ); ?>
-		</label>
-		<p class="description">
-			<?php esc_html_e( 'Synchronisiert WooCommerce-Produkte automatisch beim Speichern von Audio-Dateien.', 'dbp-music-hub' ); ?>
-		</p>
-		<?php
-	}
-
-	/**
-	 * Sync Categories Feld rendern (v1.2.0)
-	 */
-	public function render_sync_categories_field() {
-		$value = get_option( 'dbp_sync_categories', true );
-		?>
-		<label>
-			<input type="checkbox" name="dbp_sync_categories" id="dbp_sync_categories" value="1" <?php checked( $value, true ); ?> />
-			<?php esc_html_e( 'Kategorien automatisch übernehmen', 'dbp-music-hub' ); ?>
-		</label>
-		<p class="description">
-			<?php esc_html_e( 'Überträgt Audio-Kategorien als WooCommerce-Produktkategorien.', 'dbp-music-hub' ); ?>
-		</p>
-		<?php
-	}
-
-	/**
-	 * Sync Tags Feld rendern (v1.2.0)
-	 */
-	public function render_sync_tags_field() {
-		$value = get_option( 'dbp_sync_tags', true );
-		?>
-		<label>
-			<input type="checkbox" name="dbp_sync_tags" id="dbp_sync_tags" value="1" <?php checked( $value, true ); ?> />
-			<?php esc_html_e( 'Tags automatisch übernehmen', 'dbp-music-hub' ); ?>
-		</label>
-		<p class="description">
-			<?php esc_html_e( 'Überträgt Audio-Tags als WooCommerce-Produkt-Tags.', 'dbp-music-hub' ); ?>
-		</p>
-		<?php
-	}
-
-	/**
-	 * Product Status Feld rendern (v1.2.0)
-	 */
-	public function render_product_status_field() {
-		$value = get_option( 'dbp_default_product_status', 'publish' );
-		?>
-		<select name="dbp_default_product_status" id="dbp_default_product_status">
-			<option value="publish" <?php selected( $value, 'publish' ); ?>><?php esc_html_e( 'Veröffentlicht', 'dbp-music-hub' ); ?></option>
-			<option value="draft" <?php selected( $value, 'draft' ); ?>><?php esc_html_e( 'Entwurf', 'dbp-music-hub' ); ?></option>
-			<option value="pending" <?php selected( $value, 'pending' ); ?>><?php esc_html_e( 'Ausstehend', 'dbp-music-hub' ); ?></option>
-		</select>
-		<p class="description">
-			<?php esc_html_e( 'Standard-Status für neu erstellte WooCommerce-Produkte.', 'dbp-music-hub' ); ?>
-		</p>
-		<?php
-	}
+	// v1.4.0: Removed render methods for auto-sync fields (manual product/variation assignment now used)
 
 	/**
 	 * Formats sanitizen (v1.2.0)

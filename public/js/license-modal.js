@@ -87,10 +87,18 @@
 		// Add-to-Cart-Buttons in Modal
 		$('.dbp-license-add-to-cart-btn').on('click', function() {
 			var $btn = $(this);
-			var audioId = $btn.data('audio-id');
-			var licenseId = $btn.data('license-id');
-
-			addToCartWithLicense(audioId, licenseId, $btn);
+			
+			// v1.4.0: Check if this is a variation-based button
+			if ($btn.hasClass('dbp-variation-add-to-cart-btn')) {
+				var productId = $btn.data('product-id');
+				var variationId = $btn.data('variation-id');
+				addToCartWithVariation(productId, variationId, $btn);
+			} else {
+				// Legacy license system
+				var audioId = $btn.data('audio-id');
+				var licenseId = $btn.data('license-id');
+				addToCartWithLicense(audioId, licenseId, $btn);
+			}
 		});
 	}
 
@@ -134,6 +142,56 @@
 					}, 1000);
 				} else {
 					showNotification(response.data.message || dbpLicenseModal.error, 'error');
+					$btn.prop('disabled', false).removeClass('loading').text(originalText);
+				}
+			},
+			error: function() {
+				showNotification(dbpLicenseModal.error, 'error');
+				$btn.prop('disabled', false).removeClass('loading').text(originalText);
+			}
+		});
+	}
+
+	/**
+	 * v1.4.0: In den Warenkorb legen mit Variation
+	 *
+	 * @param {number} productId   Product ID
+	 * @param {number} variationId Variation ID
+	 * @param {jQuery} $btn        Button-Element
+	 */
+	function addToCartWithVariation(productId, variationId, $btn) {
+		if (!productId || !variationId) {
+			showNotification(dbpLicenseModal.selectLicense, 'error');
+			return;
+		}
+
+		// Button deaktivieren
+		$btn.prop('disabled', true).addClass('loading');
+		var originalText = $btn.text();
+		$btn.text(dbpLicenseModal.loading);
+
+		$.ajax({
+			url: dbpLicenseModal.ajaxUrl,
+			type: 'POST',
+			data: {
+				action: 'woocommerce_add_to_cart',
+				product_id: productId,
+				variation_id: variationId,
+				quantity: 1
+			},
+			success: function(response) {
+				if (response && !response.error) {
+					showNotification(dbpLicenseModal.addedToCart, 'success');
+					
+					// Mini-Cart aktualisieren (WooCommerce)
+					$(document.body).trigger('wc_fragment_refresh');
+					
+					// Modal schließen
+					setTimeout(function() {
+						closeLicenseModal();
+					}, 1000);
+				} else {
+					showNotification(response.error || dbpLicenseModal.error, 'error');
 					$btn.prop('disabled', false).removeClass('loading').text(originalText);
 				}
 			},

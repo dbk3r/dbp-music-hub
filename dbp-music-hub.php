@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.3.8
+ * Version: 1.4.0
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.3.8' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.4.0' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -120,6 +120,11 @@ class DBP_Music_Hub {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-license-manager.php';
 		}
 
+		// Product Audio Manager (v1.4.0) - Load wenn WooCommerce aktiv ist
+		if ( class_exists( 'WooCommerce' ) ) {
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-product-audio-manager.php';
+		}
+
 		// Admin-Instanzen erstellen (erst nach Laden der Klassen)
 		new DBP_Admin_Settings();
 
@@ -138,6 +143,11 @@ class DBP_Music_Hub {
 		// License Manager initialisieren (v1.3.6) - nach Menu-Registrierung! 
 		if ( class_exists( 'WooCommerce' ) ) {
 			new DBP_License_Manager();
+		}
+
+		// Product Audio Manager initialisieren (v1.4.0)
+		if ( class_exists( 'WooCommerce' ) && class_exists( 'DBP_Product_Audio_Manager' ) ) {
+			new DBP_Product_Audio_Manager();
 		}
 	}
 
@@ -270,10 +280,11 @@ function dbp_music_hub_activate() {
 	add_option( 'dbp_allowed_formats', array( 'mp3', 'wav', 'flac', 'ogg' ) );
 	add_option( 'dbp_auto_id3_import', true );
 	add_option( 'dbp_parallel_uploads', 3 );
-	add_option( 'dbp_auto_sync_wc', true );
-	add_option( 'dbp_sync_categories', true );
-	add_option( 'dbp_sync_tags', true );
-	add_option( 'dbp_default_product_status', 'publish' );
+	// v1.4.0: Removed auto-sync defaults (manual product/variation assignment now used)
+	// add_option( 'dbp_auto_sync_wc', true );
+	// add_option( 'dbp_sync_categories', true );
+	// add_option( 'dbp_sync_tags', true );
+	// add_option( 'dbp_default_product_status', 'publish' );
 
 	// Player Element Toggles (v1.3.8)
 	add_option( 'dbp_player_show_progress', true );

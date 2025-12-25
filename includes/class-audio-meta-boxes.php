@@ -21,6 +21,9 @@ class DBP_Audio_Meta_Boxes {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post_dbp_audio', array( $this, 'save_meta_box' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		
+		// v1.4.0: AJAX handler for loading product variations
+		add_action( 'wp_ajax_dbp_get_product_variations', array( $this, 'ajax_get_product_variations' ) );
 	}
 
 	/**
@@ -56,6 +59,18 @@ class DBP_Audio_Meta_Boxes {
 			'normal',
 			'high'
 		);
+		
+		// v1.4.0: Product/Variation Assignment Meta Box
+		if ( class_exists( 'WooCommerce' ) ) {
+			add_meta_box(
+				'dbp_audio_product_variation',
+				__( 'WooCommerce Produkt & Lizenzmodell', 'dbp-music-hub' ),
+				array( $this, 'render_product_variation_meta_box' ),
+				'dbp_audio',
+				'side',
+				'default'
+			);
+		}
 	}
 
 	/**
@@ -369,7 +384,179 @@ class DBP_Audio_Meta_Boxes {
 			}
 		}
 
+		// v1.4.0: Save Product/Variation Assignment
+		if ( isset( $_POST['dbp_audio_product_variation_nonce'] ) && 
+		     wp_verify_nonce( $_POST['dbp_audio_product_variation_nonce'], 'dbp_audio_product_variation' ) ) {
+			
+			$product_id = isset( $_POST['dbp_assigned_product'] ) ? absint( $_POST['dbp_assigned_product'] ) : 0;
+			$variation_id = isset( $_POST['dbp_assigned_variation'] ) ? absint( $_POST['dbp_assigned_variation'] ) : 0;
+
+			if ( $product_id ) {
+				update_post_meta( $post_id, '_dbp_product_id', $product_id );
+			} else {
+				delete_post_meta( $post_id, '_dbp_product_id' );
+			}
+
+			if ( $variation_id && class_exists( 'WooCommerce' ) ) {
+				update_post_meta( $post_id, '_dbp_variation_id', $variation_id );
+				
+				// Link variation to audio
+				update_post_meta( $variation_id, '_dbp_audio_id', $post_id );
+				
+				// Set downloadable file for variation
+				$audio_file = get_post_meta( $post_id, '_dbp_audio_file_url', true );
+				if ( $audio_file ) {
+					$download_id = md5( $audio_file );
+					update_post_meta( $variation_id, '_downloadable_files', array(
+						$download_id => array(
+							'id'   => $download_id,
+							'name' => get_the_title( $post_id ),
+							'file' => $audio_file,
+						),
+					) );
+					update_post_meta( $variation_id, '_downloadable', 'yes' );
+					update_post_meta( $variation_id, '_virtual', 'yes' );
+				}
+			} else {
+				delete_post_meta( $post_id, '_dbp_variation_id' );
+			}
+		}
+
 		// Hook für zusätzliche Meta-Speicherungen
 		do_action( 'dbp_audio_save_meta_box', $post_id, $post );
+	}
+
+	/**
+	 * Render Product/Variation Assignment Meta Box (v1.4.0)
+	 *
+	 * @param WP_Post $post Aktueller Post.
+	 */
+	public function render_product_variation_meta_box( $post ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			echo '<p>' . esc_html__( 'WooCommerce ist nicht aktiv.', 'dbp-music-hub' ) . '</p>';
+			return;
+		}
+
+		wp_nonce_field( 'dbp_audio_product_variation', 'dbp_audio_product_variation_nonce' );
+
+		$assigned_product_id = get_post_meta( $post->ID, '_dbp_product_id', true );
+		$assigned_variation_id = get_post_meta( $post->ID, '_dbp_variation_id', true );
+
+		// Get all variable products
+		$products = wc_get_products( array(
+			'type'   => 'variable',
+			'limit'  => -1,
+			'status' => array( 'publish', 'draft' ),
+		) );
+
+		?>
+		<div class="dbp-product-variation-assignment">
+			<p>
+				<label for="dbp_assigned_product">
+					<strong><?php esc_html_e( 'Produkt:', 'dbp-music-hub' ); ?></strong>
+				</label>
+				<select name="dbp_assigned_product" id="dbp_assigned_product" class="widefat" style="margin-top: 5px;">
+					<option value=""><?php esc_html_e( '-- Kein Produkt --', 'dbp-music-hub' ); ?></option>
+					<?php foreach ( $products as $product ) : ?>
+						<option value="<?php echo esc_attr( $product->get_id() ); ?>" <?php selected( $assigned_product_id, $product->get_id() ); ?>>
+							<?php echo esc_html( $product->get_name() ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</p>
+
+			<p id="dbp_variation_selector" style="<?php echo empty( $assigned_product_id ) ? 'display:none;' : ''; ?>">
+				<label for="dbp_assigned_variation">
+					<strong><?php esc_html_e( 'Lizenzmodell (Variation):', 'dbp-music-hub' ); ?></strong>
+				</label>
+				<select name="dbp_assigned_variation" id="dbp_assigned_variation" class="widefat" style="margin-top: 5px;">
+					<option value=""><?php esc_html_e( '-- Zuerst Produkt wählen --', 'dbp-music-hub' ); ?></option>
+				</select>
+			</p>
+
+			<p class="description">
+				<?php esc_html_e( 'Weise diese Audio-Datei einem Produkt und Lizenzmodell zu.', 'dbp-music-hub' ); ?>
+			</p>
+		</div>
+
+		<script>
+		jQuery(document).ready(function($) {
+			$('#dbp_assigned_product').on('change', function() {
+				const productId = $(this).val();
+				const $variationSelect = $('#dbp_assigned_variation');
+				const $variationContainer = $('#dbp_variation_selector');
+
+				if (!productId) {
+					$variationContainer.hide();
+					return;
+				}
+
+				// Load variations via AJAX
+				$.ajax({
+					url: ajaxurl,
+					type: 'POST',
+					data: {
+						action: 'dbp_get_product_variations',
+						product_id: productId,
+						nonce: '<?php echo esc_js( wp_create_nonce( 'dbp_get_variations' ) ); ?>'
+					},
+					success: function(response) {
+						if (response.success) {
+							$variationSelect.empty();
+							$variationSelect.append('<option value=""><?php esc_html_e( "-- Lizenzmodell wählen --", "dbp-music-hub" ); ?></option>');
+							
+							response.data.variations.forEach(function(variation) {
+								const selected = variation.id == <?php echo (int) $assigned_variation_id; ?> ? 'selected' : '';
+								$variationSelect.append(
+									'<option value="' + variation.id + '" ' + selected + '>' + 
+									variation.name + ' (' + variation.price + ')' +
+									'</option>'
+								);
+							});
+							
+							$variationContainer.show();
+						}
+					}
+				});
+			});
+
+			// Trigger on page load if product already assigned
+			<?php if ( $assigned_product_id ) : ?>
+			$('#dbp_assigned_product').trigger('change');
+			<?php endif; ?>
+		});
+		</script>
+		<?php
+	}
+
+	/**
+	 * AJAX: Get product variations (v1.4.0)
+	 */
+	public function ajax_get_product_variations() {
+		check_ajax_referer( 'dbp_get_variations', 'nonce' );
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Produkt-ID fehlt', 'dbp-music-hub' ) ) );
+		}
+
+		$product = wc_get_product( $product_id );
+
+		if ( ! $product || $product->get_type() !== 'variable' ) {
+			wp_send_json_error( array( 'message' => __( 'Kein variables Produkt', 'dbp-music-hub' ) ) );
+		}
+
+		$variations = array();
+		foreach ( $product->get_available_variations() as $variation_data ) {
+			$variation = wc_get_product( $variation_data['variation_id'] );
+			$variations[] = array(
+				'id'    => $variation->get_id(),
+				'name'  => implode( ', ', $variation->get_variation_attributes() ),
+				'price' => $variation->get_price_html(),
+			);
+		}
+
+		wp_send_json_success( array( 'variations' => $variations ) );
 	}
 }

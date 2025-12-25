@@ -82,7 +82,7 @@ class DBP_License_Modal {
 	}
 
 	/**
-	 * AJAX: Modal-Inhalt abrufen
+	 * AJAX: Modal-Inhalt abrufen (v1.4.0: Updated for variations)
 	 */
 	public function ajax_get_license_modal() {
 		check_ajax_referer( 'dbp_license_modal_nonce', 'nonce' );
@@ -93,7 +93,16 @@ class DBP_License_Modal {
 			wp_send_json_error( array( 'message' => __( 'Ungültige Audio-ID.', 'dbp-music-hub' ) ) );
 		}
 
-		$html = $this->get_modal_html( $audio_id );
+		// v1.4.0: Check if audio is linked to a product
+		$product_id = get_post_meta( $audio_id, '_dbp_product_id', true );
+
+		if ( $product_id && class_exists( 'WooCommerce' ) ) {
+			// Use new variation-based system
+			$html = $this->get_variation_modal_html( $audio_id, $product_id );
+		} else {
+			// Fallback to license system
+			$html = $this->get_modal_html( $audio_id );
+		}
 
 		wp_send_json_success( array( 'html' => $html ) );
 	}
@@ -267,5 +276,133 @@ class DBP_License_Modal {
 		}
 
 		return $price;
+	}
+
+	/**
+	 * Variation Modal HTML generieren (v1.4.0)
+	 *
+	 * @param int $audio_id   Audio Post ID.
+	 * @param int $product_id Product ID.
+	 * @return string Modal HTML.
+	 */
+	private function get_variation_modal_html( $audio_id, $product_id ) {
+		// Audio-Daten abrufen
+		$audio_title  = get_the_title( $audio_id );
+		$audio_artist = get_post_meta( $audio_id, '_dbp_audio_artist', true );
+		$thumbnail_id = get_post_thumbnail_id( $audio_id );
+		$thumbnail    = $thumbnail_id ? wp_get_attachment_image_url( $thumbnail_id, 'medium' ) : '';
+
+		// Product und Variations abrufen
+		$product = wc_get_product( $product_id );
+
+		if ( ! $product || $product->get_type() !== 'variable' ) {
+			return '<div class="dbp-modal-error"><p>' . esc_html__( 'Kein variables Produkt gefunden.', 'dbp-music-hub' ) . '</p></div>';
+		}
+
+		$variations = $product->get_available_variations();
+
+		if ( empty( $variations ) ) {
+			return '<div class="dbp-modal-error"><p>' . esc_html__( 'Keine Lizenzmodelle verfügbar.', 'dbp-music-hub' ) . '</p></div>';
+		}
+
+		ob_start();
+		?>
+		<div class="dbp-modal-backdrop"></div>
+		<div class="dbp-license-modal">
+			<button class="dbp-modal-close" type="button" aria-label="<?php esc_attr_e( 'Schließen', 'dbp-music-hub' ); ?>">
+				<span>&times;</span>
+			</button>
+
+			<div class="dbp-modal-header">
+				<?php if ( $thumbnail ) : ?>
+					<div class="dbp-modal-thumbnail">
+						<img src="<?php echo esc_url( $thumbnail ); ?>" alt="<?php echo esc_attr( $audio_title ); ?>">
+					</div>
+				<?php endif; ?>
+				<div class="dbp-modal-title-section">
+					<h2 class="dbp-modal-title"><?php echo esc_html( $audio_title ); ?></h2>
+					<?php if ( $audio_artist ) : ?>
+						<p class="dbp-modal-artist"><?php echo esc_html( $audio_artist ); ?></p>
+					<?php endif; ?>
+				</div>
+			</div>
+
+			<div class="dbp-modal-body">
+				<h3 class="dbp-license-selection-title">
+					<?php esc_html_e( 'Wählen Sie Ihre Lizenz', 'dbp-music-hub' ); ?>
+				</h3>
+
+				<div class="dbp-license-cards">
+					<?php 
+					$index = 0;
+					foreach ( $variations as $variation_data ) : 
+						$variation = wc_get_product( $variation_data['variation_id'] );
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in get_variation_card_html()
+						echo $this->get_variation_card_html( $variation, $audio_id, $product_id, $index === 1 );
+						$index++;
+					endforeach; 
+					?>
+				</div>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Variation Card HTML generieren (v1.4.0)
+	 *
+	 * @param WC_Product_Variation $variation  Variation object.
+	 * @param int                  $audio_id   Audio Post ID.
+	 * @param int                  $product_id Product ID.
+	 * @param bool                 $popular    Mark as popular.
+	 * @return string Card HTML.
+	 */
+	private function get_variation_card_html( $variation, $audio_id, $product_id, $popular = false ) {
+		$variation_id   = $variation->get_id();
+		$variation_name = implode( ', ', $variation->get_variation_attributes() );
+		$price          = $variation->get_price();
+		$description    = $variation->get_description();
+		$popular_class  = $popular ? 'popular' : '';
+
+		ob_start();
+		?>
+		<div class="dbp-license-card <?php echo esc_attr( $popular_class ); ?>" 
+			data-variation-id="<?php echo esc_attr( $variation_id ); ?>">
+			
+			<?php if ( $popular ) : ?>
+				<div class="dbp-license-popular-badge">
+					<span>🔥 <?php esc_html_e( 'Beliebt', 'dbp-music-hub' ); ?></span>
+				</div>
+			<?php endif; ?>
+
+			<div class="dbp-license-icon">
+				⚡
+			</div>
+
+			<h4 class="dbp-license-name">
+				<?php echo esc_html( $variation_name ); ?>
+			</h4>
+
+			<div class="dbp-license-price">
+				<?php echo wp_kses_post( $variation->get_price_html() ); ?>
+			</div>
+
+			<?php if ( ! empty( $description ) ) : ?>
+				<p class="dbp-license-description">
+					<?php echo esc_html( $description ); ?>
+				</p>
+			<?php endif; ?>
+
+			<button type="button" 
+				class="dbp-license-add-to-cart-btn dbp-variation-add-to-cart-btn" 
+				data-audio-id="<?php echo esc_attr( $audio_id ); ?>"
+				data-product-id="<?php echo esc_attr( $product_id ); ?>"
+				data-variation-id="<?php echo esc_attr( $variation_id ); ?>">
+				<?php esc_html_e( 'In den Warenkorb', 'dbp-music-hub' ); ?>
+			</button>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 }

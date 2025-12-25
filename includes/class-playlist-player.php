@@ -75,9 +75,24 @@ class DBP_Playlist_Player {
 				continue;
 			}
 
-			$audio_file   = get_post_meta( $audio_id, '_dbp_audio_file_url', true );
-			$preview_file = get_post_meta( $audio_id, '_dbp_audio_preview_file_url', true );
-			$player_file  = ! empty( $preview_file ) ? $preview_file : $audio_file;
+			// v1.4.0: Check if audio is linked to a product with preview
+			$product_id = get_post_meta( $audio_id, '_dbp_product_id', true );
+			$player_file = '';
+
+			if ( $product_id ) {
+				// Try to get preview audio from product
+				$preview_audio_id = get_post_meta( $product_id, '_dbp_preview_audio_id', true );
+				if ( $preview_audio_id ) {
+					$player_file = get_post_meta( $preview_audio_id, '_dbp_audio_file_url', true );
+				}
+			}
+
+			// Fallback: Use audio file directly or preview file
+			if ( empty( $player_file ) ) {
+				$audio_file   = get_post_meta( $audio_id, '_dbp_audio_file_url', true );
+				$preview_file = get_post_meta( $audio_id, '_dbp_audio_preview_file_url', true );
+				$player_file  = ! empty( $preview_file ) ? $preview_file : $audio_file;
+			}
 
 			if ( empty( $player_file ) ) {
 				continue;
