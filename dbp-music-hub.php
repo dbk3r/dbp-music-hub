@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.3.2
+ * Version: 1.3.1
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.3.2' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.3.1' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -91,6 +91,10 @@ class DBP_Music_Hub {
 		if ( class_exists( 'WooCommerce' ) ) {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-modal.php';
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-woocommerce-license.php';
+			
+			// PDF License System (v1.3.1)
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-pdf-generator.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-verification.php';
 		}
 
 		// Admin-Klassen später laden (bei admin_menu), damit WP-Admin-Funktionen vorhanden sind
@@ -198,6 +202,14 @@ class DBP_Music_Hub {
 		}
 		if ( class_exists( 'DBP_WooCommerce_License' ) ) {
 			new DBP_WooCommerce_License();
+		}
+		
+		// PDF License System initialisieren (v1.3.1)
+		if ( class_exists( 'DBP_License_PDF_Generator' ) ) {
+			new DBP_License_PDF_Generator();
+		}
+		if ( class_exists( 'DBP_License_Verification' ) ) {
+			new DBP_License_Verification();
 		}
 
 		// Admin-Einstellungen und Menü werden bei 'admin_menu' geladen/instanziiert
