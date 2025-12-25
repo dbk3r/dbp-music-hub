@@ -412,72 +412,50 @@ class DBP_Audio_Shortcodes {
 					echo '<div class="dbp-search-results">';
 					echo '<div class="dbp-search-results-header">';
 					echo '<h3>' . sprintf( esc_html__( 'Suchergebnisse: %s Treffer', 'dbp-music-hub' ), esc_html( $search_query->found_posts ) ) . '</h3>';
-					
-					// Audio-IDs sammeln für Playlist-Button
-					$audio_ids = wp_list_pluck( $search_query->posts, 'ID' );
-					
-					// Playlist-Button anzeigen wenn Playlists aktiviert und Audio-IDs vorhanden
-					if ( ! empty( $audio_ids ) && get_option( 'dbp_enable_playlists', true ) ) {
-						echo sprintf(
-							'<button class="dbp-save-search-playlist button" data-audio-ids="%s" data-search-term="%s" data-nonce="%s">%s</button>',
-							esc_attr( implode( ',', $audio_ids ) ),
-							esc_attr( $current_search ),
-							esc_attr( wp_create_nonce( 'dbp_search_playlist_nonce' ) ),
-							esc_html__( 'Als Playlist speichern', 'dbp-music-hub' )
-						);
-					}
 					echo '</div>';
 					
-					// Ergebnisse als Grid anzeigen
-					echo '<div class="dbp-search-results-grid">';
-					while ( $search_query->have_posts() ) {
-						$search_query->the_post();
-						$audio_id = get_the_ID();
-						$artist   = get_post_meta( $audio_id, '_dbp_audio_artist', true );
-						$album    = get_post_meta( $audio_id, '_dbp_audio_album', true );
-						$duration = get_post_meta( $audio_id, '_dbp_audio_duration', true );
-						$price    = get_post_meta( $audio_id, '_dbp_audio_price', true );
-						?>
-						<div class="dbp-search-result-card">
-							<?php if ( has_post_thumbnail() ) : ?>
-							<div class="dbp-result-thumbnail">
-								<a href="<?php the_permalink(); ?>">
-									<?php the_post_thumbnail( 'medium' ); ?>
-								</a>
-							</div>
-							<?php endif; ?>
+					// Collect audio IDs for playlist
+					$audio_ids = wp_list_pluck( $search_query->posts, 'ID' );
+					
+					// Create temporary playlist data for the player
+					if ( ! empty( $audio_ids ) ) {
+						// Build tracks array
+						$tracks = array();
+						foreach ( $audio_ids as $audio_id ) {
+							$audio_post = get_post( $audio_id );
+							if ( ! $audio_post || 'publish' !== $audio_post->post_status ) {
+								continue;
+							}
 							
-							<div class="dbp-result-content">
-								<h4 class="dbp-result-title">
-									<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-								</h4>
-								
-								<?php if ( $artist ) : ?>
-								<p class="dbp-result-artist"><?php echo esc_html( $artist ); ?></p>
-								<?php endif; ?>
-								
-								<div class="dbp-result-meta">
-									<?php if ( $album ) : ?>
-									<span class="dbp-result-album"><?php echo esc_html( $album ); ?></span>
-									<?php endif; ?>
-									
-									<?php if ( $duration ) : ?>
-									<span class="dbp-result-duration"><?php echo esc_html( $duration ); ?></span>
-									<?php endif; ?>
-									
-									<?php if ( $price ) : ?>
-									<span class="dbp-result-price"><?php echo esc_html( number_format_i18n( $price, 2 ) ); ?> €</span>
-									<?php endif; ?>
-								</div>
-								
-								<div class="dbp-result-player">
-									<?php echo DBP_Audio_Player::render_player( $audio_id, false ); ?>
-								</div>
-							</div>
-						</div>
-						<?php
+							$audio_file   = get_post_meta( $audio_id, '_dbp_audio_file_url', true );
+							$preview_file = get_post_meta( $audio_id, '_dbp_audio_preview_file_url', true );
+							$player_file  = ! empty( $preview_file ) ? $preview_file : $audio_file;
+							
+							if ( empty( $player_file ) ) {
+								continue;
+							}
+							
+							$thumbnail_id = get_post_thumbnail_id( $audio_id );
+							$thumbnail_url = $thumbnail_id ? wp_get_attachment_image_url( $thumbnail_id, 'thumbnail' ) : '';
+							
+							$tracks[] = array(
+								'id'          => $audio_id,
+								'title'       => get_the_title( $audio_id ),
+								'artist'      => get_post_meta( $audio_id, '_dbp_audio_artist', true ),
+								'album'       => get_post_meta( $audio_id, '_dbp_audio_album', true ),
+								'duration'    => get_post_meta( $audio_id, '_dbp_audio_duration', true ),
+								'url'         => esc_url( $player_file ),
+								'thumbnail'   => $thumbnail_url ? esc_url( $thumbnail_url ) : '',
+								'permalink'   => get_permalink( $audio_id ),
+							);
+						}
+						
+						if ( ! empty( $tracks ) ) {
+							// Render inline playlist player
+							$search_term = ! empty( $current_search ) ? $current_search : __( 'Alle Tracks', 'dbp-music-hub' );
+							echo DBP_Playlist_Player::render_search_results_player( $tracks, $search_term );
+						}
 					}
-					echo '</div>'; // .dbp-search-results-grid
 					
 					// Pagination
 					if ( $search_query->max_num_pages > 1 ) {
@@ -518,50 +496,6 @@ class DBP_Audio_Shortcodes {
 					echo '</div>'; // .dbp-search-results
 					
 					wp_reset_postdata();
-					
-					// JavaScript für Playlist-Button
-					if ( ! empty( $audio_ids ) && get_option( 'dbp_enable_playlists', true ) ) {
-						?>
-						<script>
-						jQuery(document).ready(function($) {
-							$(".dbp-save-search-playlist").on("click", function() {
-								var button = $(this);
-								var audioIds = button.data("audio-ids").toString().split(",");
-								var searchTerm = button.data("search-term");
-								var nonce = button.data("nonce");
-								
-								button.prop("disabled", true).text("<?php echo esc_js( __( 'Wird gespeichert...', 'dbp-music-hub' ) ); ?>");
-								
-								$.ajax({
-									url: "<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>",
-									type: "POST",
-									data: {
-										action: "dbp_save_search_playlist",
-										audio_ids: audioIds,
-										search_term: searchTerm,
-										nonce: nonce
-									},
-									success: function(response) {
-										if (response.success) {
-											alert(response.data.message);
-											if (response.data.edit_url) {
-												window.location.href = response.data.edit_url;
-											}
-										} else {
-											alert(response.data.message || "<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
-											button.prop("disabled", false).text("<?php echo esc_js( __( 'Als Playlist speichern', 'dbp-music-hub' ) ); ?>");
-										}
-									},
-									error: function() {
-										alert("<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
-										button.prop("disabled", false).text("<?php echo esc_js( __( 'Als Playlist speichern', 'dbp-music-hub' ) ); ?>");
-									}
-								});
-							});
-						});
-						</script>
-						<?php
-					}
 				} else {
 					echo '<div class="dbp-no-results">';
 					echo '<p>' . esc_html__( 'Keine Ergebnisse gefunden.', 'dbp-music-hub' ) . '</p>';

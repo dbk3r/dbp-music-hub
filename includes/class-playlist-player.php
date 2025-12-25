@@ -266,7 +266,7 @@ class DBP_Playlist_Player {
 		</div>
 
 		<script type="application/json" class="dbp-playlist-data" data-for="<?php echo esc_attr( $unique_id ); ?>">
-			<?php echo wp_json_encode( $data ); ?>
+			<?php echo wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>
 		</script>
 		<?php
 
@@ -283,5 +283,168 @@ class DBP_Playlist_Player {
 	public static function render_player( $playlist_id, $args = array() ) {
 		$instance = new self();
 		return $instance->get_playlist_html( $playlist_id, $args );
+	}
+
+	/**
+	 * Render search results as a playlist player
+	 *
+	 * @param array  $tracks      Array of track data.
+	 * @param string $search_term Search term for title.
+	 * @return string HTML of the player.
+	 */
+	public static function render_search_results_player( $tracks, $search_term ) {
+		// Validate parameters
+		if ( ! is_array( $tracks ) || empty( $tracks ) ) {
+			return '<p class="dbp-error">' . esc_html__( 'Keine Tracks gefunden.', 'dbp-music-hub' ) . '</p>';
+		}
+		
+		$search_term = is_string( $search_term ) ? $search_term : '';
+		
+		$unique_id = 'dbp-search-playlist-' . uniqid();
+		
+		$data = array(
+			'id'       => 0, // Virtual playlist
+			'title'    => sprintf( __( 'Suchergebnisse: %s', 'dbp-music-hub' ), $search_term ),
+			'tracks'   => $tracks,
+			'autoplay' => false,
+			'shuffle'  => false,
+			'repeat'   => 'off',
+		);
+		
+		ob_start();
+		?>
+		<div class="dbp-playlist-player dbp-search-results-player" 
+			id="<?php echo esc_attr( $unique_id ); ?>" 
+			data-playlist-id="0"
+			data-theme="light"
+			data-autoplay="false"
+			data-shuffle="false"
+			data-repeat="off">
+
+			<div class="dbp-playlist-header">
+				<h3 class="dbp-playlist-title"><?php echo esc_html( $data['title'] ); ?></h3>
+				<div class="dbp-playlist-meta">
+					<span class="dbp-playlist-track-count">
+						<?php 
+						echo esc_html( sprintf( _n( '%d Track', '%d Tracks', count( $data['tracks'] ), 'dbp-music-hub' ), count( $data['tracks'] ) ) );
+						?>
+					</span>
+				</div>
+			</div>
+
+			<div class="dbp-playlist-current-track">
+				<audio class="dbp-playlist-audio-element" preload="metadata">
+					<source src="" type="audio/mpeg">
+					<?php esc_html_e( 'Ihr Browser unterstützt das Audio-Element nicht.', 'dbp-music-hub' ); ?>
+				</audio>
+
+				<div class="dbp-current-track-info">
+					<div class="dbp-current-track-thumbnail"></div>
+					<div class="dbp-current-track-details">
+						<div class="dbp-current-track-title"><?php esc_html_e( 'Kein Track geladen', 'dbp-music-hub' ); ?></div>
+						<div class="dbp-current-track-artist"></div>
+					</div>
+				</div>
+
+				<div class="dbp-playlist-controls">
+					<button class="dbp-playlist-btn dbp-playlist-previous" type="button" aria-label="<?php esc_attr_e( 'Vorheriger Track', 'dbp-music-hub' ); ?>">
+						<span>⏮</span>
+					</button>
+
+					<button class="dbp-playlist-btn dbp-playlist-play-pause" type="button" aria-label="<?php esc_attr_e( 'Abspielen/Pause', 'dbp-music-hub' ); ?>">
+						<span class="dbp-play-icon">▶</span>
+						<span class="dbp-pause-icon" style="display: none;">❚❚</span>
+					</button>
+
+					<button class="dbp-playlist-btn dbp-playlist-next" type="button" aria-label="<?php esc_attr_e( 'Nächster Track', 'dbp-music-hub' ); ?>">
+						<span>⏭</span>
+					</button>
+
+					<div class="dbp-playlist-progress-wrapper">
+						<div class="dbp-playlist-time-info">
+							<span class="dbp-playlist-current-time">0:00</span>
+							<span class="dbp-playlist-duration">0:00</span>
+						</div>
+						<input type="range" class="dbp-playlist-progress-bar" min="0" max="100" value="0" step="0.1" aria-label="<?php esc_attr_e( 'Fortschritt', 'dbp-music-hub' ); ?>">
+					</div>
+
+					<div class="dbp-playlist-options">
+						<button class="dbp-playlist-btn dbp-playlist-shuffle-btn" type="button" aria-label="<?php esc_attr_e( 'Shuffle', 'dbp-music-hub' ); ?>">
+							<span>🔀</span>
+						</button>
+
+						<button class="dbp-playlist-btn dbp-playlist-repeat-btn" 
+							type="button" 
+							aria-label="<?php esc_attr_e( 'Wiederholen', 'dbp-music-hub' ); ?>"
+							data-repeat-mode="off">
+							<span class="repeat-icon">🔁</span>
+						</button>
+
+						<div class="dbp-playlist-volume-wrapper">
+							<button class="dbp-playlist-btn dbp-playlist-volume-btn" type="button" aria-label="<?php esc_attr_e( 'Lautstärke', 'dbp-music-hub' ); ?>">
+								<span class="volume-icon">🔊</span>
+							</button>
+							<input type="range" class="dbp-playlist-volume-bar" min="0" max="100" value="80" step="1" aria-label="<?php esc_attr_e( 'Lautstärke einstellen', 'dbp-music-hub' ); ?>">
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="dbp-playlist-tracklist">
+				<?php foreach ( $data['tracks'] as $index => $track ) : ?>
+				<div class="dbp-playlist-track" data-track-index="<?php echo esc_attr( $index ); ?>" data-audio-url="<?php echo esc_url( $track['url'] ); ?>">
+					<div class="dbp-track-number"><?php echo esc_html( $index + 1 ); ?></div>
+					
+					<?php if ( ! empty( $track['thumbnail'] ) ) : ?>
+					<div class="dbp-track-thumbnail">
+						<img src="<?php echo esc_url( $track['thumbnail'] ); ?>" alt="<?php echo esc_attr( $track['title'] ); ?>">
+					</div>
+					<?php endif; ?>
+
+					<div class="dbp-track-info">
+						<div class="dbp-track-title"><?php echo esc_html( $track['title'] ); ?></div>
+						<?php if ( ! empty( $track['artist'] ) ) : ?>
+						<div class="dbp-track-artist"><?php echo esc_html( $track['artist'] ); ?></div>
+						<?php endif; ?>
+					</div>
+
+					<?php if ( ! empty( $track['duration'] ) ) : ?>
+					<div class="dbp-track-duration"><?php echo esc_html( $track['duration'] ); ?></div>
+					<?php endif; ?>
+
+					<div class="dbp-track-actions">
+						<?php
+						// Add to Cart Button
+						if ( class_exists( 'WooCommerce' ) ) :
+							$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
+							if ( $product_id ) :
+						?>
+							<button type="button" 
+								class="dbp-track-cart-btn dbp-open-license-modal" 
+								data-audio-id="<?php echo esc_attr( $track['id'] ); ?>"
+								title="<?php esc_attr_e( 'In den Warenkorb', 'dbp-music-hub' ); ?>">
+								<span class="dashicons dashicons-cart"></span>
+								<span class="btn-text"><?php esc_html_e( 'In den Warenkorb', 'dbp-music-hub' ); ?></span>
+							</button>
+						<?php
+							endif;
+						endif;
+						?>
+					</div>
+
+					<div class="dbp-track-status">
+						<span class="dbp-track-playing-icon" style="display: none;">🔊</span>
+					</div>
+				</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+
+		<script type="application/json" class="dbp-playlist-data" data-for="<?php echo esc_attr( $unique_id ); ?>">
+			<?php echo wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>
+		</script>
+		<?php
+
+		return ob_get_clean();
 	}
 }
