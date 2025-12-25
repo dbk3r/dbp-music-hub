@@ -212,6 +212,88 @@ class DBP_Admin_Settings {
 			)
 		);
 
+		// Upload-Einstellungen (v1.2.0)
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_max_upload_size',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+				'default'           => 100,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_allowed_formats',
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_formats' ),
+				'default'           => array( 'mp3', 'wav', 'flac', 'ogg' ),
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_auto_id3_import',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_parallel_uploads',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+				'default'           => 3,
+			)
+		);
+
+		// WooCommerce Sync-Einstellungen (v1.2.0)
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_auto_sync_wc',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_sync_categories',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_sync_tags',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_default_product_status',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_product_status' ),
+				'default'           => 'publish',
+			)
+		);
+
 		// Sections
 		add_settings_section(
 			'dbp_general_section',
@@ -247,6 +329,22 @@ class DBP_Admin_Settings {
 			'dbp_waveform_section',
 			__( 'Waveform-Einstellungen', 'dbp-music-hub' ),
 			array( $this, 'render_waveform_section' ),
+			'dbp-music-hub'
+		);
+
+		// Upload Section (v1.2.0)
+		add_settings_section(
+			'dbp_upload_section',
+			__( 'Upload-Einstellungen', 'dbp-music-hub' ),
+			array( $this, 'render_upload_section' ),
+			'dbp-music-hub'
+		);
+
+		// WooCommerce Sync Section (v1.2.0)
+		add_settings_section(
+			'dbp_wc_sync_section',
+			__( 'WooCommerce-Sync', 'dbp-music-hub' ),
+			array( $this, 'render_wc_sync_section' ),
 			'dbp-music-hub'
 		);
 
@@ -373,6 +471,72 @@ class DBP_Admin_Settings {
 			array( $this, 'render_waveform_normalize_field' ),
 			'dbp-music-hub',
 			'dbp_waveform_section'
+		);
+
+		// Fields - Upload (v1.2.0)
+		add_settings_field(
+			'dbp_max_upload_size',
+			__( 'Max. Dateigröße (MB)', 'dbp-music-hub' ),
+			array( $this, 'render_max_upload_size_field' ),
+			'dbp-music-hub',
+			'dbp_upload_section'
+		);
+
+		add_settings_field(
+			'dbp_allowed_formats',
+			__( 'Erlaubte Formate', 'dbp-music-hub' ),
+			array( $this, 'render_allowed_formats_field' ),
+			'dbp-music-hub',
+			'dbp_upload_section'
+		);
+
+		add_settings_field(
+			'dbp_auto_id3_import',
+			__( 'ID3-Tags automatisch importieren', 'dbp-music-hub' ),
+			array( $this, 'render_auto_id3_field' ),
+			'dbp-music-hub',
+			'dbp_upload_section'
+		);
+
+		add_settings_field(
+			'dbp_parallel_uploads',
+			__( 'Max. parallele Uploads', 'dbp-music-hub' ),
+			array( $this, 'render_parallel_uploads_field' ),
+			'dbp-music-hub',
+			'dbp_upload_section'
+		);
+
+		// Fields - WooCommerce Sync (v1.2.0)
+		add_settings_field(
+			'dbp_auto_sync_wc',
+			__( 'Auto-Sync bei Audio-Save', 'dbp-music-hub' ),
+			array( $this, 'render_auto_sync_wc_field' ),
+			'dbp-music-hub',
+			'dbp_wc_sync_section'
+		);
+
+		add_settings_field(
+			'dbp_sync_categories',
+			__( 'Kategorien übernehmen', 'dbp-music-hub' ),
+			array( $this, 'render_sync_categories_field' ),
+			'dbp-music-hub',
+			'dbp_wc_sync_section'
+		);
+
+		add_settings_field(
+			'dbp_sync_tags',
+			__( 'Tags übernehmen', 'dbp-music-hub' ),
+			array( $this, 'render_sync_tags_field' ),
+			'dbp-music-hub',
+			'dbp_wc_sync_section'
+		);
+
+		add_settings_field(
+			'dbp_default_product_status',
+			__( 'Standard-Produkt-Status', 'dbp-music-hub' ),
+			array( $this, 'render_product_status_field' ),
+			'dbp-music-hub',
+			'dbp_wc_sync_section'
 		);
 	}
 
@@ -703,5 +867,172 @@ class DBP_Admin_Settings {
 			<?php esc_html_e( 'Passt die Amplitude der Waveform automatisch an für bessere Sichtbarkeit.', 'dbp-music-hub' ); ?>
 		</p>
 		<?php
+	}
+
+	/**
+	 * Upload Section rendern (v1.2.0)
+	 */
+	public function render_upload_section() {
+		echo '<p>' . esc_html__( 'Konfiguriere Upload-Einstellungen und erlaubte Formate.', 'dbp-music-hub' ) . '</p>';
+	}
+
+	/**
+	 * WooCommerce Sync Section rendern (v1.2.0)
+	 */
+	public function render_wc_sync_section() {
+		echo '<p>' . esc_html__( 'Automatische Synchronisation mit WooCommerce konfigurieren.', 'dbp-music-hub' ) . '</p>';
+	}
+
+	/**
+	 * Max Upload Size Feld rendern (v1.2.0)
+	 */
+	public function render_max_upload_size_field() {
+		$value = get_option( 'dbp_max_upload_size', 100 );
+		?>
+		<input type="number" name="dbp_max_upload_size" id="dbp_max_upload_size" value="<?php echo esc_attr( $value ); ?>" min="1" max="1000" step="1" />
+		<p class="description">
+			<?php esc_html_e( 'Maximale Dateigröße in MB für Audio-Uploads.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Allowed Formats Feld rendern (v1.2.0)
+	 */
+	public function render_allowed_formats_field() {
+		$allowed = get_option( 'dbp_allowed_formats', array( 'mp3', 'wav', 'flac', 'ogg' ) );
+		$formats = array( 'mp3' => 'MP3', 'wav' => 'WAV', 'flac' => 'FLAC', 'ogg' => 'OGG', 'm4a' => 'M4A' );
+		?>
+		<fieldset>
+			<?php foreach ( $formats as $format => $label ) : ?>
+				<label style="display: inline-block; margin-right: 15px;">
+					<input type="checkbox" name="dbp_allowed_formats[]" value="<?php echo esc_attr( $format ); ?>" <?php checked( in_array( $format, $allowed, true ) ); ?> />
+					<?php echo esc_html( $label ); ?>
+				</label>
+			<?php endforeach; ?>
+		</fieldset>
+		<p class="description">
+			<?php esc_html_e( 'Wähle die erlaubten Audio-Formate für Uploads.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Auto ID3 Import Feld rendern (v1.2.0)
+	 */
+	public function render_auto_id3_field() {
+		$value = get_option( 'dbp_auto_id3_import', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_auto_id3_import" id="dbp_auto_id3_import" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'ID3-Tags automatisch importieren', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Liest Titel, Künstler, Album und weitere Informationen automatisch aus Audio-Dateien.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Parallel Uploads Feld rendern (v1.2.0)
+	 */
+	public function render_parallel_uploads_field() {
+		$value = get_option( 'dbp_parallel_uploads', 3 );
+		?>
+		<input type="number" name="dbp_parallel_uploads" id="dbp_parallel_uploads" value="<?php echo esc_attr( $value ); ?>" min="1" max="10" step="1" />
+		<p class="description">
+			<?php esc_html_e( 'Maximale Anzahl gleichzeitiger Uploads (1-10).', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Auto Sync WC Feld rendern (v1.2.0)
+	 */
+	public function render_auto_sync_wc_field() {
+		$value = get_option( 'dbp_auto_sync_wc', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_auto_sync_wc" id="dbp_auto_sync_wc" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Automatische Synchronisation aktivieren', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Synchronisiert WooCommerce-Produkte automatisch beim Speichern von Audio-Dateien.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Sync Categories Feld rendern (v1.2.0)
+	 */
+	public function render_sync_categories_field() {
+		$value = get_option( 'dbp_sync_categories', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_sync_categories" id="dbp_sync_categories" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Kategorien automatisch übernehmen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Überträgt Audio-Kategorien als WooCommerce-Produktkategorien.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Sync Tags Feld rendern (v1.2.0)
+	 */
+	public function render_sync_tags_field() {
+		$value = get_option( 'dbp_sync_tags', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_sync_tags" id="dbp_sync_tags" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Tags automatisch übernehmen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Überträgt Audio-Tags als WooCommerce-Produkt-Tags.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Product Status Feld rendern (v1.2.0)
+	 */
+	public function render_product_status_field() {
+		$value = get_option( 'dbp_default_product_status', 'publish' );
+		?>
+		<select name="dbp_default_product_status" id="dbp_default_product_status">
+			<option value="publish" <?php selected( $value, 'publish' ); ?>><?php esc_html_e( 'Veröffentlicht', 'dbp-music-hub' ); ?></option>
+			<option value="draft" <?php selected( $value, 'draft' ); ?>><?php esc_html_e( 'Entwurf', 'dbp-music-hub' ); ?></option>
+			<option value="pending" <?php selected( $value, 'pending' ); ?>><?php esc_html_e( 'Ausstehend', 'dbp-music-hub' ); ?></option>
+		</select>
+		<p class="description">
+			<?php esc_html_e( 'Standard-Status für neu erstellte WooCommerce-Produkte.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Formats sanitizen (v1.2.0)
+	 *
+	 * @param array $value Werte.
+	 * @return array Sanitierte Werte.
+	 */
+	public function sanitize_formats( $value ) {
+		if ( ! is_array( $value ) ) {
+			return array( 'mp3', 'wav', 'flac', 'ogg' );
+		}
+		$allowed = array( 'mp3', 'wav', 'flac', 'ogg', 'm4a' );
+		return array_intersect( $value, $allowed );
+	}
+
+	/**
+	 * Product Status sanitizen (v1.2.0)
+	 *
+	 * @param string $value Wert.
+	 * @return string Sanitierter Wert.
+	 */
+	public function sanitize_product_status( $value ) {
+		$allowed = array( 'publish', 'draft', 'pending' );
+		return in_array( $value, $allowed, true ) ? $value : 'publish';
 	}
 }

@@ -1,0 +1,303 @@
+/* DBP Music Hub - Bulk Upload Styles */
+
+/* Upload Settings */
+.dbp-upload-settings {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 20px;
+	margin: 20px 0;
+}
+
+.dbp-upload-settings h2 {
+	margin-top: 0;
+}
+
+.dbp-upload-settings .form-table {
+	margin-top: 0;
+}
+
+/* Drop Zone */
+.dbp-drop-zone {
+	border: 3px dashed #ddd;
+	border-radius: 8px;
+	padding: 60px 40px;
+	text-align: center;
+	background: #fafafa;
+	transition: all 0.3s;
+	cursor: pointer;
+	min-height: 300px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.dbp-drop-zone:hover,
+.dbp-drop-zone.dragover {
+	border-color: #2271b1;
+	background: #f0f6fc;
+}
+
+.dbp-drop-zone-content {
+	width: 100%;
+}
+
+.dbp-drop-zone .dashicons {
+	font-size: 80px;
+	width: 80px;
+	height: 80px;
+	color: #2271b1;
+	margin-bottom: 20px;
+}
+
+.dbp-drop-zone h3 {
+	font-size: 24px;
+	margin: 20px 0 10px;
+	color: #1d2327;
+}
+
+.dbp-drop-zone p {
+	font-size: 16px;
+	color: #646970;
+	margin: 10px 0;
+}
+
+.dbp-drop-zone .description {
+	font-size: 14px;
+	margin-top: 20px;
+}
+
+/* Upload Container */
+.dbp-upload-container {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 20px;
+	margin: 20px 0;
+}
+
+/* Upload Queue */
+.dbp-upload-queue {
+	margin-top: 30px;
+}
+
+.dbp-upload-queue h3 {
+	margin-top: 0;
+	margin-bottom: 20px;
+}
+
+/* Progress Bar */
+.dbp-upload-progress {
+	margin-bottom: 20px;
+}
+
+.dbp-progress-bar {
+	width: 100%;
+	height: 30px;
+	background: #f0f0f1;
+	border-radius: 15px;
+	overflow: hidden;
+	position: relative;
+}
+
+.dbp-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #2271b1 0%, #72aee6 100%);
+	transition: width 0.3s ease;
+	position: relative;
+}
+
+.dbp-progress-fill::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+	animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+.dbp-progress-text {
+	text-align: center;
+	margin-top: 10px;
+	font-size: 14px;
+	color: #646970;
+}
+
+/* File List */
+.dbp-file-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.dbp-file-item {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	padding: 15px;
+	background: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	margin-bottom: 10px;
+	transition: all 0.3s;
+}
+
+.dbp-file-item:hover {
+	background: #f6f7f7;
+}
+
+.dbp-file-item.uploading {
+	border-left: 4px solid #2271b1;
+}
+
+.dbp-file-item.success {
+	border-left: 4px solid #46b450;
+	background: #ecf7ed;
+}
+
+.dbp-file-item.error {
+	border-left: 4px solid #dc3232;
+	background: #fcf0f1;
+}
+
+.dbp-file-icon {
+	font-size: 32px;
+	color: #646970;
+}
+
+.dbp-file-icon .dashicons {
+	width: 32px;
+	height: 32px;
+	font-size: 32px;
+}
+
+.dbp-file-info {
+	flex: 1;
+}
+
+.dbp-file-name {
+	font-weight: 600;
+	margin-bottom: 5px;
+	display: block;
+}
+
+.dbp-file-size {
+	color: #646970;
+	font-size: 13px;
+}
+
+.dbp-file-status {
+	font-size: 13px;
+	padding: 3px 8px;
+	border-radius: 3px;
+	display: inline-block;
+}
+
+.dbp-file-status.pending {
+	background: #f0f0f1;
+	color: #646970;
+}
+
+.dbp-file-status.uploading {
+	background: #e5f5fa;
+	color: #006ba1;
+}
+
+.dbp-file-status.success {
+	background: #ecf7ed;
+	color: #007017;
+}
+
+.dbp-file-status.error {
+	background: #fcf0f1;
+	color: #b32d2e;
+}
+
+.dbp-file-progress {
+	width: 150px;
+	height: 8px;
+	background: #f0f0f1;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.dbp-file-progress-fill {
+	height: 100%;
+	background: #2271b1;
+	transition: width 0.3s ease;
+}
+
+.dbp-file-actions button {
+	padding: 5px 10px;
+	font-size: 12px;
+}
+
+/* Upload Actions */
+.dbp-upload-actions {
+	margin-top: 20px;
+	display: flex;
+	gap: 10px;
+}
+
+/* Upload Success */
+.dbp-upload-success {
+	text-align: center;
+	padding: 60px 40px;
+}
+
+.dbp-upload-success .dashicons {
+	font-size: 80px;
+	width: 80px;
+	height: 80px;
+	color: #46b450;
+	margin-bottom: 20px;
+}
+
+.dbp-upload-success h3 {
+	font-size: 24px;
+	margin: 20px 0;
+	color: #1d2327;
+}
+
+.dbp-success-message {
+	font-size: 16px;
+	color: #646970;
+	margin-bottom: 30px;
+}
+
+.dbp-success-actions {
+	display: flex;
+	gap: 15px;
+	justify-content: center;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+	.dbp-drop-zone {
+		padding: 40px 20px;
+	}
+	
+	.dbp-file-item {
+		flex-wrap: wrap;
+	}
+	
+	.dbp-file-progress {
+		width: 100%;
+	}
+	
+	.dbp-upload-actions,
+	.dbp-success-actions {
+		flex-direction: column;
+	}
+}

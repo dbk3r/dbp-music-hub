@@ -1,0 +1,96 @@
+/* DBP Music Hub - Dashboard Styles */
+
+/* Dashboard-spezifische Styles */
+.dbp-dashboard {
+	padding: 0;
+}
+
+.dbp-dashboard h1 {
+	margin-bottom: 20px;
+}
+
+/* Statistiken Growth Indicators */
+.dbp-stat-growth {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 12px;
+	margin-top: 5px;
+}
+
+.dbp-stat-growth.positive {
+	color: #46b450;
+}
+
+.dbp-stat-growth.negative {
+	color: #dc3232;
+}
+
+.dbp-stat-growth .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+/* Dashboard-Widget spezifische Styles */
+.dbp-dashboard-widget.dbp-widget-full {
+	grid-column: 1 / -1;
+}
+
+/* Table Row Hover */
+.dbp-dashboard-widget table.widefat tbody tr {
+	transition: background-color 0.2s;
+}
+
+.dbp-dashboard-widget table.widefat tbody tr:hover {
+	background-color: #f6f7f7;
+}
+
+/* Audio Title Cell */
+.dbp-dashboard-widget .dbp-title strong {
+	display: block;
+	font-size: 14px;
+	margin-bottom: 3px;
+}
+
+.dbp-dashboard-widget .dbp-title small {
+	color: #646970;
+	font-size: 12px;
+}
+
+/* Date Cell */
+.dbp-dashboard-widget .dbp-date {
+	color: #646970;
+	font-size: 13px;
+	white-space: nowrap;
+}
+
+/* Actions Cell */
+.dbp-dashboard-widget .dbp-actions {
+	text-align: right;
+}
+
+/* Empty State */
+.dbp-dashboard-widget .dbp-widget-content > p {
+	color: #646970;
+	text-align: center;
+	padding: 20px;
+	margin: 0;
+}
+
+/* Chart Container (falls benötigt) */
+.dbp-chart-container {
+	position: relative;
+	height: 300px;
+	margin-top: 20px;
+}
+
+/* Dashboard Refresh Button */
+.dbp-dashboard .page-title-action {
+	vertical-align: middle;
+}
+
+/* Success Messages */
+.dbp-dashboard .notice {
+	margin: 20px 0;
+}

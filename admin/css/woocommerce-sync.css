@@ -1,0 +1,203 @@
+/* DBP Music Hub - WooCommerce Sync Styles */
+
+/* Sync Actions Bar */
+.dbp-sync-actions {
+	margin: 30px 0;
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+}
+
+.dbp-sync-actions .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.dbp-sync-actions .dashicons {
+	width: 18px;
+	height: 18px;
+	font-size: 18px;
+}
+
+/* Sync Table */
+.dbp-sync-table-container {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 20px;
+	margin: 30px 0;
+}
+
+.dbp-sync-table-container h2 {
+	margin-top: 0;
+	margin-bottom: 20px;
+}
+
+/* Status Icons */
+.dbp-sync-status .dbp-status-icon {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 10px;
+	border-radius: 3px;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.dbp-status-icon .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+.dbp-status-icon.dbp-status-success {
+	background: #ecf7ed;
+	color: #007017;
+}
+
+.dbp-status-icon.dbp-status-error {
+	background: #fcf0f1;
+	color: #b32d2e;
+}
+
+.dbp-status-icon.dbp-status-warning {
+	background: #fff8e5;
+	color: #946200;
+}
+
+/* Sync Actions Cell */
+.dbp-sync-actions-cell {
+	white-space: nowrap;
+}
+
+.dbp-sync-actions-cell .button {
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+/* Progress Indicator */
+.dbp-sync-progress {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-left: 4px solid #2271b1;
+	border-radius: 5px;
+	padding: 20px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	z-index: 10000;
+	min-width: 300px;
+	animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.dbp-sync-progress .dbp-progress-bar {
+	width: 100%;
+	height: 20px;
+	background: #f0f0f1;
+	border-radius: 10px;
+	overflow: hidden;
+	margin-bottom: 10px;
+}
+
+.dbp-sync-progress .dbp-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #2271b1 0%, #72aee6 100%);
+	transition: width 0.3s ease;
+}
+
+.dbp-sync-progress .dbp-progress-text {
+	font-size: 14px;
+	color: #646970;
+	text-align: center;
+}
+
+/* Syncing State */
+.dbp-syncing {
+	opacity: 0.6;
+	pointer-events: none;
+	position: relative;
+}
+
+.dbp-syncing::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 30px;
+	height: 30px;
+	margin: -15px 0 0 -15px;
+	border: 3px solid #f3f3f3;
+	border-top: 3px solid #2271b1;
+	border-radius: 50%;
+	animation: dbp-spin 1s linear infinite;
+}
+
+/* Empty State */
+.dbp-sync-table-container .no-audios {
+	text-align: center;
+	padding: 60px;
+	color: #646970;
+}
+
+.dbp-sync-table-container .no-audios .dashicons {
+	font-size: 48px;
+	width: 48px;
+	height: 48px;
+	color: #ddd;
+	margin-bottom: 15px;
+}
+
+/* Success Message */
+.dbp-sync-success-message {
+	position: fixed;
+	top: 32px;
+	right: 20px;
+	background: #ecf7ed;
+	border: 1px solid #46b450;
+	border-left: 4px solid #46b450;
+	padding: 15px 20px;
+	border-radius: 5px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	z-index: 10001;
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+	.dbp-sync-actions {
+		flex-direction: column;
+	}
+	
+	.dbp-sync-actions .button {
+		width: 100%;
+		justify-content: center;
+	}
+	
+	.dbp-sync-table-container table {
+		font-size: 14px;
+	}
+}

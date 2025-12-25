@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.1.0' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.2.0' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -82,6 +82,14 @@ class DBP_Music_Hub {
 		// Admin-Klassen
 		if ( is_admin() ) {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
+			
+			// Custom Admin-Bereich (v1.2.0)
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-menu.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-dashboard.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-audio-manager.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
 		}
 	}
 
@@ -143,6 +151,14 @@ class DBP_Music_Hub {
 		// Admin-Einstellungen initialisieren
 		if ( is_admin() ) {
 			new DBP_Admin_Settings();
+			
+			// Custom Admin-Bereich initialisieren (v1.2.0)
+			new DBP_Admin_Menu();
+			new DBP_Admin_Dashboard();
+			new DBP_Audio_Manager();
+			new DBP_Bulk_Upload();
+			new DBP_WooCommerce_Sync_UI();
+			new DBP_Taxonomy_Manager();
 		}
 
 		// Hook für Erweiterungen
@@ -186,6 +202,16 @@ function dbp_music_hub_activate() {
 	add_option( 'dbp_waveform_progress_color', '#4a90e2' );
 	add_option( 'dbp_waveform_height', 128 );
 	add_option( 'dbp_waveform_normalize', true );
+
+	// Standard-Optionen setzen (v1.2.0)
+	add_option( 'dbp_max_upload_size', 100 );
+	add_option( 'dbp_allowed_formats', array( 'mp3', 'wav', 'flac', 'ogg' ) );
+	add_option( 'dbp_auto_id3_import', true );
+	add_option( 'dbp_parallel_uploads', 3 );
+	add_option( 'dbp_auto_sync_wc', true );
+	add_option( 'dbp_sync_categories', true );
+	add_option( 'dbp_sync_tags', true );
+	add_option( 'dbp_default_product_status', 'publish' );
 
 	// Rewrite Rules aktualisieren
 	flush_rewrite_rules();
