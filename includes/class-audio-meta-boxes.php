@@ -498,7 +498,7 @@ class DBP_Audio_Meta_Boxes {
 					data: {
 						action: 'dbp_get_product_variations',
 						product_id: productId,
-						nonce: '<?php echo wp_create_nonce( 'dbp_get_variations' ); ?>'
+						nonce: '<?php echo esc_js( wp_create_nonce( 'dbp_get_variations' ) ); ?>'
 					},
 					success: function(response) {
 						if (response.success) {

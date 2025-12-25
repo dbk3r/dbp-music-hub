@@ -337,7 +337,8 @@ class DBP_License_Modal {
 					$index = 0;
 					foreach ( $variations as $variation_data ) : 
 						$variation = wc_get_product( $variation_data['variation_id'] );
-						echo $this->get_variation_card_html( $variation, $audio_id, $product_id, $index === 1 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in get_variation_card_html()
+						echo $this->get_variation_card_html( $variation, $audio_id, $product_id, $index === 1 );
 						$index++;
 					endforeach; 
 					?>

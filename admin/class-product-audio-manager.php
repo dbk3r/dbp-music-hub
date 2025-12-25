@@ -99,6 +99,16 @@ class DBP_Product_Audio_Manager {
 	 * @param int $post_id Product ID.
 	 */
 	public function save_preview_audio( $post_id ) {
+		// Verify nonce
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'update-post_' . $post_id ) ) {
+			return;
+		}
+
+		// Check permissions
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
 		if ( isset( $_POST['dbp_preview_audio'] ) ) {
 			$preview_audio_id = absint( $_POST['dbp_preview_audio'] );
 			if ( $preview_audio_id ) {
@@ -116,6 +126,12 @@ class DBP_Product_Audio_Manager {
 	 * @param int $loop         Variation loop index.
 	 */
 	public function save_variation_audio( $variation_id, $loop ) {
+		// Verify nonce - WooCommerce handles this at the product level
+		// Additional security: Check user permissions
+		if ( ! current_user_can( 'edit_post', $variation_id ) ) {
+			return;
+		}
+
 		if ( isset( $_POST['dbp_variation_audio'][ $loop ] ) ) {
 			$audio_id = absint( $_POST['dbp_variation_audio'][ $loop ] );
 			
