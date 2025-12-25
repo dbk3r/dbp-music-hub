@@ -380,6 +380,21 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+### Version 1.3.5 (2025-12-25)
+
+#### Critical Bugfix
+- 🔥 **Button Fix:** Corrected WordPress admin hooks based on actual parent menu slug `dbp-music-hub-dashboard`
+- ✅ **License Manager Button:** Now works correctly with hook `dbp-music-hub-dashboard_page_dbp-license-manager`
+- ✅ **Waveform Button:** Now works correctly with hook `toplevel_page_dbp-music-hub-dashboard`
+- 🔍 **Debug Mode:** Added visible debug boxes when WP_DEBUG is enabled
+- 📝 **Hook Logging:** Improved error logging for hook diagnosis
+
+#### Technical Changes
+- Fixed valid_hooks arrays in both `class-license-manager.php` and `class-dashboard.php`
+- Added transient-based hook capture for debugging
+- Added visual debug output on admin pages (only when WP_DEBUG = true)
+- Improved fallback mechanism with screen ID matching
+
 ### Version 1.3.3 (2025-12-25)
 
 #### Critical Bugfixes

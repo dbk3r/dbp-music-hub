@@ -27,33 +27,25 @@ class DBP_Admin_Dashboard {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_dashboard_assets( $hook_suffix ) {
-		// ALLE möglichen Hook-Varianten für Dashboard
+		// Speichere Hook für Debug-Anzeige
+		set_transient('dbp_last_hook_dashboard', $hook_suffix, 300);
+		
+		// Korrekte Hook-Namen basierend auf Parent-Slug 'dbp-music-hub-dashboard'
 		$valid_hooks = array(
-			// Top-level als Music Hub
-			'toplevel_page_dbp-music-hub',
+			// Top-level Seite
 			'toplevel_page_dbp-music-hub-dashboard',
 			
-			// Submenu variations
+			// Submenu-Variante (wenn Dashboard auch als Submenu)
+			'dbp-music-hub-dashboard_page_dbp-music-hub-dashboard',
+			
+			// Alte Varianten für Rückwärtskompatibilität
+			'toplevel_page_dbp-music-hub',
 			'dbp-music-hub_page_dbp-music-hub-dashboard',
-			'music-hub_page_dbp-dashboard',
-			'admin_page_dbp-music-hub-dashboard',
-			
-			// Mit verschiedenen Präfixen
-			'dbp_page_dbp-dashboard',
-			'music_hub_page_dbp-dashboard',
-			
-			// Ohne Präfix
-			'page_dbp-music-hub',
-			'page_dbp-dashboard',
-			
-			// Mit Underscores
-			'toplevel_page_dbp_music_hub',
-			'dbp-music-hub_page_dbp_music_hub_dashboard',
 		);
 
 		error_log( '=== DBP DASHBOARD DEBUG ===' );
 		error_log( 'Current hook: ' . $hook_suffix );
-		error_log( 'Valid hooks: ' . print_r( $valid_hooks, true ) );
+		error_log( 'Expected hook: toplevel_page_dbp-music-hub-dashboard' );
 
 		if ( ! in_array( $hook_suffix, $valid_hooks, true ) ) {
 			// FALLBACK: Wenn aktueller Screen DBP Music Hub ist, trotzdem laden
@@ -131,6 +123,19 @@ class DBP_Admin_Dashboard {
 		?>
 		<div class="wrap dbp-dashboard">
 			<h1><?php echo esc_html__( 'DBP Music Hub Dashboard', 'dbp-music-hub' ); ?></h1>
+
+			<?php if ( defined('WP_DEBUG') && WP_DEBUG ) : 
+				$screen = get_current_screen();
+				$last_hook = get_transient('dbp_last_hook_dashboard');
+			?>
+			<div style="background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0;">
+				<h3 style="margin: 0 0 10px 0; color: #0c5460;">🔍 Debug Info (v1.3.5)</h3>
+				<p style="margin: 5px 0;"><strong>Last Hook Suffix:</strong> <code><?php echo esc_html($last_hook ? $last_hook : 'Not captured yet'); ?></code></p>
+				<p style="margin: 5px 0;"><strong>Current Screen ID:</strong> <code><?php echo esc_html($screen ? $screen->id : 'NULL'); ?></code></p>
+				<p style="margin: 5px 0;"><strong>Expected Hook:</strong> <code>toplevel_page_dbp-music-hub-dashboard</code></p>
+				<p style="margin: 5px 0;"><strong>Scripts Loaded:</strong> <?php echo wp_script_is('dbp-dashboard', 'enqueued') ? '✅ YES' : '❌ NO'; ?></p>
+			</div>
+			<?php endif; ?>
 
 			<!-- Statistik-Karten -->
 			<div class="dbp-dashboard-stats">

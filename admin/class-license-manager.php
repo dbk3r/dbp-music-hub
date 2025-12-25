@@ -33,36 +33,23 @@ class DBP_License_Manager {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_scripts( $hook_suffix ) {
-		// ALLE möglichen Hook-Varianten für Lizenz-Manager-Seite
+		// Speichere Hook für Debug-Anzeige
+		set_transient('dbp_last_hook_license', $hook_suffix, 300);
+		
+		// Korrekte Hook-Namen basierend auf Parent-Slug 'dbp-music-hub-dashboard'
 		$valid_hooks = array(
-			// Top-level variations
-			'toplevel_page_dbp-license-manager',
-			'toplevel_page_dbp-music-hub',
-			
-			// Submenu variations with correct parent slug
+			// Submenu unter dbp-music-hub-dashboard
 			'dbp-music-hub-dashboard_page_dbp-license-manager',
-			'music-hub-dashboard_page_dbp-license-manager',
+			
+			// Alte Varianten für Rückwärtskompatibilität
 			'music-hub_page_dbp-license-manager',
 			'dbp-music-hub_page_dbp-license-manager',
-			'admin_page_dbp-license-manager',
-			
-			// Mit Präfix
-			'dbp_page_dbp-license-manager',
-			'music_hub_page_dbp-license-manager',
-			
-			// Ohne Präfix
-			'page_dbp-license-manager',
-			
-			// Mit Underscores
-			'toplevel_page_dbp_license_manager',
-			'dbp-music-hub_page_dbp_license_manager',
-			'music-hub_page_dbp_license_manager',
-			'dbp-music-hub-dashboard_page_dbp_license_manager',
+			'toplevel_page_dbp-license-manager',
 		);
 
 		error_log( '=== DBP LICENSE MANAGER DEBUG ===' );
 		error_log( 'Current hook: ' . $hook_suffix );
-		error_log( 'Valid hooks: ' . print_r( $valid_hooks, true ) );
+		error_log( 'Expected hook: dbp-music-hub-dashboard_page_dbp-license-manager' );
 
 		if ( ! in_array( $hook_suffix, $valid_hooks, true ) ) {
 			// FALLBACK: Wenn aktueller Screen DBP Music Hub ist, trotzdem laden
@@ -300,6 +287,20 @@ class DBP_License_Manager {
 		?>
 		<div class="wrap dbp-license-manager-wrap">
 			<h1><?php esc_html_e( 'Lizenzmodell-Verwaltung', 'dbp-music-hub' ); ?></h1>
+
+			<?php if ( defined('WP_DEBUG') && WP_DEBUG ) : 
+				$screen = get_current_screen();
+				$last_hook = get_transient('dbp_last_hook_license');
+			?>
+			<div style="background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0;">
+				<h3 style="margin: 0 0 10px 0; color: #155724;">🔍 Debug Info (v1.3.5)</h3>
+				<p style="margin: 5px 0;"><strong>Last Hook Suffix:</strong> <code><?php echo esc_html($last_hook ? $last_hook : 'Not captured yet'); ?></code></p>
+				<p style="margin: 5px 0;"><strong>Current Screen ID:</strong> <code><?php echo esc_html($screen ? $screen->id : 'NULL'); ?></code></p>
+				<p style="margin: 5px 0;"><strong>Expected Hook:</strong> <code>dbp-music-hub-dashboard_page_dbp-license-manager</code></p>
+				<p style="margin: 5px 0;"><strong>Scripts Loaded:</strong> <?php echo wp_script_is('dbp-license-manager', 'enqueued') ? '✅ YES' : '❌ NO'; ?></p>
+			</div>
+			<?php endif; ?>
+
 			<p><?php esc_html_e( 'Erstellen und verwalten Sie Lizenzmodelle für Ihre Audio-Dateien.', 'dbp-music-hub' ); ?></p>
 
 			<div class="dbp-license-manager-container">
