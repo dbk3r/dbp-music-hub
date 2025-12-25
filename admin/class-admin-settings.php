@@ -49,7 +49,7 @@ class DBP_Admin_Settings {
 		add_options_page(
 			__( 'DBP Music Hub Einstellungen', 'dbp-music-hub' ),
 			__( 'DBP Music Hub', 'dbp-music-hub' ),
-			'manage_options',
+			'edit_posts',
 			'dbp-music-hub',
 			array( $this, 'render_settings_page' )
 		);
