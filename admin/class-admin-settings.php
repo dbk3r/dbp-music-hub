@@ -120,6 +120,98 @@ class DBP_Admin_Settings {
 			)
 		);
 
+		// Playlist-Einstellungen (v1.1.0)
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_enable_playlists',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_playlist_default_autoplay',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_playlist_default_shuffle',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_max_playlist_tracks',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+				'default'           => 100,
+			)
+		);
+
+		// Waveform-Einstellungen (v1.1.0)
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_enable_waveform',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_waveform_color',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'default'           => '#ddd',
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_waveform_progress_color',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'default'           => '#4a90e2',
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_waveform_height',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+				'default'           => 128,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_waveform_normalize',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
 		// Sections
 		add_settings_section(
 			'dbp_general_section',
@@ -139,6 +231,22 @@ class DBP_Admin_Settings {
 			'dbp_integration_section',
 			__( 'Integrationen', 'dbp-music-hub' ),
 			array( $this, 'render_integration_section' ),
+			'dbp-music-hub'
+		);
+
+		// Playlist Section (v1.1.0)
+		add_settings_section(
+			'dbp_playlist_section',
+			__( 'Playlist-Einstellungen', 'dbp-music-hub' ),
+			array( $this, 'render_playlist_section' ),
+			'dbp-music-hub'
+		);
+
+		// Waveform Section (v1.1.0)
+		add_settings_section(
+			'dbp_waveform_section',
+			__( 'Waveform-Einstellungen', 'dbp-music-hub' ),
+			array( $this, 'render_waveform_section' ),
 			'dbp-music-hub'
 		);
 
@@ -191,6 +299,80 @@ class DBP_Admin_Settings {
 			array( $this, 'render_woocommerce_field' ),
 			'dbp-music-hub',
 			'dbp_integration_section'
+		);
+
+		// Fields - Playlist (v1.1.0)
+		add_settings_field(
+			'dbp_enable_playlists',
+			__( 'Playlist-Feature aktivieren', 'dbp-music-hub' ),
+			array( $this, 'render_enable_playlists_field' ),
+			'dbp-music-hub',
+			'dbp_playlist_section'
+		);
+
+		add_settings_field(
+			'dbp_playlist_default_autoplay',
+			__( 'Auto-Play standardmäßig', 'dbp-music-hub' ),
+			array( $this, 'render_playlist_autoplay_field' ),
+			'dbp-music-hub',
+			'dbp_playlist_section'
+		);
+
+		add_settings_field(
+			'dbp_playlist_default_shuffle',
+			__( 'Shuffle standardmäßig', 'dbp-music-hub' ),
+			array( $this, 'render_playlist_shuffle_field' ),
+			'dbp-music-hub',
+			'dbp_playlist_section'
+		);
+
+		add_settings_field(
+			'dbp_max_playlist_tracks',
+			__( 'Max. Tracks pro Playlist', 'dbp-music-hub' ),
+			array( $this, 'render_max_playlist_tracks_field' ),
+			'dbp-music-hub',
+			'dbp_playlist_section'
+		);
+
+		// Fields - Waveform (v1.1.0)
+		add_settings_field(
+			'dbp_enable_waveform',
+			__( 'Waveform-Feature aktivieren', 'dbp-music-hub' ),
+			array( $this, 'render_enable_waveform_field' ),
+			'dbp-music-hub',
+			'dbp_waveform_section'
+		);
+
+		add_settings_field(
+			'dbp_waveform_color',
+			__( 'Waveform-Farbe', 'dbp-music-hub' ),
+			array( $this, 'render_waveform_color_field' ),
+			'dbp-music-hub',
+			'dbp_waveform_section'
+		);
+
+		add_settings_field(
+			'dbp_waveform_progress_color',
+			__( 'Progress-Farbe', 'dbp-music-hub' ),
+			array( $this, 'render_waveform_progress_color_field' ),
+			'dbp-music-hub',
+			'dbp_waveform_section'
+		);
+
+		add_settings_field(
+			'dbp_waveform_height',
+			__( 'Waveform-Höhe (px)', 'dbp-music-hub' ),
+			array( $this, 'render_waveform_height_field' ),
+			'dbp-music-hub',
+			'dbp_waveform_section'
+		);
+
+		add_settings_field(
+			'dbp_waveform_normalize',
+			__( 'Waveform normalisieren', 'dbp-music-hub' ),
+			array( $this, 'render_waveform_normalize_field' ),
+			'dbp-music-hub',
+			'dbp_waveform_section'
 		);
 	}
 
@@ -290,6 +472,20 @@ class DBP_Admin_Settings {
 	}
 
 	/**
+	 * Playlist Section rendern (v1.1.0)
+	 */
+	public function render_playlist_section() {
+		echo '<p>' . esc_html__( 'Konfiguriere die Playlist-Funktionalität und Standard-Einstellungen für neue Playlists.', 'dbp-music-hub' ) . '</p>';
+	}
+
+	/**
+	 * Waveform Section rendern (v1.1.0)
+	 */
+	public function render_waveform_section() {
+		echo '<p>' . esc_html__( 'Aktiviere und konfiguriere die interaktive Waveform-Visualisierung für Audio-Dateien.', 'dbp-music-hub' ) . '</p>';
+	}
+
+	/**
 	 * Lizenz-Feld rendern
 	 */
 	public function render_license_field() {
@@ -374,6 +570,138 @@ class DBP_Admin_Settings {
 			<?php esc_html_e( 'Erstellt automatisch WooCommerce-Produkte für Audio-Dateien.', 'dbp-music-hub' ); ?>
 		</p>
 		<?php endif; ?>
+		<?php
+	}
+
+	/**
+	 * Enable Playlists Feld rendern (v1.1.0)
+	 */
+	public function render_enable_playlists_field() {
+		$value = get_option( 'dbp_enable_playlists', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_enable_playlists" id="dbp_enable_playlists" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Playlist-Feature aktivieren', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Ermöglicht das Erstellen und Verwalten von Audio-Playlists.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Playlist Auto-Play Feld rendern (v1.1.0)
+	 */
+	public function render_playlist_autoplay_field() {
+		$value = get_option( 'dbp_playlist_default_autoplay', false );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_playlist_default_autoplay" id="dbp_playlist_default_autoplay" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Nächsten Track automatisch abspielen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Standard-Einstellung für neue Playlists.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Playlist Shuffle Feld rendern (v1.1.0)
+	 */
+	public function render_playlist_shuffle_field() {
+		$value = get_option( 'dbp_playlist_default_shuffle', false );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_playlist_default_shuffle" id="dbp_playlist_default_shuffle" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Shuffle-Modus aktiviert', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Standard-Einstellung für neue Playlists.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Max Playlist Tracks Feld rendern (v1.1.0)
+	 */
+	public function render_max_playlist_tracks_field() {
+		$value = get_option( 'dbp_max_playlist_tracks', 100 );
+		?>
+		<input type="number" name="dbp_max_playlist_tracks" id="dbp_max_playlist_tracks" value="<?php echo esc_attr( $value ); ?>" min="1" max="500" step="1" />
+		<p class="description">
+			<?php esc_html_e( 'Maximale Anzahl an Tracks pro Playlist (1-500).', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Enable Waveform Feld rendern (v1.1.0)
+	 */
+	public function render_enable_waveform_field() {
+		$value = get_option( 'dbp_enable_waveform', false );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_enable_waveform" id="dbp_enable_waveform" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Waveform-Visualisierung aktivieren', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Zeigt interaktive Waveform anstelle des Standard-Players an. Nutzt WaveSurfer.js.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Waveform Color Feld rendern (v1.1.0)
+	 */
+	public function render_waveform_color_field() {
+		$value = get_option( 'dbp_waveform_color', '#ddd' );
+		?>
+		<input type="text" name="dbp_waveform_color" id="dbp_waveform_color" value="<?php echo esc_attr( $value ); ?>" class="dbp-color-picker" />
+		<p class="description">
+			<?php esc_html_e( 'Farbe der Waveform (nicht abgespielter Bereich).', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Waveform Progress Color Feld rendern (v1.1.0)
+	 */
+	public function render_waveform_progress_color_field() {
+		$value = get_option( 'dbp_waveform_progress_color', '#4a90e2' );
+		?>
+		<input type="text" name="dbp_waveform_progress_color" id="dbp_waveform_progress_color" value="<?php echo esc_attr( $value ); ?>" class="dbp-color-picker" />
+		<p class="description">
+			<?php esc_html_e( 'Farbe für abgespielten Bereich und Cursor.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Waveform Height Feld rendern (v1.1.0)
+	 */
+	public function render_waveform_height_field() {
+		$value = get_option( 'dbp_waveform_height', 128 );
+		?>
+		<input type="number" name="dbp_waveform_height" id="dbp_waveform_height" value="<?php echo esc_attr( $value ); ?>" min="50" max="500" step="1" />
+		<p class="description">
+			<?php esc_html_e( 'Höhe der Waveform in Pixel (50-500).', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Waveform Normalize Feld rendern (v1.1.0)
+	 */
+	public function render_waveform_normalize_field() {
+		$value = get_option( 'dbp_waveform_normalize', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_waveform_normalize" id="dbp_waveform_normalize" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Waveform normalisieren', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Passt die Amplitude der Waveform automatisch an für bessere Sichtbarkeit.', 'dbp-music-hub' ); ?>
+		</p>
 		<?php
 	}
 }

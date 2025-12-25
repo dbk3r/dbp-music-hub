@@ -1,14 +1,16 @@
 # DBP Music Hub
 
-Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration und biete deinen Besuchern einen modernen Audio-Player.
+Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration und biete deinen Besuchern einen modernen Audio-Player mit Playlists und Waveform-Visualisierung.
 
 ## 🎵 Features
 
 ### Core-Funktionalität
 - **Custom Post Type** für Audio-Dateien mit vollständiger WordPress-Integration
+- **Playlist-System** (v1.1.0) - Erstelle und verwalte Audio-Playlists mit Drag & Drop
 - **Drei Taxonomien**: Kategorien, Tags und Genres für flexible Organisation
 - **Umfangreiche Meta-Felder**: Künstler, Album, Erscheinungsjahr, Dauer, Lizenzmodell, Preis, Vorschau-Datei
 - **Moderner Audio-Player** mit HTML5 und Custom Controls
+- **Waveform-Visualisierung** (v1.1.0) - Interaktive Audio-Wellenform mit WaveSurfer.js
 - **Responsive Design** für mobile und Desktop-Geräte
 
 ### Audio-Player
@@ -19,6 +21,27 @@ Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwa
 - ⌨️ Tastatur-Navigation (Space, K, Pfeiltasten, M)
 - 🎨 Anpassbare Farben über Admin-Einstellungen
 - 🌙 Dark Mode Unterstützung
+- 🌊 **NEU:** Optional Waveform-Visualisierung anstelle Standard-Player
+
+### Playlist-Features (v1.1.0)
+- 🎶 **Custom Post Type für Playlists** mit eigenem Admin-Bereich
+- ⚡ **Drag & Drop Editor** - Sortiere Tracks per Maus
+- 🔀 **Shuffle Mode** - Zufällige Wiedergabe-Reihenfolge
+- 🔁 **Repeat Modes** - Off, Repeat One, Repeat All
+- ▶️ **Auto-Play** - Automatischer Übergang zum nächsten Track
+- 📊 **Live-Statistiken** - Track-Anzahl und Gesamt-Dauer
+- 🎯 **AJAX-Suche** - Finde und füge Audio-Dateien schnell hinzu
+- 💾 **LocalStorage** - Shuffle-State wird gespeichert
+- 📱 **Responsive Player** - Optimiert für alle Geräte
+
+### Waveform-Visualisierung (v1.1.0)
+- 🌊 **Interaktive Waveform** mit WaveSurfer.js
+- 🎨 **Anpassbare Farben** - Waveform und Progress-Farbe konfigurierbar
+- 📏 **Zoom-Funktion** - Vergrößere die Waveform für Details
+- 📍 **Click-to-Seek** - Klicke auf die Waveform zum Springen
+- ⏱️ **Timeline Plugin** - Zeitachse mit Markierungen
+- 📊 **Normalisierung** - Automatische Amplitude-Anpassung
+- 🎯 **Responsive** - Passt sich automatisch der Breite an
 
 ### WooCommerce-Integration
 - Automatische Produkt-Erstellung beim Veröffentlichen von Audio-Dateien
@@ -34,15 +57,21 @@ Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwa
 - Benutzerdefinierte Such-Query für Meta-Felder
 
 ### Shortcodes
-- `[dbp_audio_player id="123"]` - Einzelner Player
+- `[dbp_audio_player id="123" waveform="true"]` - Einzelner Player (mit Waveform-Option)
 - `[dbp_audio_list category="rock" limit="10"]` - Audio-Liste mit Filtern
 - `[dbp_audio_search]` - Such-Formular mit allen Filtern
+- `[dbp_playlist id="123"]` - **NEU:** Playlist-Player anzeigen
+- `[dbp_playlist_list limit="10"]` - **NEU:** Liste aller Playlists
+- `[dbp_user_playlists]` - **NEU:** Playlists des aktuellen Users
 
 ### Admin-Bereich
 - Übersichtliche Meta Boxes für Audio-Details
+- **NEU:** Playlist-Editor mit Drag & Drop und AJAX-Suche
 - WordPress Media Uploader für Audio-Dateien
 - Color Picker für Player-Anpassung
 - Einstellungs-Seite unter "Einstellungen → DBP Music Hub"
+- **NEU:** Playlist-Einstellungen (Auto-Play, Shuffle, Max Tracks)
+- **NEU:** Waveform-Einstellungen (Farben, Höhe, Normalisierung)
 - Deutsche Übersetzung (i18n-ready)
 
 ## 📋 Systemanforderungen
@@ -68,8 +97,10 @@ Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwa
 ### Nach der Installation
 1. Gehe zu **Einstellungen → DBP Music Hub**
 2. Konfiguriere die Player-Farben und Optionen
-3. Aktiviere optional die WooCommerce-Integration
-4. Erstelle deine erste Audio-Datei unter **Audio-Dateien → Neue hinzufügen**
+3. **(v1.1.0) Optional:** Aktiviere Playlist-Feature und/oder Waveform-Visualisierung
+4. Aktiviere optional die WooCommerce-Integration
+5. Erstelle deine erste Audio-Datei unter **Audio-Dateien → Neue hinzufügen**
+6. **(v1.1.0) Optional:** Erstelle deine erste Playlist unter **Playlists → Neue hinzufügen**
 
 ## 📖 Verwendung
 
@@ -82,6 +113,16 @@ Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwa
 6. Setze Genres, Kategorien und Tags
 7. Veröffentliche die Audio-Datei
 
+### Playlists erstellen (v1.1.0)
+1. Gehe zu **Playlists → Neue hinzufügen**
+2. Gib Titel und Beschreibung ein
+3. Setze ein Playlist-Cover (Featured Image)
+4. Suche nach Audio-Dateien in der "Playlist-Tracks" Meta Box
+5. Klicke auf "Hinzufügen" um Tracks zur Playlist hinzuzufügen
+6. Sortiere Tracks per Drag & Drop
+7. Konfiguriere Playlist-Einstellungen (Auto-Play, Shuffle, Repeat)
+8. Veröffentliche die Playlist
+
 ### Shortcodes verwenden
 
 #### Einzelner Player
@@ -93,6 +134,13 @@ Zeigt einen Audio-Player für die Audio-Datei mit der ID 123 an.
 **Parameter:**
 - `id` (erforderlich): Audio-Post ID
 - `show_download` (optional): "true" oder "false" (Standard: "true")
+- `waveform` (optional, v1.1.0): "true" oder "false" (Standard: Auto-Detect aus Settings)
+
+**Beispiele:**
+```
+[dbp_audio_player id="123" waveform="true"]
+[dbp_audio_player id="456" show_download="false"]
+```
 
 #### Audio-Liste
 ```
@@ -123,12 +171,52 @@ Zeigt ein Such-Formular mit Genre-, Kategorie- und Preis-Filtern an.
 - `show_category`: Kategorie-Filter anzeigen - "true" oder "false" (Standard: "true")
 - `show_price`: Preis-Filter anzeigen - "true" oder "false" (Standard: "true")
 
+#### Playlist Player (v1.1.0)
+```
+[dbp_playlist id="123"]
+```
+Zeigt einen Playlist-Player mit allen Tracks und Steuerungen an.
+
+**Parameter:**
+- `id` (erforderlich): Playlist-Post ID
+- `show_controls`: Steuerungen anzeigen - "true" oder "false" (Standard: "true")
+- `theme`: Theme - "light" oder "dark" (Standard: "light")
+
+**Beispiel:**
+```
+[dbp_playlist id="123" theme="dark"]
+```
+
+#### Playlist-Liste (v1.1.0)
+```
+[dbp_playlist_list limit="10" orderby="date"]
+```
+Zeigt eine Liste von Playlists als Cards an.
+
+**Parameter:**
+- `limit`: Anzahl der Einträge (Standard: 10)
+- `orderby`: Sortierung - "date", "title" (Standard: "date")
+- `order`: Reihenfolge - "ASC" oder "DESC" (Standard: "DESC")
+- `author`: Filter nach Author-ID (optional)
+
+#### User Playlists (v1.1.0)
+```
+[dbp_user_playlists]
+```
+Zeigt die Playlists des aktuell eingeloggten Users an (inkl. Entwürfe und private).
+
+**Parameter:**
+- `limit`: Anzahl der Einträge (Standard: 20)
+- `orderby`: Sortierung - "date", "title" (Standard: "date")
+- `order`: Reihenfolge - "ASC" oder "DESC" (Standard: "DESC")
+
 ### Templates
 
-Das Plugin enthält zwei Template-Dateien, die du in dein Theme kopieren kannst:
+Das Plugin enthält Template-Dateien, die du in dein Theme kopieren kannst:
 
 1. **Single Audio Template**: Kopiere `templates/single-audio.php` nach `dein-theme/single-dbp_audio.php`
 2. **Archive Template**: Kopiere `templates/archive-audio.php` nach `dein-theme/archive-dbp_audio.php`
+3. **Single Playlist Template (v1.1.0)**: Kopiere `templates/single-playlist.php` nach `dein-theme/single-dbp_playlist.php`
 
 ### WooCommerce-Integration
 
@@ -156,6 +244,19 @@ Gehe zu **Einstellungen → DBP Music Hub** um folgende Optionen zu konfiguriere
 #### Integrationen
 - **WooCommerce-Integration**: Automatische Produkt-Erstellung aktivieren/deaktivieren
 
+#### Playlist-Einstellungen (v1.1.0)
+- **Playlist-Feature aktivieren**: Playlist-Funktionalität ein/ausschalten
+- **Auto-Play standardmäßig**: Nächsten Track automatisch abspielen
+- **Shuffle standardmäßig**: Zufällige Wiedergabe-Reihenfolge
+- **Max. Tracks pro Playlist**: Maximale Anzahl an Tracks (1-500)
+
+#### Waveform-Einstellungen (v1.1.0)
+- **Waveform-Feature aktivieren**: Waveform-Visualisierung ein/ausschalten
+- **Waveform-Farbe**: Farbe der nicht abgespielten Waveform
+- **Progress-Farbe**: Farbe für abgespielten Bereich und Cursor
+- **Waveform-Höhe**: Höhe in Pixel (50-500)
+- **Waveform normalisieren**: Automatische Amplitude-Anpassung
+
 ## 🎨 Anpassung
 
 ### CSS-Variablen
@@ -168,6 +269,8 @@ Das Plugin verwendet CSS Custom Properties für einfache Anpassungen:
 	--dbp-text-color: #2c3e50;
 	--dbp-border-color: #ddd;
 	--dbp-hover-color: #2980b9;
+	--dbp-waveform-color: #ddd;
+	--dbp-waveform-progress-color: #4a90e2;
 }
 ```
 
@@ -257,6 +360,52 @@ A: Der Player unterstützt alle Browser-kompatiblen Formate (MP3, WAV, OGG, AAC)
 
 **Q: Kann ich das Design anpassen?**
 A: Ja! Nutze CSS Custom Properties oder kopiere die Template-Dateien in dein Theme und passe sie an.
+
+**Q: Wie aktiviere ich die Waveform-Visualisierung? (v1.1.0)**
+A: Gehe zu "Einstellungen → DBP Music Hub → Waveform-Einstellungen" und aktiviere das Waveform-Feature. Du kannst dann auch Farben und Höhe anpassen.
+
+**Q: Wie erstelle ich eine Playlist? (v1.1.0)**
+A: Gehe zu "Playlists → Neue hinzufügen", gib einen Titel ein, suche nach Audio-Dateien und füge sie per Klick hinzu. Sortiere per Drag & Drop.
+
+**Q: Funktioniert Shuffle/Repeat über Sitzungen hinweg? (v1.1.0)**
+A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleibt erhalten.
+
+## 📋 Changelog
+
+### Version 1.1.0 (2025-12-25)
+
+#### Neue Features
+- ✅ **Playlist-System** - Vollständiges Playlist-Management mit Custom Post Type
+- ✅ **Drag & Drop Editor** - Sortiere Tracks visuell per Maus im Admin-Bereich
+- ✅ **Playlist Player** - Moderner Player mit Auto-Play, Shuffle und Repeat-Modi
+- ✅ **AJAX-Suche** - Finde und füge Audio-Dateien schnell zu Playlists hinzu
+- ✅ **Waveform-Visualisierung** - Interaktive Audio-Wellenform mit WaveSurfer.js
+- ✅ **Waveform-Anpassung** - Konfigurierbare Farben, Höhe und Normalisierung
+- ✅ **3 Neue Shortcodes** - [dbp_playlist], [dbp_playlist_list], [dbp_user_playlists]
+- ✅ **Erweiterte Settings** - Playlist und Waveform-Einstellungen im Admin
+- ✅ **LocalStorage Support** - Shuffle-State und Lautstärke werden gespeichert
+- ✅ **Responsive Design** - Alle neuen Features optimiert für mobile Geräte
+
+#### Verbesserungen
+- 🔧 Audio-Player Shortcode unterstützt jetzt `waveform` Parameter
+- 🔧 Template für einzelne Playlists hinzugefügt
+- 🔧 Fisher-Yates Shuffle-Algorithmus für echte Zufälligkeit
+- 🔧 Live-Statistiken im Playlist-Editor (Track-Count, Gesamt-Dauer)
+
+#### Technisch
+- 📦 WaveSurfer.js 7.0 Integration via CDN
+- 📦 jQuery UI Sortable für Drag & Drop
+- 🔒 Vollständige Sanitization und Nonce-Prüfungen
+- 🌐 i18n-ready für alle neuen Strings
+
+### Version 1.0.0 (2024)
+- 🎉 Initiales Release
+- ✅ Audio Custom Post Type mit Taxonomien
+- ✅ HTML5 Audio-Player mit Custom Controls
+- ✅ WooCommerce-Integration
+- ✅ Erweiterte Suche und Filter
+- ✅ 3 Shortcodes für Audio-Darstellung
+- ✅ Admin-Einstellungen mit Color Picker
 
 ## 🤝 Mitwirken
 

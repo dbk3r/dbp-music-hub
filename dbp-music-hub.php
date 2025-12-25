@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.0.0' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.1.0' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -70,6 +70,15 @@ class DBP_Music_Hub {
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-search.php';
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-shortcodes.php';
 
+		// Playlist-Klassen (v1.1.0)
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-playlist-post-type.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-playlist-meta-boxes.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-playlist-player.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-playlist-shortcodes.php';
+
+		// Waveform-Klasse (v1.1.0)
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-waveform-generator.php';
+
 		// Admin-Klassen
 		if ( is_admin() ) {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
@@ -88,14 +97,34 @@ class DBP_Music_Hub {
 	 * Plugin initialisieren
 	 */
 	public function init_plugin() {
-		// Custom Post Type initialisieren
+		// Custom Post Types initialisieren
 		new DBP_Audio_Post_Type();
+		
+		// Playlist Post Type initialisieren (v1.1.0)
+		if ( get_option( 'dbp_enable_playlists', true ) ) {
+			new DBP_Playlist_Post_Type();
+		}
 
 		// Meta Boxes initialisieren
 		new DBP_Audio_Meta_Boxes();
+		
+		// Playlist Meta Boxes initialisieren (v1.1.0)
+		if ( get_option( 'dbp_enable_playlists', true ) ) {
+			new DBP_Playlist_Meta_Boxes();
+		}
 
 		// Audio Player initialisieren
 		new DBP_Audio_Player();
+		
+		// Playlist Player initialisieren (v1.1.0)
+		if ( get_option( 'dbp_enable_playlists', true ) ) {
+			new DBP_Playlist_Player();
+		}
+
+		// Waveform Generator initialisieren (v1.1.0)
+		if ( get_option( 'dbp_enable_waveform', false ) ) {
+			new DBP_Waveform_Generator();
+		}
 
 		// WooCommerce Integration initialisieren
 		new DBP_WooCommerce_Integration();
@@ -105,6 +134,11 @@ class DBP_Music_Hub {
 
 		// Shortcodes initialisieren
 		new DBP_Audio_Shortcodes();
+		
+		// Playlist Shortcodes initialisieren (v1.1.0)
+		if ( get_option( 'dbp_enable_playlists', true ) ) {
+			new DBP_Playlist_Shortcodes();
+		}
 
 		// Admin-Einstellungen initialisieren
 		if ( is_admin() ) {
@@ -131,11 +165,27 @@ class DBP_Music_Hub {
  * Plugin-Aktivierung
  */
 function dbp_music_hub_activate() {
-	// Custom Post Type registrieren
+	// Audio Custom Post Type registrieren
 	require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-audio-post-type.php';
 	$audio_post_type = new DBP_Audio_Post_Type();
 	$audio_post_type->register_post_type();
 	$audio_post_type->register_taxonomies();
+
+	// Playlist Custom Post Type registrieren (v1.1.0)
+	require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-playlist-post-type.php';
+	$playlist_post_type = new DBP_Playlist_Post_Type();
+	$playlist_post_type->register_post_type();
+
+	// Standard-Optionen setzen (v1.1.0)
+	add_option( 'dbp_enable_playlists', true );
+	add_option( 'dbp_enable_waveform', false );
+	add_option( 'dbp_playlist_default_autoplay', false );
+	add_option( 'dbp_playlist_default_shuffle', false );
+	add_option( 'dbp_max_playlist_tracks', 100 );
+	add_option( 'dbp_waveform_color', '#ddd' );
+	add_option( 'dbp_waveform_progress_color', '#4a90e2' );
+	add_option( 'dbp_waveform_height', 128 );
+	add_option( 'dbp_waveform_normalize', true );
 
 	// Rewrite Rules aktualisieren
 	flush_rewrite_rules();

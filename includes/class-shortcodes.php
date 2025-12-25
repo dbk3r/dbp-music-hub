@@ -25,7 +25,7 @@ class DBP_Audio_Shortcodes {
 
 	/**
 	 * Audio Player Shortcode
-	 * Verwendung: [dbp_audio_player id="123"]
+	 * Verwendung: [dbp_audio_player id="123" waveform="true"]
 	 *
 	 * @param array $atts Shortcode-Attribute.
 	 * @return string HTML-Ausgabe.
@@ -35,6 +35,7 @@ class DBP_Audio_Shortcodes {
 			array(
 				'id'           => 0,
 				'show_download' => 'true',
+				'waveform'     => '', // v1.1.0: 'true', 'false', or '' (auto-detect)
 			),
 			$atts,
 			'dbp_audio_player'
@@ -42,12 +43,18 @@ class DBP_Audio_Shortcodes {
 
 		$audio_id = absint( $atts['id'] );
 		$show_download = 'true' === strtolower( $atts['show_download'] );
+		
+		// Waveform-Parameter verarbeiten (v1.1.0)
+		$use_waveform = null; // null = auto-detect
+		if ( '' !== $atts['waveform'] ) {
+			$use_waveform = 'true' === strtolower( $atts['waveform'] );
+		}
 
 		if ( ! $audio_id || 'dbp_audio' !== get_post_type( $audio_id ) ) {
 			return '<p class="dbp-error">' . esc_html__( 'Ungültige Audio-ID', 'dbp-music-hub' ) . '</p>';
 		}
 
-		return DBP_Audio_Player::render_player( $audio_id, $show_download );
+		return DBP_Audio_Player::render_player( $audio_id, $show_download, $use_waveform );
 	}
 
 	/**
