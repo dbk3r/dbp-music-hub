@@ -1,0 +1,194 @@
+/**
+ * Admin Styles für DBP Music Hub
+ *
+ * @package DBP_Music_Hub
+ */
+
+/* Einstellungs-Seite */
+.dbp-settings-wrap {
+	max-width: 1200px;
+}
+
+.dbp-settings-header {
+	background: #fff;
+	padding: 20px;
+	margin: 20px 0;
+	border-left: 4px solid #3498db;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-settings-header p {
+	margin: 0;
+	font-size: 15px;
+	color: #555;
+}
+
+.dbp-settings-form {
+	background: #fff;
+	padding: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-settings-form h2 {
+	border-bottom: 2px solid #3498db;
+	padding-bottom: 10px;
+	margin-top: 30px;
+}
+
+.dbp-settings-form table {
+	margin-top: 20px;
+}
+
+.dbp-settings-form .form-table th {
+	font-weight: 600;
+	padding-left: 0;
+}
+
+.dbp-settings-form .form-table td {
+	padding-bottom: 20px;
+}
+
+.dbp-settings-info {
+	background: #fff;
+	padding: 20px;
+	margin-top: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-shortcode-list {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 15px;
+	margin-top: 15px;
+}
+
+.dbp-shortcode-item {
+	padding: 15px;
+	background: #f9f9f9;
+	border-left: 3px solid #3498db;
+	border-radius: 3px;
+}
+
+.dbp-shortcode-item code {
+	display: block;
+	background: #2c3e50;
+	color: #ecf0f1;
+	padding: 8px 12px;
+	border-radius: 4px;
+	font-size: 13px;
+	margin-bottom: 8px;
+	font-family: 'Courier New', monospace;
+}
+
+.dbp-shortcode-item p {
+	margin: 0;
+	color: #666;
+	font-size: 14px;
+}
+
+/* Meta Boxes */
+.dbp-meta-box-wrapper {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+.dbp-meta-field {
+	margin-bottom: 15px;
+}
+
+.dbp-meta-field label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+	color: #1d2327;
+}
+
+.dbp-meta-field input[type="text"],
+.dbp-meta-field input[type="number"],
+.dbp-meta-field select {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.dbp-meta-field input[type="text"]:focus,
+.dbp-meta-field input[type="number"]:focus,
+.dbp-meta-field select:focus {
+	border-color: #3498db;
+	outline: none;
+	box-shadow: 0 0 0 1px #3498db;
+}
+
+.dbp-media-upload-wrapper {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.dbp-media-upload-wrapper input[type="text"] {
+	flex: 1;
+}
+
+.dbp-audio-preview {
+	margin-top: 10px;
+	padding: 10px;
+	background: #f0f0f1;
+	border-radius: 4px;
+}
+
+.dbp-audio-preview audio {
+	width: 100%;
+	margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+	.dbp-meta-box-wrapper {
+		grid-template-columns: 1fr;
+	}
+	
+	.dbp-media-upload-wrapper {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	
+	.dbp-settings-wrap {
+		margin-right: 0;
+	}
+}
+
+/* Color Picker Anpassungen */
+.wp-picker-container {
+	display: inline-block;
+}
+
+/* Admin Columns */
+.column-dbp_artist,
+.column-dbp_album,
+.column-dbp_duration,
+.column-dbp_price {
+	width: 120px;
+}
+
+/* Admin Notices */
+.dbp-admin-notice {
+	padding: 12px;
+	border-left: 4px solid #3498db;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-admin-notice.error {
+	border-left-color: #d63638;
+}
+
+.dbp-admin-notice.success {
+	border-left-color: #00a32a;
+}
+
+.dbp-admin-notice p {
+	margin: 0.5em 0;
+}
