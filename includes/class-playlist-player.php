@@ -181,6 +181,7 @@ class DBP_Playlist_Player {
 						<span>⏭</span>
 					</button>
 
+					<?php if ( get_option( 'dbp_player_show_progress', true ) ) : ?>
 					<div class="dbp-playlist-progress-wrapper">
 						<div class="dbp-playlist-time-info">
 							<span class="dbp-playlist-current-time">0:00</span>
@@ -188,12 +189,16 @@ class DBP_Playlist_Player {
 						</div>
 						<input type="range" class="dbp-playlist-progress-bar" min="0" max="100" value="0" step="0.1" aria-label="<?php esc_attr_e( 'Fortschritt', 'dbp-music-hub' ); ?>">
 					</div>
+					<?php endif; ?>
 
 					<div class="dbp-playlist-options">
+						<?php if ( get_option( 'dbp_player_show_shuffle', true ) ) : ?>
 						<button class="dbp-playlist-btn dbp-playlist-shuffle-btn <?php echo $data['shuffle'] ? 'active' : ''; ?>" type="button" aria-label="<?php esc_attr_e( 'Shuffle', 'dbp-music-hub' ); ?>">
 							<span>🔀</span>
 						</button>
+						<?php endif; ?>
 
+						<?php if ( get_option( 'dbp_player_show_repeat', true ) ) : ?>
 						<button class="dbp-playlist-btn dbp-playlist-repeat-btn <?php echo 'off' !== $data['repeat'] ? 'active' : ''; ?>" 
 							type="button" 
 							aria-label="<?php esc_attr_e( 'Wiederholen', 'dbp-music-hub' ); ?>"
@@ -203,13 +208,16 @@ class DBP_Playlist_Player {
 							<span class="repeat-one-indicator">1</span>
 							<?php endif; ?>
 						</button>
+						<?php endif; ?>
 
+						<?php if ( get_option( 'dbp_player_show_volume', true ) ) : ?>
 						<div class="dbp-playlist-volume-wrapper">
 							<button class="dbp-playlist-btn dbp-playlist-volume-btn" type="button" aria-label="<?php esc_attr_e( 'Lautstärke', 'dbp-music-hub' ); ?>">
 								<span class="volume-icon">🔊</span>
 							</button>
 							<input type="range" class="dbp-playlist-volume-bar" min="0" max="100" value="80" step="1" aria-label="<?php esc_attr_e( 'Lautstärke einstellen', 'dbp-music-hub' ); ?>">
 						</div>
+						<?php endif; ?>
 					</div>
 				</div>
 				<?php endif; ?>
@@ -220,7 +228,7 @@ class DBP_Playlist_Player {
 				<div class="dbp-playlist-track" data-track-index="<?php echo esc_attr( $index ); ?>" data-audio-url="<?php echo esc_url( $track['url'] ); ?>">
 					<div class="dbp-track-number"><?php echo esc_html( $index + 1 ); ?></div>
 					
-					<?php if ( ! empty( $track['thumbnail'] ) ) : ?>
+					<?php if ( get_option( 'dbp_player_show_thumbnails', true ) && ! empty( $track['thumbnail'] ) ) : ?>
 					<div class="dbp-track-thumbnail">
 						<img src="<?php echo esc_url( $track['thumbnail'] ); ?>" alt="<?php echo esc_attr( $track['title'] ); ?>">
 					</div>
@@ -360,6 +368,7 @@ class DBP_Playlist_Player {
 						<span>⏭</span>
 					</button>
 
+					<?php if ( get_option( 'dbp_player_show_progress', true ) ) : ?>
 					<div class="dbp-playlist-progress-wrapper">
 						<div class="dbp-playlist-time-info">
 							<span class="dbp-playlist-current-time">0:00</span>
@@ -367,25 +376,32 @@ class DBP_Playlist_Player {
 						</div>
 						<input type="range" class="dbp-playlist-progress-bar" min="0" max="100" value="0" step="0.1" aria-label="<?php esc_attr_e( 'Fortschritt', 'dbp-music-hub' ); ?>">
 					</div>
+					<?php endif; ?>
 
 					<div class="dbp-playlist-options">
+						<?php if ( get_option( 'dbp_player_show_shuffle', true ) ) : ?>
 						<button class="dbp-playlist-btn dbp-playlist-shuffle-btn" type="button" aria-label="<?php esc_attr_e( 'Shuffle', 'dbp-music-hub' ); ?>">
 							<span>🔀</span>
 						</button>
+						<?php endif; ?>
 
+						<?php if ( get_option( 'dbp_player_show_repeat', true ) ) : ?>
 						<button class="dbp-playlist-btn dbp-playlist-repeat-btn" 
 							type="button" 
 							aria-label="<?php esc_attr_e( 'Wiederholen', 'dbp-music-hub' ); ?>"
 							data-repeat-mode="off">
 							<span class="repeat-icon">🔁</span>
 						</button>
+						<?php endif; ?>
 
+						<?php if ( get_option( 'dbp_player_show_volume', true ) ) : ?>
 						<div class="dbp-playlist-volume-wrapper">
 							<button class="dbp-playlist-btn dbp-playlist-volume-btn" type="button" aria-label="<?php esc_attr_e( 'Lautstärke', 'dbp-music-hub' ); ?>">
 								<span class="volume-icon">🔊</span>
 							</button>
 							<input type="range" class="dbp-playlist-volume-bar" min="0" max="100" value="80" step="1" aria-label="<?php esc_attr_e( 'Lautstärke einstellen', 'dbp-music-hub' ); ?>">
 						</div>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -395,7 +411,7 @@ class DBP_Playlist_Player {
 				<div class="dbp-playlist-track" data-track-index="<?php echo esc_attr( $index ); ?>" data-audio-url="<?php echo esc_url( $track['url'] ); ?>">
 					<div class="dbp-track-number"><?php echo esc_html( $index + 1 ); ?></div>
 					
-					<?php if ( ! empty( $track['thumbnail'] ) ) : ?>
+					<?php if ( get_option( 'dbp_player_show_thumbnails', true ) && ! empty( $track['thumbnail'] ) ) : ?>
 					<div class="dbp-track-thumbnail">
 						<img src="<?php echo esc_url( $track['thumbnail'] ); ?>" alt="<?php echo esc_attr( $track['title'] ); ?>">
 					</div>

@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.3.7
+ * Version: 1.3.8
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.3.7' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.3.8' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -274,6 +274,13 @@ function dbp_music_hub_activate() {
 	add_option( 'dbp_sync_categories', true );
 	add_option( 'dbp_sync_tags', true );
 	add_option( 'dbp_default_product_status', 'publish' );
+
+	// Player Element Toggles (v1.3.8)
+	add_option( 'dbp_player_show_progress', true );
+	add_option( 'dbp_player_show_volume', true );
+	add_option( 'dbp_player_show_shuffle', true );
+	add_option( 'dbp_player_show_repeat', true );
+	add_option( 'dbp_player_show_thumbnails', true );
 
 	// Rewrite Rules aktualisieren
 	flush_rewrite_rules();

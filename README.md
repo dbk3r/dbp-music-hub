@@ -380,6 +380,21 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+## Version 1.3.8 (2025-12-25)
+
+### Player Customization
+- ✨ **New Feature:** Admin settings to show/hide player elements
+  - Toggle Fortschrittsbalken (Progress Bar)
+  - Toggle Lautstärkeregler (Volume Control)
+  - Toggle Shuffle-Button
+  - Toggle Repeat-Button
+  - Toggle Track-Thumbnails in Tracklist
+- 🎛️ **Full Control:** Settings apply to all players (playlists and search results)
+- ⚙️ **User-Friendly:** All elements enabled by default, disable as needed
+
+### Settings Location
+Music Hub → Einstellungen → Player-Elemente
+
 ## Version 1.3.7 (2025-12-25)
 
 ### Code Cleanup
