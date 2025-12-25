@@ -50,8 +50,17 @@ class DBP_Admin_Dashboard {
 			'dbp-dashboard',
 			'dbpDashboard',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'dbp_dashboard_nonce' ),
+				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+				'nonce'         => wp_create_nonce( 'dbp_dashboard_nonce' ),
+				'waveformNonce' => wp_create_nonce( 'dbp_waveform_bulk_nonce' ),
+				'i18n'          => array(
+					'processing'           => __( 'Wird verarbeitet...', 'dbp-music-hub' ),
+					'regenerateAll'        => __( 'Alle Waveforms regenerieren', 'dbp-music-hub' ),
+					'startingRegeneration' => __( 'Starte Regenerierung...', 'dbp-music-hub' ),
+					'regenerationError'    => __( 'Fehler beim Regenerieren der Waveforms', 'dbp-music-hub' ),
+					'networkError'         => __( 'Netzwerkfehler beim Regenerieren der Waveforms', 'dbp-music-hub' ),
+					'regenerationFailed'   => __( 'Netzwerkfehler beim Regenerieren', 'dbp-music-hub' ),
+				),
 			)
 		);
 	}
@@ -209,6 +218,73 @@ class DBP_Admin_Dashboard {
 								<?php endforeach; ?>
 							</tbody>
 						</table>
+					</div>
+				</div>
+				<?php endif; ?>
+
+				<!-- Waveform-Tools -->
+				<?php if ( get_option( 'dbp_enable_waveform', false ) ) : ?>
+				<div class="dbp-dashboard-widget">
+					<div class="dbp-widget-header">
+						<h2><?php echo esc_html__( 'Waveform-Tools', 'dbp-music-hub' ); ?></h2>
+					</div>
+					<div class="dbp-widget-content">
+						<p><?php echo esc_html__( 'Verwalten Sie Waveform-Daten für alle Audio-Dateien.', 'dbp-music-hub' ); ?></p>
+						
+						<div style="margin: 15px 0;">
+							<?php
+							// Statistiken zu gecachten Waveforms
+							$total_audio = wp_count_posts( 'dbp_audio' );
+							$total = $total_audio->publish + $total_audio->draft + $total_audio->private;
+							
+							$cached_count = 0;
+							if ( $total > 0 ) {
+								$args = array(
+									'post_type'      => 'dbp_audio',
+									'post_status'    => array( 'publish', 'draft', 'private' ),
+									'posts_per_page' => -1,
+									'fields'         => 'ids',
+									'meta_query'     => array(
+										array(
+											'key'     => '_dbp_waveform_cached',
+											'value'   => true,
+											'compare' => '=',
+										),
+									),
+								);
+								$cached_query = new WP_Query( $args );
+								$cached_count = $cached_query->found_posts;
+							}
+							
+							$percentage = $total > 0 ? round( ( $cached_count / $total ) * 100 ) : 0;
+							?>
+							<div class="dbp-waveform-stats">
+								<p>
+									<strong><?php echo esc_html__( 'Status:', 'dbp-music-hub' ); ?></strong>
+									<?php
+									printf(
+										/* translators: 1: cached count, 2: total count, 3: percentage */
+										esc_html__( '%1$d von %2$d Waveforms gecacht (%3$d%%)', 'dbp-music-hub' ),
+										esc_html( $cached_count ),
+										esc_html( $total ),
+										esc_html( $percentage )
+									);
+									?>
+								</p>
+							</div>
+						</div>
+						
+						<button type="button" id="dbp-bulk-regenerate-waveforms" class="button button-primary">
+							<span class="dashicons dashicons-update"></span>
+							<?php echo esc_html__( 'Alle Waveforms regenerieren', 'dbp-music-hub' ); ?>
+						</button>
+						
+						<div id="dbp-waveform-progress" class="dbp-waveform-progress-wrapper" style="display: none; margin-top: 15px;">
+							<div class="dbp-waveform-progress-bar">
+								<div id="dbp-waveform-progress-fill" class="dbp-waveform-progress-fill" style="width: 0%;">0%</div>
+							</div>
+							<p id="dbp-waveform-progress-text" class="dbp-waveform-progress-text"></p>
+						</div>
 					</div>
 				</div>
 				<?php endif; ?>

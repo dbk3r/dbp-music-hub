@@ -18,7 +18,8 @@
 		 * Bind events
 		 */
 		bindEvents: function() {
-			// Optional: Add event listeners
+			// Bulk-Regenerierung Button
+			$('#dbp-bulk-regenerate-waveforms').on('click', this.bulkRegenerateWaveforms.bind(this));
 		},
 
 		/**
@@ -50,6 +51,84 @@
 				},
 				error: function() {
 					console.error('Failed to refresh statistics');
+				}
+			});
+		},
+
+		/**
+		 * Bulk-Regenerierung der Waveforms
+		 */
+		bulkRegenerateWaveforms: function(e) {
+			e.preventDefault();
+			
+			const button = $(e.target);
+			const progressWrapper = $('#dbp-waveform-progress');
+			const progressBar = $('#dbp-waveform-progress-fill');
+			const progressText = $('#dbp-waveform-progress-text');
+			
+			// Button deaktivieren
+			button.prop('disabled', true).text(dbpDashboard.i18n.processing);
+			
+			// Progress-Bar anzeigen
+			progressWrapper.show();
+			progressBar.css('width', '0%').text('0%');
+			progressText.text(dbpDashboard.i18n.startingRegeneration);
+			
+			// Batch-Verarbeitung starten
+			this.processBatch(0, button, progressWrapper, progressBar, progressText);
+		},
+
+		/**
+		 * Batch verarbeiten
+		 */
+		processBatch: function(offset, button, progressWrapper, progressBar, progressText) {
+			const self = this;
+			
+			$.ajax({
+				url: dbpDashboard.ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'dbp_bulk_regenerate_waveforms',
+					nonce: dbpDashboard.waveformNonce,
+					offset: offset
+				},
+				success: function(response) {
+					if (response.success) {
+						const data = response.data;
+						
+						// Progress-Bar aktualisieren
+						progressBar.css('width', data.percentage + '%').text(data.percentage + '%');
+						progressText.text(data.message);
+						
+						if (!data.complete) {
+							// Nächsten Batch verarbeiten
+							setTimeout(function() {
+								self.processBatch(data.offset, button, progressWrapper, progressBar, progressText);
+							}, 500);
+						} else {
+							// Abgeschlossen
+							progressText.text(data.message);
+							button.prop('disabled', false).text(dbpDashboard.i18n.regenerateAll);
+							
+							// Success-Notification anzeigen
+							self.showNotification(data.message, 'success');
+							
+							// Progress-Bar nach 3 Sekunden ausblenden
+							setTimeout(function() {
+								progressWrapper.fadeOut();
+							}, 3000);
+						}
+					} else {
+						// Fehler
+						progressText.text(response.data.message);
+						button.prop('disabled', false).text(dbpDashboard.i18n.regenerateAll);
+						self.showNotification(dbpDashboard.i18n.regenerationError, 'error');
+					}
+				},
+				error: function() {
+					progressText.text(dbpDashboard.i18n.regenerationFailed);
+					button.prop('disabled', false).text(dbpDashboard.i18n.regenerateAll);
+					self.showNotification(dbpDashboard.i18n.networkError, 'error');
 				}
 			});
 		},

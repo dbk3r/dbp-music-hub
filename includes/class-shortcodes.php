@@ -280,6 +280,7 @@ class DBP_Audio_Shortcodes {
 				'show_genre'    => 'true',
 				'show_category' => 'true',
 				'show_price'    => 'true',
+				'per_page'      => 12,
 			),
 			$atts,
 			'dbp_audio_search'
@@ -288,73 +289,24 @@ class DBP_Audio_Shortcodes {
 		$show_genre    = 'true' === strtolower( $atts['show_genre'] );
 		$show_category = 'true' === strtolower( $atts['show_category'] );
 		$show_price    = 'true' === strtolower( $atts['show_price'] );
+		$per_page      = absint( $atts['per_page'] );
 
 		// Aktuelle Werte aus Query String
-		$current_search   = isset( $_GET['dbp_search'] ) ? sanitize_text_field( $_GET['dbp_search'] ) : '';
-		$current_genre    = isset( $_GET['dbp_genre'] ) ? sanitize_text_field( $_GET['dbp_genre'] ) : '';
-		$current_category = isset( $_GET['dbp_category'] ) ? sanitize_text_field( $_GET['dbp_category'] ) : '';
-		$current_min_price = isset( $_GET['dbp_min_price'] ) ? sanitize_text_field( $_GET['dbp_min_price'] ) : '';
-		$current_max_price = isset( $_GET['dbp_max_price'] ) ? sanitize_text_field( $_GET['dbp_max_price'] ) : '';
+		$current_search    = isset( $_GET['dbp_search'] ) ? sanitize_text_field( wp_unslash( $_GET['dbp_search'] ) ) : '';
+		$current_genre     = isset( $_GET['dbp_genre'] ) ? sanitize_text_field( wp_unslash( $_GET['dbp_genre'] ) ) : '';
+		$current_category  = isset( $_GET['dbp_category'] ) ? sanitize_text_field( wp_unslash( $_GET['dbp_category'] ) ) : '';
+		$current_min_price = isset( $_GET['dbp_min_price'] ) ? sanitize_text_field( wp_unslash( $_GET['dbp_min_price'] ) ) : '';
+		$current_max_price = isset( $_GET['dbp_max_price'] ) ? sanitize_text_field( wp_unslash( $_GET['dbp_max_price'] ) ) : '';
+		$current_page      = isset( $_GET['dbp_page'] ) ? absint( $_GET['dbp_page'] ) : 1;
+
+		// GET request URL für form action
+		$form_action = esc_url( remove_query_arg( array( 'dbp_search', 'dbp_genre', 'dbp_category', 'dbp_min_price', 'dbp_max_price', 'dbp_page' ) ) );
 
 		ob_start();
 		?>
-		<div class="dbp-audio-search-form">
-			<style>
-				.dbp-audio-search-form {
-					background: #f9f9f9;
-					padding: 20px;
-					border-radius: 8px;
-					margin: 20px 0;
-				}
-				.dbp-search-form-inner {
-					display: grid;
-					grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-					gap: 15px;
-					margin-bottom: 15px;
-				}
-				.dbp-search-field {
-					display: flex;
-					flex-direction: column;
-				}
-				.dbp-search-field label {
-					font-weight: 600;
-					margin-bottom: 5px;
-					font-size: 14px;
-				}
-				.dbp-search-field input,
-				.dbp-search-field select {
-					padding: 8px;
-					border: 1px solid #ddd;
-					border-radius: 4px;
-				}
-				.dbp-search-actions {
-					display: flex;
-					gap: 10px;
-				}
-				.dbp-search-button {
-					padding: 10px 20px;
-					background: var(--dbp-primary-color, #3498db);
-					color: #fff;
-					border: none;
-					border-radius: 4px;
-					cursor: pointer;
-					font-weight: 600;
-				}
-				.dbp-search-button:hover {
-					opacity: 0.9;
-				}
-				.dbp-reset-button {
-					padding: 10px 20px;
-					background: #95a5a6;
-					color: #fff;
-					border: none;
-					border-radius: 4px;
-					cursor: pointer;
-				}
-			</style>
-
-			<form method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>" class="dbp-search-form-inner-wrapper">
-				<div class="dbp-search-form-inner">
+		<div class="dbp-audio-search-wrapper">
+			<form method="get" action="<?php echo $form_action; ?>" class="dbp-audio-search-form">
+				<div class="dbp-search-form-grid">
 					<!-- Suchfeld -->
 					<div class="dbp-search-field">
 						<label for="dbp_search"><?php esc_html_e( 'Suche', 'dbp-music-hub' ); ?></label>
@@ -435,7 +387,7 @@ class DBP_Audio_Shortcodes {
 					<button type="submit" class="dbp-search-button">
 						<?php esc_html_e( 'Suchen', 'dbp-music-hub' ); ?>
 					</button>
-					<button type="button" class="dbp-reset-button" onclick="window.location.href='<?php echo esc_url( remove_query_arg( array( 'dbp_search', 'dbp_genre', 'dbp_category', 'dbp_min_price', 'dbp_max_price' ) ) ); ?>'">
+					<button type="button" class="dbp-reset-button" onclick="window.location.href='<?php echo esc_url( remove_query_arg( array( 'dbp_search', 'dbp_genre', 'dbp_category', 'dbp_min_price', 'dbp_max_price', 'dbp_page' ) ) ); ?>'">
 						<?php esc_html_e( 'Zurücksetzen', 'dbp-music-hub' ); ?>
 					</button>
 				</div>
@@ -445,51 +397,127 @@ class DBP_Audio_Shortcodes {
 			// Suchergebnisse anzeigen wenn Suchparameter vorhanden
 			if ( ! empty( $current_search ) || ! empty( $current_genre ) || ! empty( $current_category ) || ! empty( $current_min_price ) || ! empty( $current_max_price ) ) {
 				$search_args = array(
-					's'         => $current_search,
-					'genre'     => $current_genre,
-					'category'  => $current_category,
-					'min_price' => $current_min_price,
-					'max_price' => $current_max_price,
+					's'              => $current_search,
+					'genre'          => $current_genre,
+					'category'       => $current_category,
+					'min_price'      => $current_min_price,
+					'max_price'      => $current_max_price,
+					'posts_per_page' => $per_page,
+					'paged'          => $current_page,
 				);
 
 				$search_query = DBP_Audio_Search::advanced_search( $search_args );
 
 				if ( $search_query->have_posts() ) {
-					echo '<div class="dbp-search-results" style="margin-top: 30px;">';
-					echo '<h3>' . esc_html__( 'Suchergebnisse:', 'dbp-music-hub' ) . ' ' . esc_html( $search_query->found_posts ) . '</h3>';
+					echo '<div class="dbp-search-results">';
+					echo '<div class="dbp-search-results-header">';
+					echo '<h3>' . sprintf( esc_html__( 'Suchergebnisse: %s Treffer', 'dbp-music-hub' ), esc_html( $search_query->found_posts ) ) . '</h3>';
 					
 					// Audio-IDs sammeln für Playlist-Button
-					$audio_ids = array();
-					while ( $search_query->have_posts() ) {
-						$search_query->the_post();
-						if ( get_post_type() === 'dbp_audio' ) {
-							$audio_ids[] = get_the_ID();
-						}
-					}
-					wp_reset_postdata();
+					$audio_ids = wp_list_pluck( $search_query->posts, 'ID' );
 					
 					// Playlist-Button anzeigen wenn Playlists aktiviert und Audio-IDs vorhanden
 					if ( ! empty( $audio_ids ) && get_option( 'dbp_enable_playlists', true ) ) {
-						echo '<div class="dbp-search-actions" style="margin-bottom: 20px;">';
 						echo sprintf(
-							'<button class="dbp-save-search-playlist button button-primary" data-audio-ids="%s" data-search-term="%s" data-nonce="%s">%s</button>',
+							'<button class="dbp-save-search-playlist button" data-audio-ids="%s" data-search-term="%s" data-nonce="%s">%s</button>',
 							esc_attr( implode( ',', $audio_ids ) ),
 							esc_attr( $current_search ),
-							wp_create_nonce( 'dbp_search_playlist_nonce' ),
+							esc_attr( wp_create_nonce( 'dbp_search_playlist_nonce' ) ),
 							esc_html__( 'Als Playlist speichern', 'dbp-music-hub' )
 						);
-						echo '</div>';
+					}
+					echo '</div>';
+					
+					// Ergebnisse als Grid anzeigen
+					echo '<div class="dbp-search-results-grid">';
+					while ( $search_query->have_posts() ) {
+						$search_query->the_post();
+						$audio_id = get_the_ID();
+						$artist   = get_post_meta( $audio_id, '_dbp_audio_artist', true );
+						$album    = get_post_meta( $audio_id, '_dbp_audio_album', true );
+						$duration = get_post_meta( $audio_id, '_dbp_audio_duration', true );
+						$price    = get_post_meta( $audio_id, '_dbp_audio_price', true );
+						?>
+						<div class="dbp-search-result-card">
+							<?php if ( has_post_thumbnail() ) : ?>
+							<div class="dbp-result-thumbnail">
+								<a href="<?php the_permalink(); ?>">
+									<?php the_post_thumbnail( 'medium' ); ?>
+								</a>
+							</div>
+							<?php endif; ?>
+							
+							<div class="dbp-result-content">
+								<h4 class="dbp-result-title">
+									<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+								</h4>
+								
+								<?php if ( $artist ) : ?>
+								<p class="dbp-result-artist"><?php echo esc_html( $artist ); ?></p>
+								<?php endif; ?>
+								
+								<div class="dbp-result-meta">
+									<?php if ( $album ) : ?>
+									<span class="dbp-result-album"><?php echo esc_html( $album ); ?></span>
+									<?php endif; ?>
+									
+									<?php if ( $duration ) : ?>
+									<span class="dbp-result-duration"><?php echo esc_html( $duration ); ?></span>
+									<?php endif; ?>
+									
+									<?php if ( $price ) : ?>
+									<span class="dbp-result-price"><?php echo esc_html( number_format_i18n( $price, 2 ) ); ?> €</span>
+									<?php endif; ?>
+								</div>
+								
+								<div class="dbp-result-player">
+									<?php echo DBP_Audio_Player::render_player( $audio_id, false ); ?>
+								</div>
+							</div>
+						</div>
+						<?php
+					}
+					echo '</div>'; // .dbp-search-results-grid
+					
+					// Pagination
+					if ( $search_query->max_num_pages > 1 ) {
+						echo '<div class="dbp-search-pagination">';
+						
+						$base_url = add_query_arg(
+							array(
+								'dbp_search'    => $current_search,
+								'dbp_genre'     => $current_genre,
+								'dbp_category'  => $current_category,
+								'dbp_min_price' => $current_min_price,
+								'dbp_max_price' => $current_max_price,
+							)
+						);
+						
+						// Vorherige Seite
+						if ( $current_page > 1 ) {
+							$prev_url = add_query_arg( 'dbp_page', $current_page - 1, $base_url );
+							echo '<a href="' . esc_url( $prev_url ) . '" class="dbp-pagination-btn dbp-pagination-prev">' . esc_html__( '« Zurück', 'dbp-music-hub' ) . '</a>';
+						}
+						
+						// Seiten-Nummern
+						echo '<span class="dbp-pagination-info">' . sprintf(
+							esc_html__( 'Seite %1$s von %2$s', 'dbp-music-hub' ),
+							esc_html( $current_page ),
+							esc_html( $search_query->max_num_pages )
+						) . '</span>';
+						
+						// Nächste Seite
+						if ( $current_page < $search_query->max_num_pages ) {
+							$next_url = add_query_arg( 'dbp_page', $current_page + 1, $base_url );
+							echo '<a href="' . esc_url( $next_url ) . '" class="dbp-pagination-btn dbp-pagination-next">' . esc_html__( 'Weiter »', 'dbp-music-hub' ) . '</a>';
+						}
+						
+						echo '</div>'; // .dbp-search-pagination
 					}
 					
-					// Shortcode für Liste nutzen
-					$list_atts = array(
-						'category' => $current_category,
-						'genre'    => $current_genre,
-						'limit'    => 50,
-					);
-					echo do_shortcode( '[dbp_audio_list ' . http_build_query( $list_atts, '', ' ' ) . ']' );
+					echo '</div>'; // .dbp-search-results
 					
-					echo '</div>';
+					wp_reset_postdata();
 					
 					// JavaScript für Playlist-Button
 					if ( ! empty( $audio_ids ) && get_option( 'dbp_enable_playlists', true ) ) {
@@ -502,10 +530,10 @@ class DBP_Audio_Shortcodes {
 								var searchTerm = button.data("search-term");
 								var nonce = button.data("nonce");
 								
-								button.prop("disabled", true).text("<?php echo esc_js__( 'Wird gespeichert...', 'dbp-music-hub' ); ?>");
+								button.prop("disabled", true).text("<?php echo esc_js( __( 'Wird gespeichert...', 'dbp-music-hub' ) ); ?>");
 								
 								$.ajax({
-									url: "<?php echo admin_url( 'admin-ajax.php' ); ?>",
+									url: "<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>",
 									type: "POST",
 									data: {
 										action: "dbp_save_search_playlist",
@@ -516,15 +544,17 @@ class DBP_Audio_Shortcodes {
 									success: function(response) {
 										if (response.success) {
 											alert(response.data.message);
-											window.location.href = response.data.edit_url;
+											if (response.data.edit_url) {
+												window.location.href = response.data.edit_url;
+											}
 										} else {
-											alert(response.data.message);
-											button.prop("disabled", false).text("<?php echo esc_js__( 'Als Playlist speichern', 'dbp-music-hub' ); ?>");
+											alert(response.data.message || "<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
+											button.prop("disabled", false).text("<?php echo esc_js( __( 'Als Playlist speichern', 'dbp-music-hub' ) ); ?>");
 										}
 									},
 									error: function() {
-										alert("<?php echo esc_js__( 'Fehler beim Speichern', 'dbp-music-hub' ); ?>");
-										button.prop("disabled", false).text("<?php echo esc_js__( 'Als Playlist speichern', 'dbp-music-hub' ); ?>");
+										alert("<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
+										button.prop("disabled", false).text("<?php echo esc_js( __( 'Als Playlist speichern', 'dbp-music-hub' ) ); ?>");
 									}
 								});
 							});
@@ -533,7 +563,7 @@ class DBP_Audio_Shortcodes {
 						<?php
 					}
 				} else {
-					echo '<div class="dbp-no-results" style="margin-top: 20px;">';
+					echo '<div class="dbp-no-results">';
 					echo '<p>' . esc_html__( 'Keine Ergebnisse gefunden.', 'dbp-music-hub' ) . '</p>';
 					echo '</div>';
 				}
