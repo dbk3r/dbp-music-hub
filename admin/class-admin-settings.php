@@ -312,6 +312,97 @@ class DBP_Admin_Settings {
 			)
 		);
 
+		// PDF-Einstellungen (v1.3.1)
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_auto_generate',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_email_attachment',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_logo',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'esc_url_raw',
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_main_color',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'default'           => '#2ea563',
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_text_color',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'default'           => '#333333',
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_watermark',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_watermark_text',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => 'LICENSED',
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_qr_code',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
+
+		register_setting(
+			'dbp_music_hub_settings',
+			'dbp_pdf_legal_text',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'wp_kses_post',
+				'default'           => '',
+			)
+		);
+
 		// Sections
 		add_settings_section(
 			'dbp_general_section',
@@ -363,6 +454,14 @@ class DBP_Admin_Settings {
 			'dbp_wc_sync_section',
 			__( 'WooCommerce-Sync', 'dbp-music-hub' ),
 			array( $this, 'render_wc_sync_section' ),
+			'dbp-music-hub'
+		);
+
+		// PDF Section (v1.3.1)
+		add_settings_section(
+			'dbp_license_pdf_section',
+			__( 'Lizenz-PDF', 'dbp-music-hub' ),
+			array( $this, 'render_license_pdf_section' ),
 			'dbp-music-hub'
 		);
 
@@ -555,6 +654,79 @@ class DBP_Admin_Settings {
 			array( $this, 'render_product_status_field' ),
 			'dbp-music-hub',
 			'dbp_wc_sync_section'
+		);
+
+		// Fields - License PDF (v1.3.1)
+		add_settings_field(
+			'dbp_pdf_auto_generate',
+			__( 'Automatische PDF-Generierung', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_auto_generate_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_email_attachment',
+			__( 'PDF per Email versenden', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_email_attachment_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_logo',
+			__( 'Logo-URL', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_logo_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_main_color',
+			__( 'Hauptfarbe', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_main_color_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_text_color',
+			__( 'Textfarbe', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_text_color_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_watermark',
+			__( 'Wasserzeichen aktivieren', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_watermark_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_watermark_text',
+			__( 'Wasserzeichen-Text', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_watermark_text_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_qr_code',
+			__( 'QR-Code aktivieren', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_qr_code_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
+		);
+
+		add_settings_field(
+			'dbp_pdf_legal_text',
+			__( 'Rechtlicher Text', 'dbp-music-hub' ),
+			array( $this, 'render_pdf_legal_text_field' ),
+			'dbp-music-hub',
+			'dbp_license_pdf_section'
 		);
 	}
 
@@ -1045,5 +1217,142 @@ class DBP_Admin_Settings {
 	public function sanitize_product_status( $value ) {
 		$allowed = array( 'publish', 'draft', 'pending' );
 		return in_array( $value, $allowed, true ) ? $value : 'publish';
+	}
+
+	/**
+	 * License PDF Section rendern (v1.3.1)
+	 */
+	public function render_license_pdf_section() {
+		echo '<p>' . esc_html__( 'Konfiguriere die automatische Generierung von Lizenz-Zertifikaten als PDF beim Bestellabschluss.', 'dbp-music-hub' ) . '</p>';
+	}
+
+	/**
+	 * PDF Auto-Generate Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_auto_generate_field() {
+		$value = get_option( 'dbp_pdf_auto_generate', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_pdf_auto_generate" id="dbp_pdf_auto_generate" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Lizenz-PDFs automatisch bei Bestellabschluss generieren', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Wenn aktiviert, wird automatisch ein Lizenz-Zertifikat erstellt, sobald eine Bestellung abgeschlossen ist.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF Email Attachment Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_email_attachment_field() {
+		$value = get_option( 'dbp_pdf_email_attachment', false );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_pdf_email_attachment" id="dbp_pdf_email_attachment" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Lizenz-PDF an Bestellbestätigungs-Email anhängen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Das Lizenz-Zertifikat wird automatisch an die WooCommerce Bestellbestätigungs-Email angehängt.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF Logo Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_logo_field() {
+		$value = get_option( 'dbp_pdf_logo', '' );
+		?>
+		<input type="text" name="dbp_pdf_logo" id="dbp_pdf_logo" value="<?php echo esc_attr( $value ); ?>" class="regular-text" />
+		<button type="button" class="button dbp-upload-logo-button"><?php esc_html_e( 'Logo auswählen', 'dbp-music-hub' ); ?></button>
+		<p class="description">
+			<?php esc_html_e( 'URL zu einem Logo-Bild, das im Header des Zertifikats angezeigt wird.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF Main Color Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_main_color_field() {
+		$value = get_option( 'dbp_pdf_main_color', '#2ea563' );
+		?>
+		<input type="text" name="dbp_pdf_main_color" id="dbp_pdf_main_color" value="<?php echo esc_attr( $value ); ?>" class="dbp-color-picker" />
+		<p class="description">
+			<?php esc_html_e( 'Hauptfarbe für Rahmen, Überschriften und Akzente im Zertifikat.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF Text Color Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_text_color_field() {
+		$value = get_option( 'dbp_pdf_text_color', '#333333' );
+		?>
+		<input type="text" name="dbp_pdf_text_color" id="dbp_pdf_text_color" value="<?php echo esc_attr( $value ); ?>" class="dbp-color-picker" />
+		<p class="description">
+			<?php esc_html_e( 'Textfarbe für den Haupttext im Zertifikat.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF Watermark Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_watermark_field() {
+		$value = get_option( 'dbp_pdf_watermark', false );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_pdf_watermark" id="dbp_pdf_watermark" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Wasserzeichen im Hintergrund anzeigen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Zeigt ein transparentes Wasserzeichen im Hintergrund des Zertifikats an.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF Watermark Text Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_watermark_text_field() {
+		$value = get_option( 'dbp_pdf_watermark_text', 'LICENSED' );
+		?>
+		<input type="text" name="dbp_pdf_watermark_text" id="dbp_pdf_watermark_text" value="<?php echo esc_attr( $value ); ?>" class="regular-text" />
+		<p class="description">
+			<?php esc_html_e( 'Text für das Wasserzeichen (z.B. "LICENSED", "ORIGINAL", etc.).', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF QR Code Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_qr_code_field() {
+		$value = get_option( 'dbp_pdf_qr_code', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_pdf_qr_code" id="dbp_pdf_qr_code" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'QR-Code für Lizenz-Verifizierung anzeigen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'Zeigt einen QR-Code an, der direkt zur Verifizierungsseite führt.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * PDF Legal Text Feld rendern (v1.3.1)
+	 */
+	public function render_pdf_legal_text_field() {
+		$value = get_option( 'dbp_pdf_legal_text', '' );
+		?>
+		<textarea name="dbp_pdf_legal_text" id="dbp_pdf_legal_text" rows="5" class="large-text"><?php echo esc_textarea( $value ); ?></textarea>
+		<p class="description">
+			<?php esc_html_e( 'Rechtlicher Text oder Nutzungsbedingungen, die im Footer des Zertifikats angezeigt werden.', 'dbp-music-hub' ); ?>
+		</p>
+		<?php
 	}
 }

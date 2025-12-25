@@ -380,6 +380,65 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+### Version 1.3.1 (2025-12-25)
+
+#### 📄 PDF License Certificates
+- **Automatische PDF-Generierung**: Lizenz-Zertifikate werden automatisch bei Bestellabschluss erstellt
+- **HTML-basierte Zertifikate**: Professionelle Zertifikate ohne externe PDF-Bibliotheken
+- **Eindeutige Lizenz-Nummern**: Format `DMH-{YEAR}-{ORDER_ID}-{ITEM_ID}` für jede Lizenz
+- **Strukturierte Ablage**: PDFs werden in `/wp-content/uploads/dbp-licenses/{YEAR}/{MONTH}/` gespeichert
+- **Order-Integration**: Download-Links direkt in den WooCommerce Bestelldetails
+- **Email-Anhang**: Optional als Anhang in der Bestellbestätigungs-Email (konfigurierbar)
+- **Anpassbares Design**: Logo, Farben, Wasserzeichen über Admin-Einstellungen
+- **QR-Code Verifizierung**: Scanbare QR-Codes für schnelle Lizenz-Prüfung
+
+#### 🔍 License Verification System
+- **Öffentliche Verifizierung**: Lizenz-Überprüfung unter `/verify-license/?id=XXX`
+- **Rewrite Rules**: Clean URLs für Verification-Page
+- **Shortcode Support**: `[dbp_verify_license]` mit Formular-Eingabe
+- **Detaillierte Anzeige**: Track, Künstler, Lizenzmodell, Datum, anonymisierte Email
+- **Validierung**: Automatische Prüfung gegen WooCommerce-Orders
+- **Security**: Anonymisierte Kunden-Daten zum Schutz der Privatsphäre
+
+#### ⚙️ PDF Settings (Admin)
+- **Neue Settings-Sektion**: "Lizenz-PDF" unter Einstellungen
+- **Auto-Generierung**: Ein/Ausschalten der automatischen PDF-Erstellung
+- **Email-Anhang**: Option für Email-Versand aktivieren/deaktivieren
+- **Logo-Upload**: Media-Uploader für Zertifikat-Logo
+- **Farb-Anpassungen**: Hauptfarbe und Textfarbe per Color-Picker
+- **Wasserzeichen**: Optional mit konfigurierbarem Text
+- **QR-Code Option**: QR-Code für Verifizierung ein/ausschalten
+- **Rechtlicher Text**: Freies Textfeld für Nutzungsbedingungen/Footer
+
+#### 🔧 Admin-Fixes
+- **Waveform-Button**: "Alle Waveforms regenerieren" Button funktioniert jetzt korrekt
+- **Batch-Processing**: Verarbeitung in kleinen Batches mit Progress-Bar
+- **License Manager**: Alle Buttons (Bearbeiten, Löschen, Sortieren) funktionieren einwandfrei
+- **AJAX-Handler**: Korrekte Nonce-Prüfung und Error-Handling
+- **Dashboard-Assets**: JS und CSS werden nur auf relevanten Admin-Seiten geladen
+
+#### 🛡️ Sicherheit & Standards
+- **WordPress Coding Standards**: Alle neuen Dateien folgen WP Standards
+- **Nonces**: Gesicherte AJAX-Requests für alle Admin-Aktionen
+- **Sanitization**: Input-Daten werden korrekt bereinigt
+- **Escaping**: Output wird sicher escaped
+- **i18n ready**: Alle Texte übersetzbar mit Text Domain `dbp-music-hub`
+- **Error Handling**: User-freundliche Fehlermeldungen
+
+#### 📁 Neue Dateien
+- `includes/class-license-pdf-generator.php` - PDF-Generierungs-Engine
+- `includes/class-license-verification.php` - Verification-System
+
+#### 🔄 Aktualisierte Dateien
+- `admin/class-admin-settings.php` - PDF-Settings hinzugefügt
+- `admin/js/admin-dashboard.js` - Waveform-Regenerierung funktionsfähig
+- `admin/js/license-manager.js` - Button-Handler korrekt implementiert
+- `admin/class-dashboard.php` - Assets korrekt eingebunden
+- `admin/class-license-manager.php` - AJAX-Handler vollständig
+- `includes/class-waveform-cache.php` - Bulk-Regenerierung optimiert
+- `dbp-music-hub.php` - Version 1.3.1, neue Klassen geladen
+- `README.md` - v1.3.1 Changelog
+
 ### Version 1.3.0 (2025-12-25)
 
 #### 💳 Neue Features - Lizenzmodell-System
