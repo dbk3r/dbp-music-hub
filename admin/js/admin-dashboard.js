@@ -67,12 +67,12 @@
 			const progressText = $('#dbp-waveform-progress-text');
 			
 			// Button deaktivieren
-			button.prop('disabled', true).text('Wird verarbeitet...');
+			button.prop('disabled', true).text(dbpDashboard.i18n.processing);
 			
 			// Progress-Bar anzeigen
 			progressWrapper.show();
 			progressBar.css('width', '0%').text('0%');
-			progressText.text('Starte Regenerierung...');
+			progressText.text(dbpDashboard.i18n.startingRegeneration);
 			
 			// Batch-Verarbeitung starten
 			this.processBatch(0, button, progressWrapper, progressBar, progressText);
@@ -107,8 +107,8 @@
 							}, 500);
 						} else {
 							// Abgeschlossen
-							progressText.text('Alle Waveforms wurden erfolgreich regeneriert!');
-							button.prop('disabled', false).text('Alle Waveforms regenerieren');
+							progressText.text(data.message);
+							button.prop('disabled', false).text(dbpDashboard.i18n.regenerateAll);
 							
 							// Success-Notification anzeigen
 							self.showNotification(data.message, 'success');
@@ -120,15 +120,15 @@
 						}
 					} else {
 						// Fehler
-						progressText.text('Fehler: ' + response.data.message);
-						button.prop('disabled', false).text('Alle Waveforms regenerieren');
-						self.showNotification('Fehler beim Regenerieren der Waveforms', 'error');
+						progressText.text(response.data.message);
+						button.prop('disabled', false).text(dbpDashboard.i18n.regenerateAll);
+						self.showNotification(dbpDashboard.i18n.regenerationError, 'error');
 					}
 				},
 				error: function() {
-					progressText.text('Netzwerkfehler beim Regenerieren');
-					button.prop('disabled', false).text('Alle Waveforms regenerieren');
-					self.showNotification('Netzwerkfehler beim Regenerieren der Waveforms', 'error');
+					progressText.text(dbpDashboard.i18n.regenerationFailed);
+					button.prop('disabled', false).text(dbpDashboard.i18n.regenerateAll);
+					self.showNotification(dbpDashboard.i18n.networkError, 'error');
 				}
 			});
 		},

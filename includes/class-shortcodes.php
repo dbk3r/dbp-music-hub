@@ -523,45 +523,42 @@ class DBP_Audio_Shortcodes {
 					if ( ! empty( $audio_ids ) && get_option( 'dbp_enable_playlists', true ) ) {
 						?>
 						<script>
-						(function() {
-							if (typeof jQuery === 'undefined') return;
-							jQuery(document).ready(function($) {
-								$(".dbp-save-search-playlist").on("click", function() {
-									var button = $(this);
-									var audioIds = button.data("audio-ids").toString().split(",");
-									var searchTerm = button.data("search-term");
-									var nonce = button.data("nonce");
-									
-									button.prop("disabled", true).text("<?php echo esc_js( __( 'Wird gespeichert...', 'dbp-music-hub' ) ); ?>");
-									
-									$.ajax({
-										url: "<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>",
-										type: "POST",
-										data: {
-											action: "dbp_save_search_playlist",
-											audio_ids: audioIds,
-											search_term: searchTerm,
-											nonce: nonce
-										},
-										success: function(response) {
-											if (response.success) {
-												alert(response.data.message);
-												if (response.data.edit_url) {
-													window.location.href = response.data.edit_url;
-												}
-											} else {
-												alert(response.data.message || "<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
-												button.prop("disabled", false).text("<?php echo esc_js( __( 'Als Playlist speichern', 'dbp-music-hub' ) ); ?>");
+						jQuery(document).ready(function($) {
+							$(".dbp-save-search-playlist").on("click", function() {
+								var button = $(this);
+								var audioIds = button.data("audio-ids").toString().split(",");
+								var searchTerm = button.data("search-term");
+								var nonce = button.data("nonce");
+								
+								button.prop("disabled", true).text("<?php echo esc_js( __( 'Wird gespeichert...', 'dbp-music-hub' ) ); ?>");
+								
+								$.ajax({
+									url: "<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>",
+									type: "POST",
+									data: {
+										action: "dbp_save_search_playlist",
+										audio_ids: audioIds,
+										search_term: searchTerm,
+										nonce: nonce
+									},
+									success: function(response) {
+										if (response.success) {
+											alert(response.data.message);
+											if (response.data.edit_url) {
+												window.location.href = response.data.edit_url;
 											}
-										},
-										error: function() {
-											alert("<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
+										} else {
+											alert(response.data.message || "<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
 											button.prop("disabled", false).text("<?php echo esc_js( __( 'Als Playlist speichern', 'dbp-music-hub' ) ); ?>");
 										}
-									});
+									},
+									error: function() {
+										alert("<?php echo esc_js( __( 'Fehler beim Speichern', 'dbp-music-hub' ) ); ?>");
+										button.prop("disabled", false).text("<?php echo esc_js( __( 'Als Playlist speichern', 'dbp-music-hub' ) ); ?>");
+									}
 								});
 							});
-						})();
+						});
 						</script>
 						<?php
 					}

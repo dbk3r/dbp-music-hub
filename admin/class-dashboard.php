@@ -53,6 +53,14 @@ class DBP_Admin_Dashboard {
 				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
 				'nonce'         => wp_create_nonce( 'dbp_dashboard_nonce' ),
 				'waveformNonce' => wp_create_nonce( 'dbp_waveform_bulk_nonce' ),
+				'i18n'          => array(
+					'processing'           => __( 'Wird verarbeitet...', 'dbp-music-hub' ),
+					'regenerateAll'        => __( 'Alle Waveforms regenerieren', 'dbp-music-hub' ),
+					'startingRegeneration' => __( 'Starte Regenerierung...', 'dbp-music-hub' ),
+					'regenerationError'    => __( 'Fehler beim Regenerieren der Waveforms', 'dbp-music-hub' ),
+					'networkError'         => __( 'Netzwerkfehler beim Regenerieren der Waveforms', 'dbp-music-hub' ),
+					'regenerationFailed'   => __( 'Netzwerkfehler beim Regenerieren', 'dbp-music-hub' ),
+				),
 			)
 		);
 	}

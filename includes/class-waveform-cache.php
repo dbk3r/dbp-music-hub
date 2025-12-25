@@ -140,8 +140,9 @@ class DBP_Waveform_Cache {
 	private function extract_peaks( $audio_file ) {
 		// Prüfen ob getID3 verfügbar ist
 		if ( ! class_exists( 'getID3' ) ) {
-			// Falls nicht vorhanden, leeres Array zurückgeben
-			// (Client-seitige Generierung wird verwendet)
+			// Falls getID3 nicht verfügbar ist, leeres Array zurückgeben.
+			// Dies ermöglicht client-seitige Generierung durch WaveSurfer.js
+			// und vermeidet Fehler beim Caching.
 			return array();
 		}
 
@@ -403,11 +404,11 @@ class DBP_Waveform_Cache {
 	 * Bulk-Action-Notices anzeigen
 	 */
 	public function bulk_action_notices() {
-		if ( ! isset( $_REQUEST['waveforms_regenerated'] ) ) {
+		if ( ! isset( $_GET['waveforms_regenerated'] ) ) {
 			return;
 		}
 
-		$regenerated = absint( $_REQUEST['waveforms_regenerated'] );
+		$regenerated = absint( $_GET['waveforms_regenerated'] );
 
 		printf(
 			'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
