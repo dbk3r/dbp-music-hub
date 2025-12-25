@@ -120,6 +120,11 @@ class DBP_Music_Hub {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-license-manager.php';
 		}
 
+		// Product Audio Manager (v1.4.0) - Load wenn WooCommerce aktiv ist
+		if ( class_exists( 'WooCommerce' ) ) {
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-product-audio-manager.php';
+		}
+
 		// Admin-Instanzen erstellen (erst nach Laden der Klassen)
 		new DBP_Admin_Settings();
 
@@ -138,6 +143,11 @@ class DBP_Music_Hub {
 		// License Manager initialisieren (v1.3.6) - nach Menu-Registrierung! 
 		if ( class_exists( 'WooCommerce' ) ) {
 			new DBP_License_Manager();
+		}
+
+		// Product Audio Manager initialisieren (v1.4.0)
+		if ( class_exists( 'WooCommerce' ) && class_exists( 'DBP_Product_Audio_Manager' ) ) {
+			new DBP_Product_Audio_Manager();
 		}
 	}
 
