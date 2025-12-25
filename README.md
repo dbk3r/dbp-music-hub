@@ -380,6 +380,21 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+### Version 1.3.3 (2025-12-25)
+
+#### Critical Bugfixes
+- 🐛 **Lizenzmodell-Button Fix**: Hook-Check korrigiert, Button funktioniert jetzt
+- 🐛 **Waveform-Button Fix**: Hook-Check + AJAX-Handler hinzugefügt, Regenerierung funktioniert
+- 🐛 **Warenkorb-Button Fix**: Button wird jetzt in Playlists angezeigt
+- 🔍 **Debug-Logging**: Temporäres Logging für Hook-Diagnose aktiviert
+
+#### Technical
+- Hook-Checks verwenden jetzt Arrays für mehrere Varianten
+- AJAX-Handler für Waveform-Batch-Processing implementiert
+- WP_Query für effiziente Batch-Verarbeitung (10 Tracks pro Request)
+- Progress-Bar mit Prozentanzeige
+- Error-Handling verbessert
+
 ### Version 1.3.1 (2025-12-25)
 
 #### 📄 PDF License Certificates

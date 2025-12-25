@@ -19,6 +19,7 @@ class DBP_Admin_Dashboard {
 	 */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_dashboard_assets' ) );
+		add_action( 'wp_ajax_dbp_bulk_regenerate_waveforms', array( $this, 'ajax_bulk_regenerate_waveforms' ) );
 	}
 
 	/**
@@ -27,9 +28,17 @@ class DBP_Admin_Dashboard {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_dashboard_assets( $hook_suffix ) {
-		if ( 'toplevel_page_dbp-music-hub-dashboard' !== $hook_suffix ) {
+		$valid_hooks = array(
+			'toplevel_page_dbp-music-hub-dashboard',
+			'toplevel_page_dbp-music-hub',
+			'dbp-music-hub_page_dbp-music-hub-dashboard'
+		);
+
+		if ( ! in_array( $hook_suffix, $valid_hooks ) ) {
 			return;
 		}
+
+		error_log( 'DBP Dashboard - Hook: ' . $hook_suffix );
 
 		wp_enqueue_style(
 			'dbp-dashboard',
@@ -491,5 +500,84 @@ class DBP_Admin_Dashboard {
 		}
 
 		return $activities;
+	}
+
+	/**
+	 * AJAX: Bulk Waveform Regeneration
+	 */
+	public function ajax_bulk_regenerate_waveforms() {
+		check_ajax_referer( 'dbp_waveform_bulk_nonce', 'nonce' );
+		
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Keine Berechtigung.', 'dbp-music-hub' ) ) );
+		}
+		
+		$offset = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+		$batch_size = 10;
+		
+		// Get audio posts
+		$args = array(
+			'post_type' => 'dbp_audio',
+			'post_status' => array( 'publish', 'draft', 'private' ),
+			'posts_per_page' => $batch_size,
+			'offset' => $offset,
+			'fields' => 'ids'
+		);
+		
+		$query = new WP_Query( $args );
+		$total_count = $query->found_posts;
+		
+		// Get total for percentage calculation
+		$total_args = array(
+			'post_type' => 'dbp_audio',
+			'post_status' => array( 'publish', 'draft', 'private' ),
+			'posts_per_page' => -1,
+			'fields' => 'ids'
+		);
+		$total_query = new WP_Query( $total_args );
+		$total = $total_query->found_posts;
+		
+		if ( $query->have_posts() ) {
+			$waveform_cache = new DBP_Waveform_Cache();
+			
+			foreach ( $query->posts as $audio_id ) {
+				// Generate waveform
+				$audio_url = get_post_meta( $audio_id, '_dbp_audio_file_url', true );
+				if ( $audio_url ) {
+					$waveform_cache->generate_waveform_data( $audio_url, $audio_id );
+					update_post_meta( $audio_id, '_dbp_waveform_cached', true );
+				}
+			}
+			
+			$processed = $offset + $batch_size;
+			$remaining = max( 0, $total - $processed );
+			$percentage = $total > 0 ? min( 100, round( ( $processed / $total ) * 100 ) ) : 100;
+			
+			if ( $remaining > 0 ) {
+				wp_send_json_success( array(
+					'complete' => false,
+					'offset' => $processed,
+					'total' => $total,
+					'processed' => $processed,
+					'remaining' => $remaining,
+					'percentage' => $percentage,
+					'message' => sprintf( __( '%d von %d Waveforms verarbeitet...', 'dbp-music-hub' ), $processed, $total )
+				) );
+			} else {
+				wp_send_json_success( array(
+					'complete' => true,
+					'total' => $total,
+					'percentage' => 100,
+					'message' => sprintf( __( '✅ Alle %d Waveforms erfolgreich regeneriert!', 'dbp-music-hub' ), $total )
+				) );
+			}
+		} else {
+			wp_send_json_success( array(
+				'complete' => true,
+				'total' => 0,
+				'percentage' => 100,
+				'message' => __( 'Keine Audio-Dateien zum Verarbeiten gefunden.', 'dbp-music-hub' )
+			) );
+		}
 	}
 }
