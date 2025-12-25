@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.2.2
+ * Version: 1.3.0
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.2.2' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.3.0' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -87,6 +87,12 @@ class DBP_Music_Hub {
 		// Search-to-Playlist (v1.2.1)
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-search-playlist.php';
 
+		// Lizenz-System (v1.3.0)
+		if ( class_exists( 'WooCommerce' ) ) {
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-modal.php';
+			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-woocommerce-license.php';
+		}
+
 		// Admin-Klassen IMMER laden wenn is_admin(), aber FRÜH (nicht erst bei admin_menu)
 		if ( is_admin() ) {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
@@ -96,6 +102,11 @@ class DBP_Music_Hub {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
+			
+			// Lizenz-Manager (v1.3.0)
+			if ( class_exists( 'WooCommerce' ) ) {
+				require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-license-manager.php';
+			}
 		}
 	}
 
@@ -162,10 +173,21 @@ class DBP_Music_Hub {
 		// Search-to-Playlist initialisieren (v1.2.1)
 		new DBP_Search_Playlist();
 
+		// Lizenz-System initialisieren (v1.3.0)
+		if ( class_exists( 'WooCommerce' ) ) {
+			new DBP_License_Modal();
+			new DBP_WooCommerce_License();
+		}
+
 		// Admin-Einstellungen und Menü initialisieren
 		if ( is_admin() ) {
 			new DBP_Admin_Settings();
 			new DBP_Admin_Menu();
+			
+			// Lizenz-Manager initialisieren (v1.3.0)
+			if ( class_exists( 'WooCommerce' ) && class_exists( 'DBP_License_Manager' ) ) {
+				new DBP_License_Manager();
+			}
 		}
 
 		// Hook für Erweiterungen

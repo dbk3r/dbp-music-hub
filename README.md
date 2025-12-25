@@ -380,6 +380,46 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+### Version 1.3.0 (2025-12-25)
+
+#### 💳 Neue Features - Lizenzmodell-System
+- **Lizenzmodell-Auswahl**: Modal-Popup zur Auswahl der Lizenz beim "In den Warenkorb"
+- **Admin-Verwaltung**: Vollständige CRUD-Verwaltung für Lizenzmodelle unter "Music Hub → Lizenzmodelle"
+- **Anpassbare Lizenzen**: Name, Preis, Beschreibung, Features, Icon, Farbe individuell konfigurierbar
+- **"Beliebt"-Badge**: Markierung für beliebte Lizenzmodelle
+- **WooCommerce Variable Products**: Automatische Erstellung von Product Variations pro Lizenz
+- **AJAX Add-to-Cart**: Ohne Reload in den Warenkorb mit Lizenzauswahl
+- **Flexible Preise**: Fester Preis oder Aufschlag auf Basis-Preis möglich
+- **Playlist-Integration**: "In den Warenkorb"-Button bei jedem Track in Playlists
+
+#### 🎨 Admin-Features
+- Neue Verwaltungsseite unter "Music Hub → Lizenzmodelle"
+- Standard-Lizenzen: Standard, Extended, Commercial (vorkonfiguriert und anpassbar)
+- Rich-Text Editor für Beschreibungen
+- Features als Bullet-Point-Liste
+- Icon-Auswahl (⚡, 🚀, 💼, 👑, ⭐, 🎯, 💎, 🔥)
+- Drag & Drop Sortierung
+- Aktivieren/Deaktivieren einzelner Lizenzen
+- Color Picker für Button-Farben
+
+#### ✨ Frontend-Features
+- Responsive Modal mit Lizenz-Cards im 3-Spalten Grid
+- Preis-Vergleich übersichtlich dargestellt
+- Features-Liste pro Lizenz
+- "Beliebt"-Badge bei empfohlenen Lizenzen
+- Success-Notifications nach Add-to-Cart
+- ESC-Taste und Backdrop zum Schließen
+- Mobile-optimiert (1-Spalten Layout)
+
+#### 🔧 Technisch
+- WooCommerce Variable Products & Variations
+- AJAX-basiertes Add-to-Cart ohne Reload
+- Nonce-gesicherte Requests für Sicherheit
+- Responsive Design (Mobile-First)
+- Smooth Animations & Transitions
+- WordPress Coding Standards konform
+- i18n ready für Übersetzungen
+
 ### Version 1.2.2 (2025-12-25)
 
 #### 🐛 Kritische Bugfixes

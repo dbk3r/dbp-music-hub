@@ -103,6 +103,16 @@ class DBP_Admin_Menu {
 			array( $this, 'render_taxonomy_manager_page' )
 		);
 
+		// Lizenzmodelle (v1.3.0)
+		add_submenu_page(
+			$this->menu_slug,
+			__( 'Lizenzmodelle', 'dbp-music-hub' ),
+			__( 'Lizenzmodelle', 'dbp-music-hub' ),
+			'manage_options',
+			'dbp-license-manager',
+			array( $this, 'render_license_manager_page' )
+		);
+
 		// Link zu bestehenden Einstellungen
 		add_submenu_page(
 			$this->menu_slug,
@@ -156,6 +166,7 @@ class DBP_Admin_Menu {
 			'music-hub_page_dbp-bulk-upload',
 			'music-hub_page_dbp-woocommerce-sync',
 			'music-hub_page_dbp-taxonomy-manager',
+			'music-hub_page_dbp-license-manager',
 		);
 
 		return in_array( $hook_suffix, $dbp_pages, true );
@@ -219,6 +230,18 @@ class DBP_Admin_Menu {
 
 		$taxonomy_manager = new DBP_Taxonomy_Manager();
 		$taxonomy_manager->render_taxonomy_manager();
+	}
+
+	/**
+	 * License-Manager-Seite rendern (v1.3.0)
+	 */
+	public function render_license_manager_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Sie haben keine Berechtigung für diese Seite.', 'dbp-music-hub' ) );
+		}
+
+		$license_manager = new DBP_License_Manager();
+		$license_manager->render_admin_page();
 	}
 
 	/**

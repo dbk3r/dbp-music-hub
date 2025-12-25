@@ -237,6 +237,25 @@ class DBP_Playlist_Player {
 					<div class="dbp-track-duration"><?php echo esc_html( $track['duration'] ); ?></div>
 					<?php endif; ?>
 
+					<div class="dbp-track-actions">
+						<?php
+						// Add to Cart Button (v1.3.0)
+						if ( class_exists( 'WooCommerce' ) ) :
+							$product_id = get_post_meta( $track['id'], '_dbp_wc_product_id', true );
+							if ( $product_id ) :
+						?>
+							<button type="button" 
+								class="dbp-track-add-to-cart-btn" 
+								data-audio-id="<?php echo esc_attr( $track['id'] ); ?>"
+								title="<?php esc_attr_e( 'In den Warenkorb', 'dbp-music-hub' ); ?>">
+								<span class="dashicons dashicons-cart"></span>
+							</button>
+						<?php
+							endif;
+						endif;
+						?>
+					</div>
+
 					<div class="dbp-track-status">
 						<span class="dbp-track-playing-icon" style="display: none;">🔊</span>
 					</div>

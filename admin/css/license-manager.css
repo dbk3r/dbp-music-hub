@@ -1,0 +1,310 @@
+/**
+ * License Manager Admin Styles
+ *
+ * @package DBP_Music_Hub
+ */
+
+.dbp-license-manager-wrap {
+	max-width: 1400px;
+}
+
+.dbp-license-manager-container {
+	margin-top: 20px;
+}
+
+/* Add License Section */
+.dbp-add-license-section {
+	margin-bottom: 30px;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.dbp-toggle-add-form {
+	margin-bottom: 0;
+}
+
+.dbp-toggle-add-form.active {
+	margin-bottom: 20px;
+}
+
+.dbp-license-form-container {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #ddd;
+}
+
+/* License Form */
+.dbp-license-form {
+	max-width: 900px;
+}
+
+.dbp-form-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 15px;
+	margin-bottom: 15px;
+}
+
+.dbp-form-field {
+	display: flex;
+	flex-direction: column;
+}
+
+.dbp-form-field label {
+	font-weight: 600;
+	margin-bottom: 5px;
+	display: block;
+}
+
+.dbp-form-field .required {
+	color: #dc3232;
+}
+
+.dbp-form-field input[type="text"],
+.dbp-form-field input[type="number"],
+.dbp-form-field select,
+.dbp-form-field textarea {
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.dbp-form-field textarea {
+	resize: vertical;
+}
+
+.dbp-checkbox-field {
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.dbp-checkbox-field label {
+	margin-bottom: 0;
+	margin-left: 5px;
+	font-weight: normal;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.dbp-form-actions {
+	margin-top: 20px;
+	display: flex;
+	gap: 10px;
+}
+
+/* Licenses List */
+.dbp-licenses-list {
+	background: #fff;
+	padding: 20px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.dbp-no-licenses {
+	text-align: center;
+	padding: 40px;
+	color: #666;
+	font-style: italic;
+}
+
+.dbp-licenses-sortable {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 20px;
+}
+
+/* License Card */
+.dbp-license-card {
+	position: relative;
+	background: #fff;
+	border: 2px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	transition: all 0.3s;
+}
+
+.dbp-license-card:hover {
+	border-color: #2ea563;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-license-card.inactive {
+	opacity: 0.6;
+	background: #f9f9f9;
+}
+
+.dbp-license-card.popular {
+	border-color: #f39c12;
+}
+
+.dbp-license-card.default {
+	border-color: #4a90e2;
+}
+
+.dbp-license-drag-handle {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	cursor: move;
+	color: #999;
+	padding: 5px;
+}
+
+.dbp-license-drag-handle:hover {
+	color: #555;
+}
+
+.dbp-license-card-header {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	margin-bottom: 15px;
+	padding-left: 30px;
+}
+
+.dbp-license-card-header h3 {
+	margin: 0;
+	flex: 1;
+	font-size: 20px;
+}
+
+.dbp-license-icon {
+	font-size: 32px;
+	line-height: 1;
+}
+
+.dbp-badge {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.dbp-badge-popular {
+	background: #f39c12;
+	color: #fff;
+}
+
+.dbp-badge-default {
+	background: #4a90e2;
+	color: #fff;
+}
+
+.dbp-license-card-body {
+	padding-left: 30px;
+}
+
+.dbp-license-price {
+	margin-bottom: 10px;
+	font-size: 16px;
+}
+
+.dbp-license-description {
+	margin: 10px 0;
+	color: #666;
+	line-height: 1.5;
+}
+
+.dbp-license-status {
+	margin: 15px 0;
+}
+
+.dbp-status-badge {
+	display: inline-block;
+	padding: 5px 12px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.dbp-status-badge.active {
+	background: #2ea563;
+	color: #fff;
+}
+
+.dbp-status-badge.inactive {
+	background: #999;
+	color: #fff;
+}
+
+.dbp-license-card-actions {
+	display: flex;
+	gap: 10px;
+	margin-top: 15px;
+}
+
+.dbp-license-card-actions .button {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.dbp-license-edit-form {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #ddd;
+}
+
+/* Sortable Placeholder */
+.dbp-license-card-placeholder {
+	background: #f0f0f0;
+	border: 2px dashed #ccc;
+	border-radius: 8px;
+	height: 200px;
+}
+
+/* Notifications */
+.dbp-notification {
+	position: fixed;
+	top: 40px;
+	right: 20px;
+	padding: 15px 25px;
+	background: #fff;
+	border-left: 4px solid #2ea563;
+	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+	border-radius: 4px;
+	z-index: 10000;
+	transform: translateX(400px);
+	transition: transform 0.3s;
+	max-width: 400px;
+}
+
+.dbp-notification.show {
+	transform: translateX(0);
+}
+
+.dbp-notification-success {
+	border-left-color: #2ea563;
+}
+
+.dbp-notification-error {
+	border-left-color: #dc3232;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.dbp-form-row {
+		grid-template-columns: 1fr;
+	}
+
+	.dbp-license-card-header {
+		flex-wrap: wrap;
+	}
+
+	.dbp-license-card-actions {
+		flex-direction: column;
+	}
+
+	.dbp-license-card-actions .button {
+		width: 100%;
+		justify-content: center;
+	}
+}
