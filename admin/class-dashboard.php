@@ -27,9 +27,17 @@ class DBP_Admin_Dashboard {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_dashboard_assets( $hook_suffix ) {
-		if ( 'toplevel_page_dbp-music-hub-dashboard' !== $hook_suffix ) {
+		$valid_hooks = array(
+			'toplevel_page_dbp-music-hub-dashboard',
+			'toplevel_page_dbp-music-hub',
+			'dbp-music-hub_page_dbp-music-hub-dashboard'
+		);
+
+		if ( ! in_array( $hook_suffix, $valid_hooks ) ) {
 			return;
 		}
+
+		error_log( 'DBP Dashboard - Hook: ' . $hook_suffix );
 
 		wp_enqueue_style(
 			'dbp-dashboard',

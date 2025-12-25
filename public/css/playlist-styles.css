@@ -386,6 +386,31 @@
 	height: 18px;
 }
 
+/* New cart button with text (v1.3.3) */
+.dbp-track-cart-btn {
+	padding: 8px 15px;
+	background: #2ea563;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	transition: all 0.3s;
+}
+
+.dbp-track-cart-btn:hover {
+	background: #25894f;
+	transform: translateY(-2px);
+}
+
+.dbp-track-cart-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
 .dbp-track-status {
 	width: 30px;
 	text-align: center;

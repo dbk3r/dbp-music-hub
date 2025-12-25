@@ -34,9 +34,18 @@ class DBP_License_Manager {
 	 */
 	public function enqueue_scripts( $hook_suffix ) {
 		// Nur auf Lizenz-Verwaltungsseite laden
-		if ( 'music-hub_page_dbp-license-manager' !== $hook_suffix ) {
+		$valid_hooks = array(
+			'music-hub_page_dbp-license-manager',
+			'dbp-music-hub_page_dbp-license-manager',
+			'toplevel_page_dbp-license-manager'
+		);
+
+		if ( ! in_array( $hook_suffix, $valid_hooks ) ) {
 			return;
 		}
+
+		error_log( 'DBP License Manager - Hook: ' . $hook_suffix );
+		error_log( 'DBP License Manager - Scripts enqueued' );
 
 		// WordPress Media Uploader
 		wp_enqueue_media();

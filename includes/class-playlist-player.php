@@ -241,14 +241,15 @@ class DBP_Playlist_Player {
 						<?php
 						// Add to Cart Button (v1.3.0)
 						if ( class_exists( 'WooCommerce' ) ) :
-							$product_id = get_post_meta( $track['id'], '_dbp_wc_product_id', true );
+							$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
 							if ( $product_id ) :
 						?>
 							<button type="button" 
-								class="dbp-track-add-to-cart-btn dbp-open-license-modal" 
+								class="dbp-track-cart-btn dbp-open-license-modal" 
 								data-audio-id="<?php echo esc_attr( $track['id'] ); ?>"
 								title="<?php esc_attr_e( 'In den Warenkorb', 'dbp-music-hub' ); ?>">
 								<span class="dashicons dashicons-cart"></span>
+								<span class="btn-text"><?php esc_html_e( 'In den Warenkorb', 'dbp-music-hub' ); ?></span>
 							</button>
 						<?php
 							endif;
