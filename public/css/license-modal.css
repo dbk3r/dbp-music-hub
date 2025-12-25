@@ -1,0 +1,460 @@
+/**
+ * License Modal Frontend Styles
+ *
+ * @package DBP_Music_Hub
+ */
+
+/* Modal Backdrop */
+.dbp-modal-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.7);
+	z-index: 9998;
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Modal Container */
+.dbp-license-modal {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	max-width: 900px;
+	width: 90%;
+	max-height: 90vh;
+	overflow-y: auto;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+	z-index: 9999;
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translate(-50%, -60%);
+		opacity: 0;
+	}
+	to {
+		transform: translate(-50%, -50%);
+		opacity: 1;
+	}
+}
+
+/* Modal Loading */
+.dbp-modal-loading {
+	text-align: center;
+	padding: 60px 40px;
+}
+
+.dbp-loading-spinner {
+	width: 50px;
+	height: 50px;
+	border: 4px solid #f3f3f3;
+	border-top: 4px solid #2ea563;
+	border-radius: 50%;
+	margin: 0 auto 20px;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+/* Modal Close Button */
+.dbp-modal-close {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	width: 40px;
+	height: 40px;
+	background: rgba(0, 0, 0, 0.1);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	font-size: 30px;
+	line-height: 1;
+	color: #333;
+	transition: all 0.3s;
+	z-index: 10;
+}
+
+.dbp-modal-close:hover {
+	background: rgba(0, 0, 0, 0.2);
+	transform: rotate(90deg);
+}
+
+/* Modal Header */
+.dbp-modal-header {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	padding: 30px;
+	border-bottom: 1px solid #eee;
+}
+
+.dbp-modal-thumbnail {
+	flex-shrink: 0;
+}
+
+.dbp-modal-thumbnail img {
+	width: 80px;
+	height: 80px;
+	object-fit: cover;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-modal-title-section {
+	flex: 1;
+}
+
+.dbp-modal-title {
+	margin: 0 0 8px 0;
+	font-size: 24px;
+	font-weight: 700;
+	color: #333;
+}
+
+.dbp-modal-artist {
+	margin: 0;
+	font-size: 16px;
+	color: #666;
+}
+
+/* Modal Body */
+.dbp-modal-body {
+	padding: 30px;
+}
+
+.dbp-license-selection-title {
+	margin: 0 0 25px 0;
+	font-size: 20px;
+	font-weight: 600;
+	text-align: center;
+	color: #333;
+}
+
+/* License Cards Grid */
+.dbp-license-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+}
+
+/* License Card */
+.dbp-license-card {
+	position: relative;
+	border: 2px solid #eee;
+	border-radius: 8px;
+	padding: 25px 20px;
+	text-align: center;
+	transition: all 0.3s ease;
+	background: #fff;
+}
+
+.dbp-license-card:hover {
+	border-color: #2ea563;
+	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+	transform: translateY(-5px);
+}
+
+.dbp-license-card.popular {
+	border-color: #f39c12;
+	border-width: 3px;
+}
+
+.dbp-license-popular-badge {
+	position: absolute;
+	top: -12px;
+	right: 15px;
+	background: #f39c12;
+	color: #fff;
+	padding: 5px 15px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
+.dbp-license-icon {
+	font-size: 48px;
+	line-height: 1;
+	margin-bottom: 15px;
+}
+
+.dbp-license-name {
+	margin: 0 0 10px 0;
+	font-size: 20px;
+	font-weight: 700;
+	color: #333;
+}
+
+.dbp-license-price {
+	font-size: 28px;
+	font-weight: 700;
+	color: #2ea563;
+	margin-bottom: 15px;
+}
+
+.dbp-license-description {
+	margin: 0 0 15px 0;
+	font-size: 14px;
+	color: #666;
+	line-height: 1.5;
+}
+
+.dbp-license-features {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 20px 0;
+	text-align: left;
+}
+
+.dbp-license-features li {
+	padding: 6px 0;
+	font-size: 14px;
+	color: #555;
+	line-height: 1.4;
+}
+
+.dbp-license-add-to-cart-btn {
+	width: 100%;
+	padding: 12px 20px;
+	background-color: #2ea563;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.dbp-license-add-to-cart-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(46, 165, 99, 0.4);
+	opacity: 0.9;
+}
+
+.dbp-license-add-to-cart-btn:disabled,
+.dbp-license-add-to-cart-btn.loading {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Track Add-to-Cart Button (in Playlist) */
+.dbp-track-add-to-cart-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 6px 12px;
+	background: #2ea563;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s;
+	text-decoration: none;
+}
+
+.dbp-track-add-to-cart-btn:hover {
+	background: #258a4f;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(46, 165, 99, 0.3);
+}
+
+/* Modal Error */
+.dbp-modal-error {
+	padding: 40px;
+	text-align: center;
+	color: #dc3232;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.dbp-license-modal {
+		width: 95%;
+		max-height: 95vh;
+	}
+
+	.dbp-license-cards {
+		grid-template-columns: 1fr;
+	}
+
+	.dbp-modal-header {
+		flex-direction: column;
+		text-align: center;
+		padding: 20px;
+	}
+
+	.dbp-modal-title {
+		font-size: 20px;
+	}
+
+	.dbp-modal-body {
+		padding: 20px;
+	}
+
+	.dbp-license-selection-title {
+		font-size: 18px;
+	}
+
+	.dbp-modal-close {
+		width: 35px;
+		height: 35px;
+		font-size: 24px;
+	}
+}
+
+@media (max-width: 480px) {
+	.dbp-modal-header {
+		padding: 15px;
+	}
+
+	.dbp-modal-body {
+		padding: 15px;
+	}
+
+	.dbp-modal-thumbnail img {
+		width: 60px;
+		height: 60px;
+	}
+
+	.dbp-modal-title {
+		font-size: 18px;
+	}
+
+	.dbp-license-card {
+		padding: 20px 15px;
+	}
+
+	.dbp-license-name {
+		font-size: 18px;
+	}
+
+	.dbp-license-price {
+		font-size: 24px;
+	}
+}
+
+/* Notifications */
+.dbp-notification {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	min-width: 300px;
+	max-width: 400px;
+	padding: 15px 20px;
+	background: #fff;
+	border-left: 4px solid #2ea563;
+	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+	border-radius: 4px;
+	z-index: 10000;
+	transform: translateX(450px);
+	transition: transform 0.3s ease-in-out;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.dbp-notification.show {
+	transform: translateX(0);
+}
+
+.dbp-notification-success {
+	border-left-color: #2ea563;
+}
+
+.dbp-notification-error {
+	border-left-color: #dc3232;
+}
+
+.dbp-notification-warning {
+	border-left-color: #f39c12;
+}
+
+.dbp-notification-info {
+	border-left-color: #4a90e2;
+}
+
+.dbp-notification-icon {
+	font-size: 20px;
+	font-weight: 700;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+.dbp-notification-success .dbp-notification-icon {
+	color: #2ea563;
+}
+
+.dbp-notification-error .dbp-notification-icon {
+	color: #dc3232;
+}
+
+.dbp-notification-warning .dbp-notification-icon {
+	color: #f39c12;
+}
+
+.dbp-notification-info .dbp-notification-icon {
+	color: #4a90e2;
+}
+
+.dbp-notification-message {
+	flex: 1;
+	font-size: 14px;
+	line-height: 1.4;
+	color: #333;
+}
+
+.dbp-notification-close {
+	background: none;
+	border: none;
+	font-size: 24px;
+	line-height: 1;
+	color: #999;
+	cursor: pointer;
+	padding: 0;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	transition: color 0.2s;
+}
+
+.dbp-notification-close:hover {
+	color: #333;
+}
+
+@media (max-width: 768px) {
+	.dbp-notification {
+		right: 10px;
+		left: 10px;
+		min-width: auto;
+		max-width: none;
+		transform: translateY(-100px);
+	}
+
+	.dbp-notification.show {
+		transform: translateY(0);
+	}
+}
