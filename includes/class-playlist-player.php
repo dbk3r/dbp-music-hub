@@ -266,7 +266,7 @@ class DBP_Playlist_Player {
 		</div>
 
 		<script type="application/json" class="dbp-playlist-data" data-for="<?php echo esc_attr( $unique_id ); ?>">
-			<?php echo wp_json_encode( $data ); ?>
+			<?php echo wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>
 		</script>
 		<?php
 
@@ -293,11 +293,14 @@ class DBP_Playlist_Player {
 	 * @return string HTML of the player.
 	 */
 	public static function render_search_results_player( $tracks, $search_term ) {
-		if ( empty( $tracks ) ) {
+		// Validate parameters
+		if ( ! is_array( $tracks ) || empty( $tracks ) ) {
 			return '<p class="dbp-error">' . esc_html__( 'Keine Tracks gefunden.', 'dbp-music-hub' ) . '</p>';
 		}
 		
-		$unique_id = 'dbp-search-playlist-' . wp_rand( 1000, 9999 );
+		$search_term = is_string( $search_term ) ? $search_term : '';
+		
+		$unique_id = 'dbp-search-playlist-' . uniqid();
 		
 		$data = array(
 			'id'       => 0, // Virtual playlist
@@ -438,7 +441,7 @@ class DBP_Playlist_Player {
 		</div>
 
 		<script type="application/json" class="dbp-playlist-data" data-for="<?php echo esc_attr( $unique_id ); ?>">
-			<?php echo wp_json_encode( $data ); ?>
+			<?php echo wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>
 		</script>
 		<?php
 
