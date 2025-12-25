@@ -123,6 +123,22 @@ class DBP_Music_Hub {
 		// Admin-Instanzen erstellen (erst nach Laden der Klassen)
 		new DBP_Admin_Settings();
 
+
+		// Dashboard initialisieren (v1.3.6)
+		new DBP_Admin_Dashboard();
+
+		// DBP_Admin_Menu muss das Menü sofort registrieren. Wir instanziieren
+		// und rufen `register_menu()` direkt auf, damit die Seiten in
+		// der laufenden Anfrage sichtbar werden.
+		$admin_menu = new DBP_Admin_Menu();
+		if ( method_exists( $admin_menu, 'register_menu' ) ) {
+			$admin_menu->register_menu();
+		}
+
+		// License Manager initialisieren (v1.3.6) - nach Menu-Registrierung! 
+		if ( class_exists( 'WooCommerce' ) ) {
+			new DBP_License_Manager();
+		}
 		// DBP_Admin_Menu muss das Menü sofort registrieren. Wir instanziieren
 		// und rufen `register_menu()` direkt auf, damit die Seiten in
 		// der laufenden Anfrage sichtbar werden.
