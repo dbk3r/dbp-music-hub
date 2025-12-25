@@ -1,0 +1,334 @@
+/**
+ * Waveform Styles
+ * Styling für WaveSurfer.js Waveform-Player
+ */
+
+/* Waveform Player Container */
+.dbp-waveform-player {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	margin: 20px 0;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dbp-waveform-player[data-theme="dark"] {
+	background: #1a1a1a;
+	border-color: #333;
+	color: #fff;
+}
+
+/* Waveform Info */
+.dbp-waveform-info {
+	margin-bottom: 15px;
+}
+
+.dbp-waveform-title {
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0 0 5px;
+	color: #333;
+}
+
+.dbp-waveform-player[data-theme="dark"] .dbp-waveform-title {
+	color: #fff;
+}
+
+.dbp-waveform-artist {
+	font-size: 14px;
+	color: #666;
+	margin: 0;
+}
+
+.dbp-waveform-player[data-theme="dark"] .dbp-waveform-artist {
+	color: #aaa;
+}
+
+/* Waveform Container */
+.dbp-waveform-container {
+	position: relative;
+	margin: 20px 0;
+	min-height: 128px;
+	background: #f9f9f9;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.dbp-waveform-player[data-theme="dark"] .dbp-waveform-container {
+	background: #222;
+}
+
+/* Loading & Error States */
+.dbp-waveform-loading,
+.dbp-waveform-error {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 128px;
+	font-size: 14px;
+	color: #999;
+}
+
+.dbp-waveform-error {
+	color: #d63638;
+}
+
+/* WaveSurfer Overrides */
+.dbp-waveform-container wave {
+	overflow: visible !important;
+}
+
+.dbp-waveform-container wave canvas {
+	cursor: pointer;
+}
+
+/* Timeline Styling */
+.dbp-waveform-container .wavesurfer-timeline {
+	background: transparent;
+	border-top: 1px solid #e0e0e0;
+	padding-top: 5px;
+	margin-top: 5px;
+}
+
+.dbp-waveform-player[data-theme="dark"] .dbp-waveform-container .wavesurfer-timeline {
+	border-top-color: #333;
+}
+
+/* Waveform Controls */
+.dbp-waveform-controls {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	flex-wrap: wrap;
+	margin-top: 15px;
+	padding-top: 15px;
+	border-top: 1px solid #eee;
+}
+
+.dbp-waveform-player[data-theme="dark"] .dbp-waveform-controls {
+	border-top-color: #333;
+}
+
+.dbp-waveform-btn {
+	background: var(--dbp-primary-color, #4a90e2);
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 16px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-size: 14px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.dbp-waveform-btn:hover {
+	background: var(--dbp-hover-color, #357abd);
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dbp-waveform-btn:active {
+	transform: translateY(0);
+}
+
+.dbp-waveform-play-btn {
+	background: var(--dbp-primary-color, #4a90e2);
+	padding: 12px 20px;
+	font-size: 16px;
+}
+
+.dbp-waveform-stop-btn {
+	background: #95a5a6;
+}
+
+.dbp-waveform-stop-btn:hover {
+	background: #7f8c8d;
+}
+
+/* Time Display */
+.dbp-waveform-time {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	color: #666;
+	font-variant-numeric: tabular-nums;
+}
+
+.dbp-waveform-player[data-theme="dark"] .dbp-waveform-time {
+	color: #999;
+}
+
+.dbp-waveform-time-separator {
+	color: #999;
+}
+
+/* Zoom & Volume Controls */
+.dbp-waveform-slider-group {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-left: auto;
+}
+
+.dbp-waveform-slider-label {
+	font-size: 12px;
+	color: #666;
+	min-width: 50px;
+}
+
+.dbp-waveform-player[data-theme="dark"] .dbp-waveform-slider-label {
+	color: #999;
+}
+
+.dbp-waveform-zoom,
+.dbp-waveform-volume {
+	width: 100px;
+	height: 4px;
+	border-radius: 2px;
+	background: #e0e0e0;
+	outline: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+}
+
+.dbp-waveform-zoom::-webkit-slider-thumb,
+.dbp-waveform-volume::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--dbp-primary-color, #4a90e2);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.dbp-waveform-zoom::-webkit-slider-thumb:hover,
+.dbp-waveform-volume::-webkit-slider-thumb:hover {
+	transform: scale(1.2);
+}
+
+.dbp-waveform-zoom::-moz-range-thumb,
+.dbp-waveform-volume::-moz-range-thumb {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--dbp-primary-color, #4a90e2);
+	cursor: pointer;
+	border: none;
+	transition: all 0.2s ease;
+}
+
+.dbp-waveform-zoom::-moz-range-thumb:hover,
+.dbp-waveform-volume::-moz-range-thumb:hover {
+	transform: scale(1.2);
+}
+
+/* Download Button */
+.dbp-waveform-download-btn {
+	background: #27ae60;
+	margin-left: auto;
+}
+
+.dbp-waveform-download-btn:hover {
+	background: #229954;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.dbp-waveform-controls {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 10px;
+	}
+
+	.dbp-waveform-slider-group {
+		margin-left: 0;
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.dbp-waveform-zoom,
+	.dbp-waveform-volume {
+		flex: 1;
+		max-width: 150px;
+	}
+
+	.dbp-waveform-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+@media (max-width: 480px) {
+	.dbp-waveform-player {
+		padding: 15px;
+	}
+
+	.dbp-waveform-container {
+		min-height: 100px;
+	}
+
+	.dbp-waveform-title {
+		font-size: 16px;
+	}
+
+	.dbp-waveform-btn {
+		padding: 8px 12px;
+		font-size: 13px;
+	}
+
+	.dbp-waveform-play-btn {
+		padding: 10px 16px;
+		font-size: 14px;
+	}
+}
+
+/* Smooth Animations */
+.dbp-waveform-btn,
+.dbp-waveform-container {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus States */
+.dbp-waveform-btn:focus,
+.dbp-waveform-zoom:focus,
+.dbp-waveform-volume:focus {
+	outline: 2px solid var(--dbp-primary-color, #4a90e2);
+	outline-offset: 2px;
+}
+
+/* Regions (for future enhancement) */
+.wavesurfer-region {
+	opacity: 0.3;
+}
+
+.wavesurfer-region:hover {
+	opacity: 0.5;
+}
+
+/* Custom Color Variables Support */
+.dbp-waveform-player {
+	--waveform-wave-color: var(--dbp-waveform-color, #ddd);
+	--waveform-progress-color: var(--dbp-waveform-progress-color, #4a90e2);
+	--waveform-cursor-color: var(--dbp-waveform-progress-color, #4a90e2);
+}
+
+/* Loading Animation */
+@keyframes waveformPulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.dbp-waveform-loading {
+	animation: waveformPulse 1.5s ease-in-out infinite;
+}
