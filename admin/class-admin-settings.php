@@ -29,17 +29,29 @@ class DBP_Admin_Settings {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_admin_styles( $hook_suffix ) {
-		if ( 'settings_page_dbp-music-hub' === $hook_suffix ) {
-			wp_enqueue_style( 'wp-color-picker' );
-			wp_enqueue_script( 'wp-color-picker' );
-			
-			wp_enqueue_style(
-				'dbp-admin-styles',
-				DBP_MUSIC_HUB_PLUGIN_URL . 'admin/css/admin-styles.css',
-				array(),
-				DBP_MUSIC_HUB_VERSION
-			);
+		// Nur auf Einstellungs-Seiten laden
+		if ( strpos( $hook_suffix, 'dbp' ) === false && 'settings_page_dbp-music-hub' !== $hook_suffix && 'music-hub_page_dbp-settings' !== $hook_suffix ) {
+			return;
 		}
+		
+		// Color Picker Assets
+		wp_enqueue_style( 'wp-color-picker' );
+		wp_enqueue_media();
+		
+		wp_enqueue_script(
+			'dbp-admin-settings',
+			DBP_MUSIC_HUB_PLUGIN_URL . 'admin/js/admin-settings.js',
+			array( 'jquery', 'wp-color-picker' ),
+			DBP_MUSIC_HUB_VERSION,
+			true
+		);
+		
+		wp_enqueue_style(
+			'dbp-admin-styles',
+			DBP_MUSIC_HUB_PLUGIN_URL . 'admin/css/admin-styles.css',
+			array( 'wp-color-picker' ),
+			DBP_MUSIC_HUB_VERSION
+		);
 	}
 
 	/**
@@ -604,13 +616,6 @@ class DBP_Admin_Settings {
 				</div>
 			</div>
 		</div>
-
-		<script>
-		jQuery(document).ready(function($) {
-			// Color Picker initialisieren
-			$('.dbp-color-picker').wpColorPicker();
-		});
-		</script>
 		<?php
 	}
 

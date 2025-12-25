@@ -245,7 +245,7 @@ class DBP_Playlist_Player {
 							if ( $product_id ) :
 						?>
 							<button type="button" 
-								class="dbp-track-add-to-cart-btn" 
+								class="dbp-track-add-to-cart-btn dbp-open-license-modal" 
 								data-audio-id="<?php echo esc_attr( $track['id'] ); ?>"
 								title="<?php esc_attr_e( 'In den Warenkorb', 'dbp-music-hub' ); ?>">
 								<span class="dashicons dashicons-cart"></span>

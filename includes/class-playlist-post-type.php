@@ -63,7 +63,7 @@ class DBP_Playlist_Post_Type {
 			'hierarchical'        => false,
 			'public'              => true,
 			'show_ui'             => true,
-			'show_in_menu'        => true,
+			'show_in_menu'        => 'dbp-music-hub-dashboard',
 			'menu_position'       => 6,
 			'menu_icon'           => 'dashicons-playlist-audio',
 			'show_in_admin_bar'   => true,
