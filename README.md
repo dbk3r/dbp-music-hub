@@ -380,6 +380,19 @@ A: Ja! Der Shuffle-State wird im LocalStorage des Browsers gespeichert und bleib
 
 ## 📋 Changelog
 
+## Version 1.3.7 (2025-12-25)
+
+### Code Cleanup
+- 🧹 **Removed duplicate code:** Fixed duplicate `DBP_Admin_Menu` initialization in `load_admin_dependencies()`
+- 🧹 **Removed duplicate code:** Fixed duplicate `DBP_License_Manager` initialization in `init_plugin()`
+- ✅ **Confirmed working:** Both admin buttons ("Neues Lizenzmodell" and "Alle Waveforms regenerieren") function correctly
+- 📝 **Better comments:** Clarified where admin classes are initialized
+
+### Technical Details
+- Admin classes are now initialized ONCE in `load_admin_dependencies()` (triggered by `admin_menu` hook)
+- Removed redundant initialization attempts from `init_plugin()`
+- No functional changes - purely cleanup
+
 ## Version 1.3.6 (2025-12-25)
 
 ### FINAL FIX - Buttons Now Working! 

@@ -3,7 +3,7 @@
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
  * Description: Professionelles Audio-Management und E-Commerce Plugin für WordPress. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration.
- * Version: 1.3.6
+ * Version: 1.3.7
  * Author: DBK3R
  * Author URI: https://github.com/dbk3r
  * Text Domain: dbp-music-hub
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin-Konstanten definieren
-define( 'DBP_MUSIC_HUB_VERSION', '1.3.6' );
+define( 'DBP_MUSIC_HUB_VERSION', '1.3.7' );
 define( 'DBP_MUSIC_HUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DBP_MUSIC_HUB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -139,13 +139,6 @@ class DBP_Music_Hub {
 		if ( class_exists( 'WooCommerce' ) ) {
 			new DBP_License_Manager();
 		}
-		// DBP_Admin_Menu muss das Menü sofort registrieren. Wir instanziieren
-		// und rufen `register_menu()` direkt auf, damit die Seiten in
-		// der laufenden Anfrage sichtbar werden.
-		$admin_menu = new DBP_Admin_Menu();
-		if ( method_exists( $admin_menu, 'register_menu' ) ) {
-			$admin_menu->register_menu();
-		}
 	}
 
 	/**
@@ -228,11 +221,7 @@ class DBP_Music_Hub {
 			new DBP_License_Verification();
 		}
 
-		// Admin-Einstellungen und Menü werden bei 'admin_menu' geladen/instanziiert
-		// Lizenz-Manager (DBP_License_Manager) nur instanziieren, falls die Klasse vorhanden ist
-		if ( is_admin() && class_exists( 'DBP_License_Manager' ) ) {
-			new DBP_License_Manager();
-		}
+		// Admin-Klassen werden bei 'admin_menu' Hook in load_admin_dependencies() geladen
 
 		// Hook für Erweiterungen
 		do_action( 'dbp_music_hub_loaded' );
