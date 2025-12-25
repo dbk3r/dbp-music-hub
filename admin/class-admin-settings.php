@@ -403,6 +403,37 @@ class DBP_Admin_Settings {
 			)
 		);
 
+		// Player Element Toggles (v1.3.8)
+		register_setting( 'dbp_music_hub_settings', 'dbp_player_show_progress', array(
+			'type'              => 'boolean',
+			'default'           => true,
+			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
+		) );
+
+		register_setting( 'dbp_music_hub_settings', 'dbp_player_show_volume', array(
+			'type'              => 'boolean',
+			'default'           => true,
+			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
+		) );
+
+		register_setting( 'dbp_music_hub_settings', 'dbp_player_show_shuffle', array(
+			'type'              => 'boolean',
+			'default'           => true,
+			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
+		) );
+
+		register_setting( 'dbp_music_hub_settings', 'dbp_player_show_repeat', array(
+			'type'              => 'boolean',
+			'default'           => true,
+			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
+		) );
+
+		register_setting( 'dbp_music_hub_settings', 'dbp_player_show_thumbnails', array(
+			'type'              => 'boolean',
+			'default'           => true,
+			'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
+		) );
+
 		// Sections
 		add_settings_section(
 			'dbp_general_section',
@@ -462,6 +493,14 @@ class DBP_Admin_Settings {
 			'dbp_license_pdf_section',
 			__( 'Lizenz-PDF', 'dbp-music-hub' ),
 			array( $this, 'render_license_pdf_section' ),
+			'dbp-music-hub'
+		);
+
+		// Player Elements Section (v1.3.8)
+		add_settings_section(
+			'dbp_player_elements_section',
+			__( 'Player-Elemente', 'dbp-music-hub' ),
+			array( $this, 'render_player_elements_section' ),
 			'dbp-music-hub'
 		);
 
@@ -727,6 +766,47 @@ class DBP_Admin_Settings {
 			array( $this, 'render_pdf_legal_text_field' ),
 			'dbp-music-hub',
 			'dbp_license_pdf_section'
+		);
+
+		// Fields - Player Elements (v1.3.8)
+		add_settings_field(
+			'dbp_player_show_progress',
+			__( 'Fortschrittsbalken', 'dbp-music-hub' ),
+			array( $this, 'render_show_progress_field' ),
+			'dbp-music-hub',
+			'dbp_player_elements_section'
+		);
+
+		add_settings_field(
+			'dbp_player_show_volume',
+			__( 'Lautstärkeregler', 'dbp-music-hub' ),
+			array( $this, 'render_show_volume_field' ),
+			'dbp-music-hub',
+			'dbp_player_elements_section'
+		);
+
+		add_settings_field(
+			'dbp_player_show_shuffle',
+			__( 'Shuffle-Button', 'dbp-music-hub' ),
+			array( $this, 'render_show_shuffle_field' ),
+			'dbp-music-hub',
+			'dbp_player_elements_section'
+		);
+
+		add_settings_field(
+			'dbp_player_show_repeat',
+			__( 'Repeat-Button', 'dbp-music-hub' ),
+			array( $this, 'render_show_repeat_field' ),
+			'dbp-music-hub',
+			'dbp_player_elements_section'
+		);
+
+		add_settings_field(
+			'dbp_player_show_thumbnails',
+			__( 'Track-Thumbnails', 'dbp-music-hub' ),
+			array( $this, 'render_show_thumbnails_field' ),
+			'dbp-music-hub',
+			'dbp_player_elements_section'
 		);
 	}
 
@@ -1220,6 +1300,16 @@ class DBP_Admin_Settings {
 	}
 
 	/**
+	 * Checkbox sanitizen (v1.3.8)
+	 *
+	 * @param mixed $value Wert.
+	 * @return bool Sanitierter boolean Wert.
+	 */
+	public function sanitize_checkbox( $value ) {
+		return (bool) $value;
+	}
+
+	/**
 	 * License PDF Section rendern (v1.3.1)
 	 */
 	public function render_license_pdf_section() {
@@ -1353,6 +1443,83 @@ class DBP_Admin_Settings {
 		<p class="description">
 			<?php esc_html_e( 'Rechtlicher Text oder Nutzungsbedingungen, die im Footer des Zertifikats angezeigt werden.', 'dbp-music-hub' ); ?>
 		</p>
+		<?php
+	}
+
+	/**
+	 * Player Elements Section beschreibung rendern (v1.3.8)
+	 */
+	public function render_player_elements_section() {
+		echo '<p>' . esc_html__( 'Steuere welche Elemente im Playlist-Player angezeigt werden. Diese Einstellungen gelten für alle Player (Playlists und Suchresultate).', 'dbp-music-hub' ) . '</p>';
+	}
+
+	/**
+	 * Show Progress Field rendern (v1.3.8)
+	 */
+	public function render_show_progress_field() {
+		$value = get_option( 'dbp_player_show_progress', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_player_show_progress" id="dbp_player_show_progress" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Fortschrittsbalken mit Zeitanzeige im Player anzeigen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description"><?php esc_html_e( 'Zeigt die aktuelle Position und Gesamtlänge des Tracks an.', 'dbp-music-hub' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Show Volume Field rendern (v1.3.8)
+	 */
+	public function render_show_volume_field() {
+		$value = get_option( 'dbp_player_show_volume', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_player_show_volume" id="dbp_player_show_volume" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Lautstärkeregler im Player anzeigen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description"><?php esc_html_e( 'Ermöglicht Nutzern die Lautstärke direkt im Player zu regeln.', 'dbp-music-hub' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Show Shuffle Field rendern (v1.3.8)
+	 */
+	public function render_show_shuffle_field() {
+		$value = get_option( 'dbp_player_show_shuffle', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_player_show_shuffle" id="dbp_player_show_shuffle" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Shuffle-Button im Player anzeigen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description"><?php esc_html_e( 'Ermöglicht zufällige Wiedergabe der Tracks.', 'dbp-music-hub' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Show Repeat Field rendern (v1.3.8)
+	 */
+	public function render_show_repeat_field() {
+		$value = get_option( 'dbp_player_show_repeat', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_player_show_repeat" id="dbp_player_show_repeat" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Repeat-Button im Player anzeigen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description"><?php esc_html_e( 'Ermöglicht Wiederholung einzelner Tracks oder der gesamten Playlist.', 'dbp-music-hub' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Show Thumbnails Field rendern (v1.3.8)
+	 */
+	public function render_show_thumbnails_field() {
+		$value = get_option( 'dbp_player_show_thumbnails', true );
+		?>
+		<label>
+			<input type="checkbox" name="dbp_player_show_thumbnails" id="dbp_player_show_thumbnails" value="1" <?php checked( $value, true ); ?> />
+			<?php esc_html_e( 'Track-Thumbnails in der Tracklist anzeigen', 'dbp-music-hub' ); ?>
+		</label>
+		<p class="description"><?php esc_html_e( 'Zeigt Cover-Bilder neben jedem Track in der Liste an.', 'dbp-music-hub' ); ?></p>
 		<?php
 	}
 }
