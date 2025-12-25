@@ -118,8 +118,9 @@ class DBP_Admin_Menu {
 			$this->menu_slug,
 			__( 'Einstellungen', 'dbp-music-hub' ),
 			__( 'Einstellungen', 'dbp-music-hub' ),
-			'manage_options',
-			'options-general.php?page=dbp-music-hub'
+			'edit_posts',
+			'dbp-settings',
+			array( $this, 'render_settings_subpage' )
 		);
 	}
 
@@ -170,6 +171,18 @@ class DBP_Admin_Menu {
 		);
 
 		return in_array( $hook_suffix, $dbp_pages, true );
+	}
+
+	/**
+	 * Settings-Subpage rendern
+	 */
+	public function render_settings_subpage() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die( esc_html__( 'Sie haben keine Berechtigung für diese Seite.', 'dbp-music-hub' ) );
+		}
+
+		$settings = new DBP_Admin_Settings();
+		$settings->render_settings_page();
 	}
 
 	/**

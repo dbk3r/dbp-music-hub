@@ -555,7 +555,7 @@ class DBP_Admin_Settings {
 	 * Einstellungs-Seite rendern
 	 */
 	public function render_settings_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
 			return;
 		}
 
