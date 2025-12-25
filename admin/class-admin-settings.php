@@ -30,7 +30,13 @@ class DBP_Admin_Settings {
 	 */
 	public function enqueue_admin_styles( $hook_suffix ) {
 		// Nur auf Einstellungs-Seiten laden
-		if ( strpos( $hook_suffix, 'dbp' ) === false && 'settings_page_dbp-music-hub' !== $hook_suffix && 'music-hub_page_dbp-settings' !== $hook_suffix ) {
+		$allowed_hooks = array(
+			'settings_page_dbp-music-hub',
+			'music-hub_page_dbp-settings',
+			'toplevel_page_dbp-music-hub-dashboard'
+		);
+		
+		if ( ! in_array( $hook_suffix, $allowed_hooks, true ) && strpos( $hook_suffix, 'dbp' ) === false ) {
 			return;
 		}
 		
