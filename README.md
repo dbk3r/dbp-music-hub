@@ -2,6 +2,62 @@
 
 Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwalte Audio-Dateien, erstelle einen Music Store mit WooCommerce-Integration und biete deinen Besuchern einen modernen Audio-Player mit Playlists und Waveform-Visualisierung.
 
+## 📋 Changelog
+
+### Version 1.4.0 (2025-12-25) - MAJOR UPDATE
+
+#### 🎵 Multi-License Audio System
+- ✨ **Revolutionary Change:** Ein Produkt kann nun mehrere Lizenz-Variationen mit unterschiedlichen Audio-Dateien haben
+- 🎯 **Professionelle Lizenzierung:** Biete Personal/Commercial/Exclusive Lizenzen mit einzigartigen Dateien pro Stufe an
+- 🔄 **Dualer Workflow:**
+  - Audio → Zuweisung zu Produkt/Variation
+  - Produkt → Zuweisung von Audio zu Variationen
+- 🎧 **Intelligente Previews:** Eine Preview-Audio-Datei für alle Lizenz-Variationen
+- 📦 **Bessere Organisation:** Gruppiere verwandte Audio-Dateien unter einem Produkt
+
+#### 🔧 Breaking Changes
+- ❌ **Entfernt:** Automatische Produkt-Erstellung beim Audio-Upload
+- ❌ **Entfernt:** Auto-Sync WooCommerce Einstellungen
+- ✅ **Migration:** Bestehende Audio-Produkt-Verknüpfungen bleiben erhalten
+
+#### 🎛️ Neue Admin-Features
+- **Audio Meta Box:** "WooCommerce Produkt & Lizenzmodell" - Weise Audio zu Produkt-Variation zu
+- **Produkt-Felder:** 
+  - "Preview Audio" Feld für variable Produkte
+  - Audio-Zuweisung pro Variation
+- **AJAX-Loading:** Dynamische Variations-Dropdowns
+
+#### 🎨 Frontend-Verbesserungen
+- **Lizenz-Modal:** Zeigt alle verfügbaren Variationen mit Preisen
+- **Playlist Player:** Nutzt Preview-Audio für alle Variationen
+- **Smarte Fallbacks:** Funktioniert mit oder ohne Produkt-Zuweisung
+
+#### 📐 Architektur
+```
+Variable Produkt
+├─ Variation 1 (Personal - 29€)
+│  └─ Audio-Datei: 128kbps MP3
+├─ Variation 2 (Commercial - 99€)
+│  └─ Audio-Datei: 320kbps MP3
+└─ Variation 3 (Exclusive - 499€)
+   └─ Audio-Datei: WAV Lossless
+
+Preview Audio: Wird für Playlists/Previews verwendet
+```
+
+#### 🎯 Use Cases
+- Musik-Lizenzierungs-Plattformen (wie AudioJungle)
+- Stock-Music-Bibliotheken
+- Beat Stores mit Lease/Exclusive Optionen
+- Podcast-Intro Verkäufer
+- Sound-Effects-Bibliotheken
+
+#### ⚙️ Technische Details
+- Neue Meta-Felder: `_dbp_variation_id`, `_dbp_preview_audio_id`
+- Neue Klasse: `DBP_Product_Audio_Manager`
+- Aktualisiert: Lizenz-Modal, Playlist Player, Audio Meta Boxes
+- Entfernt: Auto-Sync-Funktionalität
+
 ## 🎵 Features
 
 ### Core-Funktionalität
@@ -44,10 +100,10 @@ Ein professionelles WordPress-Plugin für Audio-Management und E-Commerce. Verwa
 - 🎯 **Responsive** - Passt sich automatisch der Breite an
 
 ### WooCommerce-Integration
-- Automatische Produkt-Erstellung beim Veröffentlichen von Audio-Dateien
-- Synchronisation von Preis, Titel, Beschreibung und Thumbnails
+- Manuelle Zuweisung von Audio-Dateien zu Produkt-Variationen (v1.4.0)
+- Multi-Lizenz-System: Ein Produkt = Mehrere Variationen mit verschiedenen Audio-Dateien (v1.4.0)
+- Preview-Audio für variable Produkte (v1.4.0)
 - Downloadbare digitale Produkte
-- Kategorien und Tags werden übernommen
 - Vorschau-Dateien für kostenlose Hörproben
 
 ### Suche & Filter
