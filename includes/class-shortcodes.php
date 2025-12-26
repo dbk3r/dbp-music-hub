@@ -221,9 +221,7 @@ class DBP_Audio_Shortcodes {
 					</div>
 					<?php endif; ?>
 
-					<h3 class="dbp-audio-item-title">
-						<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-					</h3>
+
 
 					<div class="dbp-audio-item-meta">
 						<?php if ( $artist ) : ?>
@@ -428,10 +426,7 @@ class DBP_Audio_Shortcodes {
 			}
 
 			if ( $search_query->have_posts() ) {
-				echo '<div class="dbp-search-results">';
-				echo '<div class="dbp-search-results-header">';
-				echo '<h3>' . sprintf( esc_html__( 'Suchergebnisse: %s Treffer', 'dbp-music-hub' ), esc_html( $search_query->found_posts ) ) . '</h3>';
-				echo '</div>';
+				
 				
 				// Collect audio IDs for playlist
 				$audio_ids = wp_list_pluck( $search_query->posts, 'ID' );
@@ -474,25 +469,7 @@ class DBP_Audio_Shortcodes {
 						$search_term = ! empty( $current_search ) ? $current_search : __( 'Alle Tracks', 'dbp-music-hub' );
 						echo DBP_Playlist_Player::render_search_results_player( $tracks, $search_term );
 
-						// Einzelne Treffer mit Footer-Tabelle ausgeben
-						echo '<div class="dbp-search-result-list">';
-						foreach ( $tracks as $track ) {
-							$audio_id = $track['id'];
-							// Genre
-							$genres = get_the_terms( $audio_id, 'dbp_audio_genre' );
-							$genre_names = is_array($genres) ? join(', ', wp_list_pluck($genres, 'name')) : '';
-							// Kategorie
-							$categories = get_the_terms( $audio_id, 'dbp_audio_category' );
-							$category_names = is_array($categories) ? join(', ', wp_list_pluck($categories, 'name')) : '';
-							// Länge
-							$duration = $track['duration'];
-							// Titelzeile mit Link
-							echo '<div class="dbp-search-result-item">';
-							echo '<a href="' . esc_url($track['permalink']) . '"><strong>' . esc_html($track['title']) . '</strong></a>';
-							
-							echo '</div>';
-						}
-						echo '</div>';
+						
 					}
 				}
 				

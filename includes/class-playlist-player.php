@@ -25,6 +25,13 @@ class DBP_Playlist_Player {
 	 * Scripts und Styles laden
 	 */
 	public function enqueue_scripts() {
+		// Playlist CSS
+		wp_enqueue_style(
+			'dbp-playlist-styles',
+			DBP_MUSIC_HUB_PLUGIN_URL . 'public/css/playlist-styles.css',
+			array( 'dbp-player-styles' ),
+			DBP_MUSIC_HUB_VERSION
+		);
 		// Playlist Player JavaScript
 		wp_enqueue_script(
 			'dbp-playlist-player',
@@ -34,13 +41,6 @@ class DBP_Playlist_Player {
 			true
 		);
 
-		// Playlist CSS
-		wp_enqueue_style(
-			'dbp-playlist-styles',
-			DBP_MUSIC_HUB_PLUGIN_URL . 'public/css/playlist-styles.css',
-			array( 'dbp-player-styles' ),
-			DBP_MUSIC_HUB_VERSION
-		);
 	}
 
 	/**
