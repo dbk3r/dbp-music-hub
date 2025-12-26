@@ -71,33 +71,63 @@
 	 */
 	PlaylistPlayer.prototype.init = function() {
 		// Event Listeners
-		this.playPauseBtn.addEventListener('click', this.togglePlayPause.bind(this));
-		this.previousBtn.addEventListener('click', this.playPrevious.bind(this));
-		this.nextBtn.addEventListener('click', this.playNext.bind(this));
-		this.progressBar.addEventListener('input', this.seek.bind(this));
-		this.volumeBar.addEventListener('input', this.changeVolume.bind(this));
-		this.shuffleBtn.addEventListener('click', this.toggleShuffle.bind(this));
-		this.repeatBtn.addEventListener('click', this.toggleRepeat.bind(this));
+		if ( this.playPauseBtn ) {
+			this.playPauseBtn.addEventListener('click', this.togglePlayPause.bind(this));
+		}
+		if ( this.previousBtn ) {
+			this.previousBtn.addEventListener('click', this.playPrevious.bind(this));
+		}
+		if ( this.nextBtn ) {
+			this.nextBtn.addEventListener('click', this.playNext.bind(this));
+		}
+		if ( this.progressBar ) {
+			this.progressBar.addEventListener('input', this.seek.bind(this));
+		}
+		if ( this.volumeBar ) {
+			this.volumeBar.addEventListener('input', this.changeVolume.bind(this));
+		}
+		if ( this.shuffleBtn ) {
+			this.shuffleBtn.addEventListener('click', this.toggleShuffle.bind(this));
+		}
+		if ( this.repeatBtn ) {
+			this.repeatBtn.addEventListener('click', this.toggleRepeat.bind(this));
+		}
 
 		// Audio Events
-		this.audio.addEventListener('timeupdate', this.updateProgress.bind(this));
-		this.audio.addEventListener('ended', this.onTrackEnded.bind(this));
-		this.audio.addEventListener('loadedmetadata', this.onMetadataLoaded.bind(this));
+		if ( this.audio ) {
+			this.audio.addEventListener('timeupdate', this.updateProgress.bind(this));
+			this.audio.addEventListener('ended', this.onTrackEnded.bind(this));
+			this.audio.addEventListener('loadedmetadata', this.onMetadataLoaded.bind(this));
+		}
 
 		// Tracklist Events
-		this.tracklistItems.forEach(function(item, index) {
-			item.addEventListener('click', function() {
-				this.playTrack(index);
+		if ( this.tracklistItems && this.tracklistItems.length ) {
+			this.tracklistItems.forEach(function(item, index) {
+				if ( item ) {
+					item.addEventListener('click', function(e) {
+						// Wenn Klick von einem Warenkorb-Button stammt, ignorieren (öffnet Modal)
+						if ( e && e.target && e.target.closest && e.target.closest('.dbp-track-cart-btn, .dbp-track-add-to-cart-btn, .dbp-open-license-modal') ) {
+							return;
+						}
+						this.playTrack(index);
+					}.bind(this));
+				}
 			}.bind(this));
-		}.bind(this));
+		}
 
 		// Lautstärke aus localStorage laden
 		const savedVolume = localStorage.getItem('dbp_playlist_volume');
 		if (savedVolume !== null) {
-			this.volumeBar.value = savedVolume;
-			this.audio.volume = savedVolume / 100;
+			if ( this.volumeBar ) {
+				this.volumeBar.value = savedVolume;
+			}
+			if ( this.audio ) {
+				this.audio.volume = savedVolume / 100;
+			}
 		} else {
-			this.audio.volume = 0.8;
+			if ( this.audio ) {
+				this.audio.volume = 0.8;
+			}
 		}
 
 		// Shuffle-State aus localStorage laden
@@ -132,14 +162,20 @@
 		this.audio.load();
 
 		// UI aktualisieren
-		this.currentTrackTitle.textContent = track.title;
-		this.currentTrackArtist.textContent = track.artist || '';
+		if ( this.currentTrackTitle ) {
+			this.currentTrackTitle.textContent = track.title;
+		}
+		if ( this.currentTrackArtist ) {
+			this.currentTrackArtist.textContent = track.artist || '';
+		}
 
 		// Thumbnail aktualisieren
-		if (track.thumbnail) {
-			this.currentTrackThumbnail.innerHTML = '<img src="' + track.thumbnail + '" alt="' + track.title + '">';
-		} else {
-			this.currentTrackThumbnail.innerHTML = '';
+		if ( this.currentTrackThumbnail ) {
+			if (track.thumbnail) {
+				this.currentTrackThumbnail.innerHTML = '<img src="' + track.thumbnail + '" alt="' + track.title + '">';
+			} else {
+				this.currentTrackThumbnail.innerHTML = '';
+			}
 		}
 
 		// Tracklist aktualisieren
@@ -340,11 +376,11 @@
 		const pauseIcon = this.playPauseBtn.querySelector('.dbp-pause-icon');
 
 		if (isPlaying) {
-			playIcon.style.display = 'none';
-			pauseIcon.style.display = 'inline';
+			if ( playIcon ) playIcon.style.display = 'none';
+			if ( pauseIcon ) pauseIcon.style.display = 'inline';
 		} else {
-			playIcon.style.display = 'inline';
-			pauseIcon.style.display = 'none';
+			if ( playIcon ) playIcon.style.display = 'inline';
+			if ( pauseIcon ) pauseIcon.style.display = 'none';
 		}
 	};
 
@@ -352,21 +388,24 @@
 	 * Tracklist UI aktualisieren
 	 */
 	PlaylistPlayer.prototype.updateTracklistUI = function() {
-		this.tracklistItems.forEach(function(item, index) {
-			const playingIcon = item.querySelector('.dbp-track-playing-icon');
+		if ( this.tracklistItems && this.tracklistItems.length ) {
+			this.tracklistItems.forEach(function(item, index) {
+				if ( ! item ) return;
+				const playingIcon = item.querySelector('.dbp-track-playing-icon');
 			
-			if (index === this.currentIndex) {
-				item.classList.add('active');
-				if (playingIcon) {
-					playingIcon.style.display = 'inline';
+				if (index === this.currentIndex) {
+					item.classList.add('active');
+					if (playingIcon) {
+						playingIcon.style.display = 'inline';
+					}
+				} else {
+					item.classList.remove('active');
+					if (playingIcon) {
+						playingIcon.style.display = 'none';
+					}
 				}
-			} else {
-				item.classList.remove('active');
-				if (playingIcon) {
-					playingIcon.style.display = 'none';
-				}
-			}
-		}.bind(this));
+			}.bind(this));
+		}
 	};
 
 	/**

@@ -166,8 +166,7 @@ class DBP_Playlist_Player {
 					</span>
 				</div>
 			</div>
-
-			<div class="dbp-playlist-current-track">
+					<div class="dbp-playlist-current-track">
 				<audio class="dbp-playlist-audio-element" preload="metadata">
 					<source src="" type="audio/mpeg">
 					<?php esc_html_e( 'Ihr Browser unterstützt das Audio-Element nicht.', 'dbp-music-hub' ); ?>
@@ -264,7 +263,11 @@ class DBP_Playlist_Player {
 						<?php
 						// Add to Cart Button (v1.3.0)
 						if ( class_exists( 'WooCommerce' ) ) :
-							$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
+							// Support both legacy and current meta keys
+							$product_id = get_post_meta( $track['id'], '_dbp_wc_product_id', true );
+							if ( ! $product_id ) {
+								$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
+							}
 							if ( $product_id ) :
 						?>
 							<button type="button" 
@@ -447,7 +450,11 @@ class DBP_Playlist_Player {
 						<?php
 						// Add to Cart Button
 						if ( class_exists( 'WooCommerce' ) ) :
-							$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
+							// Support both legacy and current meta keys
+							$product_id = get_post_meta( $track['id'], '_dbp_wc_product_id', true );
+							if ( ! $product_id ) {
+								$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
+							}
 							if ( $product_id ) :
 						?>
 							<button type="button" 

@@ -235,6 +235,10 @@
 	// Initialize on document ready
 	$(document).ready(function() {
 		if ($('.dbp-wc-sync-dashboard').length) {
+			// Debug: expose localized data to console to check nonce/ajaxUrl
+			if ( window.console && window.console.debug ) {
+				console.debug('DBP WCSync data:', typeof dbpWCSync !== 'undefined' ? dbpWCSync : null);
+			}
 			DBPWCSync.init();
 		}
 	});

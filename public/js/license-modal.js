@@ -218,9 +218,11 @@
 		}
 	}
 
-	// Modal schließen bei Klick auf "In den Warenkorb"-Button in Tracklist
-	$(document).on('click', '.dbp-track-add-to-cart-btn', function(e) {
+	// Modal schließen / öffnen bei Klick auf "In den Warenkorb"-Button in Tracklist
+	// Stoppt Event-Propagation, damit ein Klick auf den Button nicht den Track-Click (Play) auslöst.
+	$(document).on('click', '.dbp-track-add-to-cart-btn, .dbp-track-cart-btn, .dbp-open-license-modal', function(e) {
 		e.preventDefault();
+		e.stopPropagation();
 		var audioId = $(this).data('audio-id');
 		openLicenseModal(audioId);
 	});

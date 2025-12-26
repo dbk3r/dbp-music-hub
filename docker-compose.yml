@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   # MySQL-Datenbank
   db:  
     image: mysql:8.0
@@ -68,8 +69,8 @@ services:
     networks:
       - dbp-network
     user:  "33:33"
-    entrypoint: wp
-    command:  --info
+    
+    command:  bash -c "while true; do sleep 1000; done"
 
 volumes:
   db_data:

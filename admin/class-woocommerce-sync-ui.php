@@ -31,7 +31,8 @@ class DBP_WooCommerce_Sync_UI {
 	 * @param string $hook_suffix Aktueller Admin-Page-Hook.
 	 */
 	public function enqueue_assets( $hook_suffix ) {
-		if ( 'music-hub_page_dbp-woocommerce-sync' !== $hook_suffix ) {
+		// Allow for slight variations in the hook suffix (keep check tolerant)
+		if ( ! is_string( $hook_suffix ) || false === strpos( $hook_suffix, 'dbp-woocommerce-sync' ) ) {
 			return;
 		}
 
@@ -340,9 +341,25 @@ class DBP_WooCommerce_Sync_UI {
 	 * AJAX: Einzelnes Produkt synchronisieren
 	 */
 	public function ajax_sync_single_product() {
-		check_ajax_referer( 'dbp_wc_sync_nonce', 'nonce' );
+		// Debug: log incoming AJAX request for troubleshooting
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[DBP] ajax_sync_single_product called. POST: ' . json_encode( $_POST ) );
+		}
+
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+
+		// Validate nonce manually so we can return a structured error and log
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'dbp_wc_sync_nonce' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[DBP] ajax_sync_single_product: invalid nonce: ' . $nonce );
+			}
+			wp_send_json_error( __( 'Ungültiges Nonce.', 'dbp-music-hub' ) );
+		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[DBP] ajax_sync_single_product: current_user_can failed for user ' . get_current_user_id() );
+			}
 			wp_send_json_error( __( 'Keine Berechtigung.', 'dbp-music-hub' ) );
 		}
 

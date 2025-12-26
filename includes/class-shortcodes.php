@@ -395,7 +395,17 @@ class DBP_Audio_Shortcodes {
 
 			<?php
 			// Suchergebnisse anzeigen wenn Suchparameter vorhanden
-			if ( ! empty( $current_search ) || ! empty( $current_genre ) || ! empty( $current_category ) || ! empty( $current_min_price ) || ! empty( $current_max_price ) ) {
+			// Normalize numeric price inputs (avoid unexpected values causing warnings)
+			if ( '' !== $current_min_price ) {
+				$current_min_price = trim( $current_min_price );
+				$current_min_price = is_numeric( $current_min_price ) ? floatval( $current_min_price ) : '';
+			}
+			if ( '' !== $current_max_price ) {
+				$current_max_price = trim( $current_max_price );
+				$current_max_price = is_numeric( $current_max_price ) ? floatval( $current_max_price ) : '';
+			}
+
+			if ( ! empty( $current_search ) || ! empty( $current_genre ) || ! empty( $current_category ) || '' !== $current_min_price || '' !== $current_max_price ) {
 				$search_args = array(
 					's'              => $current_search,
 					'genre'          => $current_genre,
@@ -406,7 +416,15 @@ class DBP_Audio_Shortcodes {
 					'paged'          => $current_page,
 				);
 
-				$search_query = DBP_Audio_Search::advanced_search( $search_args );
+				// Run advanced search with exception handling to avoid fatal errors
+				try {
+					$search_query = DBP_Audio_Search::advanced_search( $search_args );
+				} catch ( Throwable $e ) {
+					// Log and show friendly error
+					error_log( '[DBP] advanced_search failed: ' . $e->getMessage() );
+					echo '<div class="dbp-error">' . esc_html__( 'Fehler bei der Suche. Bitte prüfe die Logs.', 'dbp-music-hub' ) . '</div>';
+					return ob_get_clean();
+				}
 
 				if ( $search_query->have_posts() ) {
 					echo '<div class="dbp-search-results">';

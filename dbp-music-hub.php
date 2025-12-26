@@ -56,6 +56,34 @@ class DBP_Music_Hub {
 	private function __construct() {
 		$this->load_dependencies();
 		$this->init_hooks();
+
+		// Admin AJAX logging helper for debugging (only when WP_DEBUG is true)
+		add_action( 'admin_init', array( $this, 'maybe_log_ajax_requests' ) );
+
+		// Simple AJAX test endpoint to verify admin-ajax reaches WordPress
+		add_action( 'wp_ajax_dbp_test_ping', array( $this, 'ajax_test_ping' ) );
+	}
+
+	/**
+	 * Log incoming AJAX requests for debugging when WP_DEBUG is enabled.
+	 */
+	public function maybe_log_ajax_requests() {
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '(none)';
+				error_log( '[DBP] admin-ajax request. action=' . $action . ' POST=' . wp_json_encode( $_POST ) );
+			}
+		}
+	}
+
+	/**
+	 * Simple AJAX test handler.
+	 */
+	public function ajax_test_ping() {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[DBP] ajax_test_ping called. POST: ' . wp_json_encode( $_POST ) );
+		}
+		wp_send_json_success( array( 'pong' => 1 ) );
 	}
 
 	/**
@@ -87,19 +115,29 @@ class DBP_Music_Hub {
 		// Search-to-Playlist (v1.2.1)
 		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-search-playlist.php';
 
-		// Lizenz-System (v1.3.0)
-		if ( class_exists( 'WooCommerce' ) ) {
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-modal.php';
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-woocommerce-license.php';
-			
-			// PDF License System (v1.3.1)
+		// Lizenz-System (v1.3.0) - Klassen laden; die Klassen selbst prüfen WooCommerce bei Bedarf.
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-modal.php';
+		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-woocommerce-license.php';
+
+		// PDF License System (v1.3.1) und Verifikation nur laden, wenn verfügbar (keine harten Abhängigkeiten)
+		if ( file_exists( DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-pdf-generator.php' ) ) {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-pdf-generator.php';
+		}
+		if ( file_exists( DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-verification.php' ) ) {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-verification.php';
 		}
 
 		// Admin-Klassen später laden (bei admin_menu), damit WP-Admin-Funktionen vorhanden sind
 		if ( is_admin() ) {
 			add_action( 'admin_menu', array( $this, 'load_admin_dependencies' ) );
+
+			// Also load the WooCommerce Sync UI during AJAX requests so its wp_ajax handlers are registered.
+			if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+				require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
+				if ( class_exists( 'DBP_WooCommerce_Sync_UI' ) ) {
+					new DBP_WooCommerce_Sync_UI();
+				}
+			}
 		}
 	}
 
@@ -131,6 +169,11 @@ class DBP_Music_Hub {
 
 		// Dashboard initialisieren (v1.3.6)
 		new DBP_Admin_Dashboard();
+
+		// WooCommerce Sync UI initialisieren (registriert admin assets early)
+		if ( class_exists( 'DBP_WooCommerce_Sync_UI' ) ) {
+			new DBP_WooCommerce_Sync_UI();
+		}
 
 		// DBP_Admin_Menu muss das Menü sofort registrieren. Wir instanziieren
 		// und rufen `register_menu()` direkt auf, damit die Seiten in

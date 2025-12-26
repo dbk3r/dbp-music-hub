@@ -73,58 +73,209 @@ class DBP_WooCommerce_Integration {
 		$album       = get_post_meta( $post_id, '_dbp_audio_album', true );
 
 		// WooCommerce-Produkt erstellen
-		$product = new WC_Product_Simple();
-		$product->set_name( $title );
-		$product->set_status( 'publish' );
-		$product->set_catalog_visibility( 'visible' );
-		$product->set_description( $description );
-		$product->set_short_description( wp_trim_words( $description, 20 ) );
-		
-		// Preis setzen
-		if ( ! empty( $price ) ) {
-			$product->set_regular_price( $price );
-			$product->set_price( $price );
+		// Ensure the License Manager class is available (may live in admin/ and not loaded in AJAX)
+		if ( ! class_exists( 'DBP_License_Manager' ) ) {
+			$license_manager_file = DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-license-manager.php';
+			if ( file_exists( $license_manager_file ) ) {
+				require_once $license_manager_file;
+			}
 		}
+		$license_manager = class_exists( 'DBP_License_Manager' ) ? new DBP_License_Manager() : null;
+		$active_licenses = $license_manager ? $license_manager->get_active_licenses() : array();
 
-		// Als downloadable und virtual markieren
-		$product->set_downloadable( true );
-		$product->set_virtual( true );
+		// If multiple license models exist, create a variable product with variations
+		if ( ! empty( $active_licenses ) && count( $active_licenses ) > 1 ) {
+			$product = new WC_Product_Variable();
+			$product->set_name( $title );
+			$product->set_status( 'publish' );
+			$product->set_catalog_visibility( 'visible' );
+			$product->set_description( $description );
+			$product->set_short_description( wp_trim_words( $description, 20 ) );
 
-		// Produkt speichern
-		$new_product_id = $product->save();
-
-		if ( $new_product_id ) {
-			// Audio-Datei als Download hinzufügen
-			$audio_file_id = get_post_meta( $post_id, '_dbp_audio_file', true );
-			$download_name = $title;
-			
-			if ( $artist ) {
-				$download_name = $artist . ' - ' . $download_name;
-			}
-
-			$download = new WC_Product_Download();
-			$download->set_name( $download_name );
-			$download->set_file( $audio_file );
-			
-			$product = wc_get_product( $new_product_id );
-			$product->set_downloads( array( $download ) );
+			// Variable products have no single price
 			$product->save();
+			$new_product_id = $product->get_id();
 
-			// Produktbild setzen (Featured Image)
-			$thumbnail_id = get_post_thumbnail_id( $post_id );
-			if ( $thumbnail_id ) {
-				set_post_thumbnail( $new_product_id, $thumbnail_id );
+			if ( $new_product_id ) {
+				// Add attribute for license variations
+				// Create or ensure a global product attribute taxonomy 'pa_license' exists
+				$attribute_slug = 'license';
+				$attribute_tax = 'pa_' . $attribute_slug;
+
+				if ( ! taxonomy_exists( $attribute_tax ) ) {
+					if ( function_exists( 'wc_create_attribute' ) ) {
+						try {
+							wc_create_attribute( array(
+								'name'        => 'License',
+								'slug'        => $attribute_slug,
+								'type'        => 'select',
+								'order_by'    => 'menu_order',
+								'has_archives'=> false,
+							) );
+							// register taxonomy after creation
+							register_taxonomy( $attribute_tax, apply_filters( 'woocommerce_taxonomy_objects_' . $attribute_tax, array( 'product' ) ), apply_filters( 'woocommerce_taxonomy_args_' . $attribute_tax, array( 'hierarchical' => false, 'show_ui' => false ) ) );
+						} catch ( Exception $e ) {
+							// ignore - fallback to product-level attribute below
+						}
+					}
+				}
+
+				// Ensure terms exist and collect slugs
+				$term_slugs = array();
+				foreach ( $active_licenses as $lic ) {
+					$term = term_exists( $lic['slug'], $attribute_tax );
+					if ( ! $term ) {
+						$inserted = wp_insert_term( $lic['name'], $attribute_tax, array( 'slug' => $lic['slug'] ) );
+						if ( ! is_wp_error( $inserted ) && isset( $inserted['term_id'] ) ) {
+							$term_slugs[] = $lic['slug'];
+						}
+					} else {
+						$term_slugs[] = $lic['slug'];
+					}
+				}
+
+				$product = wc_get_product( $new_product_id );
+
+				if ( taxonomy_exists( $attribute_tax ) ) {
+					// assign taxonomy-based attribute to product
+					$attribute = new WC_Product_Attribute();
+					$attribute->set_id( 0 );
+					$attribute->set_name( $attribute_tax );
+					$attribute->set_options( $term_slugs );
+					$attribute->set_position( 0 );
+					$attribute->set_visible( true );
+					$attribute->set_variation( true );
+
+					$product->set_attributes( array( $attribute ) );
+					$product->save();
+				} else {
+					// fallback: product-level attribute with names
+					$license_names = array();
+					foreach ( $active_licenses as $lic ) {
+						$license_names[] = $lic['name'];
+					}
+					$attribute = new WC_Product_Attribute();
+					$attribute->set_id( 0 );
+					$attribute->set_name( 'License' );
+					$attribute->set_options( $license_names );
+					$attribute->set_position( 0 );
+					$attribute->set_visible( true );
+					$attribute->set_variation( true );
+
+					$product->set_attributes( array( $attribute ) );
+					$product->save();
+					// map term_slugs empty in this fallback
+					$term_slugs = array();
+				}
+
+				// Create variations for each license
+				foreach ( $active_licenses as $lic ) {
+					$variation = new WC_Product_Variation();
+					$variation->set_parent_id( $new_product_id );
+					$variation->set_status( 'publish' );
+
+					// Calculate price using license manager helper if available
+					$variation_price = $price;
+					if ( $license_manager ) {
+						$variation_price = $license_manager->calculate_price( (float) $price, $lic['id'] );
+					}
+					if ( ! empty( $variation_price ) ) {
+						$variation->set_regular_price( $variation_price );
+						$variation->set_price( $variation_price );
+					}
+
+					// Mark as virtual/downloadable and assign download
+					$variation->set_virtual( true );
+					$variation->set_downloadable( true );
+
+					$download_name = $artist ? $artist . ' - ' . $title : $title;
+					$download = new WC_Product_Download();
+					$download->set_name( $download_name );
+					$download->set_file( $audio_file );
+					$variation->set_downloads( array( $download ) );
+
+					// Set variation attributes to the human-readable name
+					$variation->set_attributes( array( 'License' => $lic['name'] ) );
+
+					$variation_id = $variation->save();
+
+					// Store meta linking variation -> audio post
+					if ( $variation_id ) {
+						update_post_meta( $variation_id, '_dbp_audio_post_id', $post_id );
+					}
+				}
+
+				// Produktbild setzen (Featured Image)
+				$thumbnail_id = get_post_thumbnail_id( $post_id );
+				if ( $thumbnail_id ) {
+					set_post_thumbnail( $new_product_id, $thumbnail_id );
+				}
+
+				// Kategorien und Tags synchronisieren
+				$this->sync_product_taxonomies( $post_id, $new_product_id );
+
+				// Produkt-ID beim Audio-Post speichern
+				update_post_meta( $post_id, '_dbp_wc_product_id', $new_product_id );
+				update_post_meta( $new_product_id, '_dbp_audio_post_id', $post_id );
+
+				// Hook für Erweiterungen
+				do_action( 'dbp_woocommerce_product_created', $new_product_id, $post_id );
+			}
+		} else {
+			// Fallback: create simple product (single license or no license models)
+			$product = new WC_Product_Simple();
+			$product->set_name( $title );
+			$product->set_status( 'publish' );
+			$product->set_catalog_visibility( 'visible' );
+			$product->set_description( $description );
+			$product->set_short_description( wp_trim_words( $description, 20 ) );
+
+			// Preis setzen
+			if ( ! empty( $price ) ) {
+				$product->set_regular_price( $price );
+				$product->set_price( $price );
 			}
 
-			// Kategorien und Tags synchronisieren
-			$this->sync_product_taxonomies( $post_id, $new_product_id );
+			// Als downloadable und virtual markieren
+			$product->set_downloadable( true );
+			$product->set_virtual( true );
 
-			// Produkt-ID beim Audio-Post speichern
-			update_post_meta( $post_id, '_dbp_wc_product_id', $new_product_id );
-			update_post_meta( $new_product_id, '_dbp_audio_post_id', $post_id );
+			// Produkt speichern
+			$new_product_id = $product->save();
 
-			// Hook für Erweiterungen
-			do_action( 'dbp_woocommerce_product_created', $new_product_id, $post_id );
+			if ( $new_product_id ) {
+				// Audio-Datei als Download hinzufügen
+				$audio_file_id = get_post_meta( $post_id, '_dbp_audio_file', true );
+				$download_name = $title;
+                
+				if ( $artist ) {
+					$download_name = $artist . ' - ' . $download_name;
+				}
+
+				$download = new WC_Product_Download();
+				$download->set_name( $download_name );
+				$download->set_file( $audio_file );
+                
+				$product = wc_get_product( $new_product_id );
+				$product->set_downloads( array( $download ) );
+				$product->save();
+
+				// Produktbild setzen (Featured Image)
+				$thumbnail_id = get_post_thumbnail_id( $post_id );
+				if ( $thumbnail_id ) {
+					set_post_thumbnail( $new_product_id, $thumbnail_id );
+				}
+
+				// Kategorien und Tags synchronisieren
+				$this->sync_product_taxonomies( $post_id, $new_product_id );
+
+				// Produkt-ID beim Audio-Post speichern
+				update_post_meta( $post_id, '_dbp_wc_product_id', $new_product_id );
+				update_post_meta( $new_product_id, '_dbp_audio_post_id', $post_id );
+
+				// Hook für Erweiterungen
+				do_action( 'dbp_woocommerce_product_created', $new_product_id, $post_id );
+			}
 		}
 	}
 
