@@ -1,5 +1,5 @@
 <?php
-error_log('Template-Loader Datei geladen!');
+
 add_action('plugins_loaded', function() {
     add_filter('template_include', function($template) {
         if (is_post_type_archive('dbp_audio')) {
