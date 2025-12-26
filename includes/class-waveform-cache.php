@@ -137,44 +137,35 @@ class DBP_Waveform_Cache {
 	 * @param string $audio_file Audio-Datei URL.
 	 * @return array|false Peaks-Array oder false bei Fehler.
 	 */
-	private function extract_peaks( $audio_file ) {
-		// Prüfen ob getID3 verfügbar ist
-		if ( ! class_exists( 'getID3' ) ) {
-			// Falls getID3 nicht verfügbar ist, leeres Array zurückgeben.
-			// Dies ermöglicht client-seitige Generierung durch WaveSurfer.js
-			// und vermeidet Fehler beim Caching.
-			return array();
-		}
+	   private function extract_peaks( $audio_file ) {
+		   // Pfad im Dateisystem ermitteln
+		   $file_path = str_replace( wp_upload_dir()['baseurl'], wp_upload_dir()['basedir'], $audio_file );
+		   if ( ! file_exists( $file_path ) ) {
+			   return array();
+		   }
 
-		try {
-			// Audio-Datei-Pfad ermitteln
-			$file_path = str_replace( wp_upload_dir()['baseurl'], wp_upload_dir()['basedir'], $audio_file );
-			
-			if ( ! file_exists( $file_path ) ) {
-				return array();
-			}
+		   // Temporäre Datei für Output
+		   $tmp_json = tempnam(sys_get_temp_dir(), 'peaks_') . '.json';
 
-			// getID3 initialisieren
-			require_once ABSPATH . 'wp-includes/ID3/getid3.php';
-			$getID3 = new getID3();
-			$audio_info = $getID3->analyze( $file_path );
+		   // audiowaveform-Befehl
+		   $cmd = sprintf(
+			   'audiowaveform -i %s -o %s --pixels-per-second 10 --bits 8 --output-format json 2>&1',
+			   escapeshellarg($file_path),
+			   escapeshellarg($tmp_json)
+		   );
+		   $output = shell_exec($cmd);
 
-			// Fehler prüfen
-			if ( isset( $audio_info['error'] ) ) {
-				return array();
-			}
-
-			// Peaks berechnen (vereinfachte Version)
-			// In einer produktiven Umgebung würde man hier eine bessere Peak-Extraktion verwenden
-			$peaks = $this->calculate_simple_peaks( $audio_info );
-
-			return $peaks;
-
-		} catch ( Exception $e ) {
-			error_log( 'DBP Waveform Cache: Peak extraction failed - ' . $e->getMessage() );
-			return array();
-		}
-	}
+		   if (file_exists($tmp_json)) {
+			   $json = file_get_contents($tmp_json);
+			   @unlink($tmp_json);
+			   $data = json_decode($json, true);
+			   if (is_array($data)) {
+				   // audiowaveform gibt {"data":[...]} zurück
+				   return isset($data['data']) ? $data['data'] : $data;
+			   }
+		   }
+		   return array();
+	   }
 
 	/**
 	 * Einfache Peaks berechnen

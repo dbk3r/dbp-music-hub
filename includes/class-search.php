@@ -45,49 +45,47 @@ class DBP_Audio_Search {
 			
 			// Meta-Query für Künstler und Album
 			$search_term = $query->get( 's' );
-			
-			if ( ! empty( $search_term ) ) {
-				$meta_query = array(
-					'relation' => 'OR',
-					array(
-						'key'     => 'dbp_artist',
-						'value'   => $search_term,
-						'compare' => 'LIKE',
-					),
-					array(
-						'key'     => 'dbp_album',
-						'value'   => $search_term,
-						'compare' => 'LIKE',
-					),
-				);
-				
-				$query->set( 'meta_query', $meta_query );
-			}
-			
-			// Tax-Query für Genre, Kategorie, Tags
-			$tax_query = array(
-				'relation' => 'OR',
-				array(
-					'taxonomy' => 'dbp_audio_genre',
-					'field'    => 'name',
-					'terms'    => $search_term,
-					'operator' => 'LIKE',
-				),
-				array(
-					'taxonomy' => 'dbp_audio_category',
-					'field'    => 'name',
-					'terms'    => $search_term,
-					'operator' => 'LIKE',
-				),
-				array(
-					'taxonomy' => 'dbp_audio_tag',
-					'field'    => 'name',
-					'terms'    => $search_term,
-					'operator' => 'LIKE',
-				),
-			);
-			
-			$query->set( 'tax_query', $tax_query );
+        if ( ! empty( $search_term ) ) {
+            $meta_query = array(
+                'relation' => 'OR',
+                array(
+                    'key'     => 'dbp_artist',
+                    'value'   => $search_term,
+                    'compare' => 'LIKE',
+                ),
+                array(
+                    'key'     => 'dbp_album',
+                    'value'   => $search_term,
+                    'compare' => 'LIKE',
+                ),
+            );
+            $query->set( 'meta_query', $meta_query );
+
+            // Tax-Query für Genre, Kategorie, Tags nur setzen, wenn ein Suchbegriff vorhanden ist.
+            $tax_query = array(
+                'relation' => 'OR',
+                array(
+                    'taxonomy' => 'dbp_audio_genre',
+                    'field'    => 'name',
+                    'terms'    => $search_term,
+                    'operator' => 'LIKE',
+                ),
+                array(
+                    'taxonomy' => 'dbp_audio_category',
+                    'field'    => 'name',
+                    'terms'    => $search_term,
+                    'operator' => 'LIKE',
+                ),
+                array(
+                    'taxonomy' => 'dbp_audio_tag',
+                    'field'    => 'name',
+                    'terms'    => $search_term,
+                    'operator' => 'LIKE',
+                ),
+            );
+            $query->set( 'tax_query', $tax_query );
+        }
+        // Wenn kein Suchbegriff, keine Einschränkung durch Meta- oder Tax-Querys
 		}
 		
 		return $query;
@@ -110,10 +108,10 @@ class DBP_Audio_Search {
 
 		// Suchbegriff abrufen
 		$search_term = $query->get( 's' );
-		
-		if ( empty( $search_term ) ) {
-			return $search;
-		}
+        if ( empty( $search_term ) ) {
+            // Wenn kein Suchbegriff, keine Einschränkung – alle Einträge anzeigen
+            return '';
+        }
 
 		// Meta-Felder für Suche
 		$meta_keys = array(
@@ -171,13 +169,34 @@ class DBP_Audio_Search {
 			'post_status'    => 'publish',
 			'posts_per_page' => $args['posts_per_page'],
 			'paged'          => $args['paged'],
-			'orderby'        => $args['orderby'],
-			'order'          => $args['order'],
 		);
+
+		// Sortierung
+		$orderby = $args['orderby'];
+		$order = $args['order'];
+		if ($orderby === 'dbp_audio_artist') {
+			$query_args['orderby'] = 'meta_value';
+			$query_args['meta_key'] = '_dbp_audio_artist';
+			$query_args['order'] = $order;
+		} elseif ($orderby === 'title' || $orderby === 'date') {
+			$query_args['orderby'] = $orderby;
+			$query_args['order'] = $order;
+		} else {
+			// Für Genre/Kategorie: Standard-Sortierung, nachher mit PHP sortieren
+			$query_args['orderby'] = 'date';
+			$query_args['order'] = $order;
+		}
 
 		// Suchbegriff
 		if ( ! empty( $args['s'] ) ) {
 			$query_args['s'] = sanitize_text_field( $args['s'] );
+		}
+
+		// Wenn ALLE Felder leer sind, zeige alle Audios
+		$all_empty = empty($args['s']) && empty($args['genre']) && empty($args['category']) && empty($args['artist']) && empty($args['min_price']) && empty($args['max_price']);
+		if ($all_empty) {
+			// Keine Einschränkung, zeige alle
+			// Keine Tax-Query, keine Meta-Query
 		}
 
 		// Tax Query
@@ -245,6 +264,25 @@ class DBP_Audio_Search {
 
 		// Query ausführen
 		$query = new WP_Query( apply_filters( 'dbp_audio_advanced_search_args', $query_args, $args ) );
+
+		// Nach Genre/Kategorie sortieren, falls gewünscht
+		if ($orderby === 'dbp_audio_genre' || $orderby === 'dbp_audio_category') {
+			$taxonomy = $orderby === 'dbp_audio_genre' ? 'dbp_audio_genre' : 'dbp_audio_category';
+			$posts = $query->posts;
+			usort($posts, function($a, $b) use ($taxonomy, $order) {
+				$terms_a = get_the_terms($a, $taxonomy);
+				$terms_b = get_the_terms($b, $taxonomy);
+				$name_a = is_array($terms_a) && count($terms_a) ? $terms_a[0]->name : '';
+				$name_b = is_array($terms_b) && count($terms_b) ? $terms_b[0]->name : '';
+				if ($name_a === $name_b) return 0;
+				if ($order === 'DESC') {
+					return strcmp($name_b, $name_a);
+				} else {
+					return strcmp($name_a, $name_b);
+				}
+			});
+			$query->posts = $posts;
+		}
 
 		return $query;
 	}

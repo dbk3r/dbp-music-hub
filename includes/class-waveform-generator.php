@@ -31,6 +31,19 @@ class DBP_Waveform_Generator {
 			return;
 		}
 
+		// Ensure a per-request ID so logs can be correlated
+		if ( empty( $_SERVER['DBP_REQUEST_ID'] ) ) {
+			$_SERVER['DBP_REQUEST_ID'] = uniqid( 'dbp_', true );
+		}
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$req = $_SERVER['DBP_REQUEST_ID'];
+			$uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '(none)';
+			$ajax = ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ? '1' : '0';
+			$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '(none)';
+			error_log( sprintf( '[DBP] enqueue_scripts req=%s ajax=%s action=%s uri=%s - enqueueing WaveSurfer assets', $req, $ajax, $action, $uri ) );
+		}
+
 		// WaveSurfer.js von CDN laden
 		wp_enqueue_script(
 			'wavesurfer',
@@ -129,10 +142,14 @@ class DBP_Waveform_Generator {
 	 * @param int $audio_id Audio Post ID.
 	 * @return array|false Waveform-Daten oder false.
 	 */
-	public function get_waveform_data( $audio_id ) {
+	public static function get_waveform_data( $audio_id ) {
 		$waveform_enabled = get_post_meta( $audio_id, '_dbp_waveform_enabled', true );
 		
 		if ( ! $waveform_enabled ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$req = $_SERVER['DBP_REQUEST_ID'] ?? uniqid( 'dbp_', true );
+				error_log( '[DBP] get_waveform_data req=' . $req . ' : waveform not enabled for audio_id=' . $audio_id );
+			}
 			return false;
 		}
 
@@ -142,6 +159,10 @@ class DBP_Waveform_Generator {
 			$cached_data = $cache_instance->get_cached_waveform( $audio_id );
 			
 			if ( false !== $cached_data && is_array( $cached_data ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					$req = $_SERVER['DBP_REQUEST_ID'] ?? uniqid( 'dbp_', true );
+					error_log( '[DBP] get_waveform_data req=' . $req . ' : loaded cached waveform for audio_id=' . $audio_id );
+				}
 				return $cached_data;
 			}
 		}
@@ -152,6 +173,10 @@ class DBP_Waveform_Generator {
 		$player_file = ! empty( $preview_file ) ? $preview_file : $audio_file;
 
 		if ( empty( $player_file ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$req = $_SERVER['DBP_REQUEST_ID'] ?? uniqid( 'dbp_', true );
+				error_log( '[DBP] get_waveform_data req=' . $req . ' : no player_file for audio_id=' . $audio_id );
+			}
 			return false;
 		}
 
@@ -190,12 +215,19 @@ class DBP_Waveform_Generator {
 	 */
 	public static function is_waveform_available( $audio_id ) {
 		if ( ! get_option( 'dbp_enable_waveform', false ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[DBP] is_waveform_available: global option disabled' );
+			}
 			return false;
 		}
 
 		$audio_file = get_post_meta( $audio_id, '_dbp_audio_file_url', true );
 		$preview_file = get_post_meta( $audio_id, '_dbp_audio_preview_file_url', true );
-		
-		return ! empty( $audio_file ) || ! empty( $preview_file );
+		$has = ! empty( $audio_file ) || ! empty( $preview_file );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$req = $_SERVER['DBP_REQUEST_ID'] ?? uniqid( 'dbp_', true );
+			error_log( '[DBP] is_waveform_available req=' . $req . ' : audio_id=' . $audio_id . ' audio_file=' . ( empty( $audio_file ) ? '(none)' : $audio_file ) . ' preview=' . ( empty( $preview_file ) ? '(none)' : $preview_file ) . ' -> ' . ( $has ? 'yes' : 'no' ) );
+		}
+		return $has;
 	}
 }

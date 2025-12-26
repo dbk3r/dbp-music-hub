@@ -86,22 +86,101 @@ class DBP_WooCommerce_License {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( '[DBP] Attempting add_to_cart variation. variation_id=' . $variation_id . ' WC_cart_exists=' . ( is_object( WC()->cart ) ? '1' : '0' ) );
 			}
-			// Build variation data: include common attribute keys and human-readable label
+			// Build variation data robustly in this order:
+			// 1) Use variation product's variation attributes (usually slugs)
+			// 2) Fall back to variation post meta 'attribute_*' (may contain human labels)
+			// 3) Final fallback: build from license slug/label
 			$variation_data = array();
-			$slug = $license_id;
-			// prefer slug for pa_ and plain attribute keys
-			if ( $slug ) {
-				$variation_data['attribute_pa_license'] = $slug;
-				$variation_data['attribute_license'] = $slug;
+
+			// 1) Try variation product attributes
+			$variation_product = wc_get_product( $variation_id );
+			if ( $variation_product ) {
+				if ( method_exists( $variation_product, 'get_variation_attributes' ) ) {
+					$var_attrs = $variation_product->get_variation_attributes();
+				} else {
+					$var_attrs = $variation_product->get_attributes();
+				}
+
+				if ( ! empty( $var_attrs ) && is_array( $var_attrs ) ) {
+					foreach ( $var_attrs as $k => $v ) {
+						$key = $k;
+						// normalize key to 'attribute_<key>' if not already
+						if ( 0 !== strpos( $key, 'attribute_' ) ) {
+							$key = 'attribute_' . $key;
+						}
+						$val = is_array( $v ) ? $v[0] : $v;
+						// ignore empty values here (they can mask valid post-meta labels)
+						if ( '' === trim( (string) $val ) ) {
+							continue;
+						}
+						$variation_data[ $key ] = $val;
+					}
+				}
 			}
-			if ( $license_label ) {
-				// Some variations use human-readable attribute keys like 'attribute_License'
-				$variation_data['attribute_License'] = $license_label;
+
+			// 2) Use variation post meta attribute_* values for any missing keys
+			$meta = get_post_meta( $variation_id );
+				if ( ! empty( $meta ) ) {
+					foreach ( $meta as $m_key => $m_val ) {
+						if ( 0 === strpos( $m_key, 'attribute_' ) ) {
+							$m_val_single = is_array( $m_val ) ? $m_val[0] : $m_val;
+							if ( '' !== trim( (string) $m_val_single ) ) {
+								// derive normalized key: attribute_{lowercase-name}
+								$attr_name = substr( $m_key, strlen( 'attribute_' ) );
+								$normalized_key = 'attribute_' . strtolower( $attr_name );
+
+								// set both original meta key and normalized lowercase key if missing
+								if ( ! isset( $variation_data[ $m_key ] ) || '' === trim( (string) $variation_data[ $m_key ] ) ) {
+									$variation_data[ $m_key ] = $m_val_single;
+								}
+								if ( ! isset( $variation_data[ $normalized_key ] ) || '' === trim( (string) $variation_data[ $normalized_key ] ) ) {
+									$variation_data[ $normalized_key ] = $m_val_single;
+								}
+							}
+						}
+					}
+				}
+
+			// 3) Defensive final fallback: use slug/label
+			if ( empty( $variation_data ) ) {
+				$slug = $license_id;
+				if ( $slug ) {
+					$variation_data['attribute_pa_license'] = $slug;
+					$variation_data['attribute_license'] = $slug;
+				}
+				if ( $license_label ) {
+					$variation_data['attribute_License'] = $license_label;
+				}
 			}
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( '[DBP] variation_data final: ' . print_r( $variation_data, true ) );
 			}
+
+			// First attempt: use exact variation attribute_* meta values.
 			$cart_item_key = WC()->cart->add_to_cart( $product_id, 1, $variation_id, $variation_data );
+
+			// If it failed, try a defensive fallback using slug/label like before.
+			if ( ! $cart_item_key ) {
+				if ( function_exists( 'wc_clear_notices' ) ) {
+					wc_clear_notices();
+				}
+
+				$fallback_data = array();
+				$slug = $license_id;
+				if ( $slug ) {
+					$fallback_data['attribute_pa_license'] = $slug;
+					$fallback_data['attribute_license'] = $slug;
+				}
+				if ( $license_label ) {
+					$fallback_data['attribute_License'] = $license_label;
+				}
+
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( '[DBP] add_to_cart first attempt failed, trying fallback_data: ' . print_r( $fallback_data, true ) );
+				}
+
+				$cart_item_key = WC()->cart->add_to_cart( $product_id, 1, $variation_id, $fallback_data );
+			}
 		}
 
 		if ( $cart_item_key ) {

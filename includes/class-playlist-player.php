@@ -101,6 +101,10 @@ class DBP_Playlist_Player {
 			$thumbnail_id = get_post_thumbnail_id( $audio_id );
 			$thumbnail_url = $thumbnail_id ? wp_get_attachment_image_url( $thumbnail_id, 'thumbnail' ) : '';
 
+			// Waveform-Peaks holen
+			$waveform_data = class_exists( 'DBP_Waveform_Generator' ) ? DBP_Waveform_Generator::get_waveform_data( $audio_id ) : false;
+			$peaks = ( $waveform_data && ! empty( $waveform_data['peaks'] ) ) ? $waveform_data['peaks'] : '';
+
 			$tracks[] = array(
 				'id'          => $audio_id,
 				'title'       => get_the_title( $audio_id ),
@@ -110,6 +114,7 @@ class DBP_Playlist_Player {
 				'url'         => esc_url( $player_file ),
 				'thumbnail'   => $thumbnail_url ? esc_url( $thumbnail_url ) : '',
 				'permalink'   => get_permalink( $audio_id ),
+				'peaks'       => $peaks,
 			);
 		}
 
@@ -248,12 +253,38 @@ class DBP_Playlist_Player {
 					</div>
 					<?php endif; ?>
 
+					
+
 					<div class="dbp-track-info">
 						<div class="dbp-track-title"><?php echo esc_html( $track['title'] ); ?></div>
-						<?php if ( ! empty( $track['artist'] ) ) : ?>
-						<div class="dbp-track-artist"><?php echo esc_html( $track['artist'] ); ?></div>
-						<?php endif; ?>
+						<?php
+							$audio_id = $track['id'];
+							$genres = get_the_terms( $audio_id, 'dbp_audio_genre' );
+							$genre_names = is_array($genres) ? join(', ', wp_list_pluck($genres, 'name')) : '';
+							$categories = get_the_terms( $audio_id, 'dbp_audio_category' );
+							$category_names = is_array($categories) ? join(', ', wp_list_pluck($categories, 'name')) : '';
+							$duration = !empty($track['duration']) ? $track['duration'] : '';
+						?>
+						<table class="dbp-track-meta-table">
+							<tr>
+								<?php if ( ! empty( $track['artist'] ) ) : ?>
+									<td><i class="dashicons dashicons-admin-users"></i> <strong>Künstler:</strong> <?php echo esc_html( $track['artist'] ); ?></td>
+								<?php endif; ?>
+								<?php if ( $category_names ) : ?>
+									<td><i class="dashicons dashicons-category"></i> <strong>Kategorie:</strong> <?php echo esc_html($category_names); ?></td>
+								<?php endif; ?>
+								<?php if ( $genre_names ) : ?>
+									<td><i class="dashicons dashicons-format-audio"></i> <strong>Genre:</strong> <?php echo esc_html($genre_names); ?></td>
+								<?php endif; ?>
+								<?php if ( $duration ) : ?>
+									<td><i class="dashicons dashicons-clock"></i> <strong>Länge:</strong> <?php echo esc_html($duration); ?></td>
+								<?php endif; ?>
+							</tr>
+						</table>
 					</div>
+
+					
+					
 
 					<?php if ( ! empty( $track['duration'] ) ) : ?>
 					<div class="dbp-track-duration"><?php echo esc_html( $track['duration'] ); ?></div>
@@ -282,6 +313,8 @@ class DBP_Playlist_Player {
 						endif;
 						?>
 					</div>
+
+					
 
 					<div class="dbp-track-status">
 						<span class="dbp-track-playing-icon" style="display: none;">🔊</span>
@@ -372,6 +405,16 @@ class DBP_Playlist_Player {
 					</div>
 				</div>
 
+				<!-- Waveform-Container für den zentralen Playlist-Player -->
+				   <?php
+				   // Peaks für den initialen Track bereitstellen
+				   $first_track = !empty($data['tracks'][0]) ? $data['tracks'][0] : null;
+				   $peaks_attr = $first_track && !empty($first_track['peaks']) ? esc_attr( is_string($first_track['peaks']) ? $first_track['peaks'] : wp_json_encode($first_track['peaks']) ) : '';
+				   ?>
+				   <div class="dbp-waveform-player" data-audio-id="<?php echo esc_attr( $first_track ? $first_track['id'] : '' ); ?>" data-peaks="<?php echo $peaks_attr; ?>">
+					   <div class="dbp-waveform-container"></div>
+				   </div>
+
 				<div class="dbp-playlist-controls">
 					<button class="dbp-playlist-btn dbp-playlist-previous" type="button" aria-label="<?php esc_attr_e( 'Vorheriger Track', 'dbp-music-hub' ); ?>">
 						<span>⏮</span>
@@ -434,41 +477,66 @@ class DBP_Playlist_Player {
 						<img src="<?php echo esc_url( $track['thumbnail'] ); ?>" alt="<?php echo esc_attr( $track['title'] ); ?>">
 					</div>
 					<?php endif; ?>
-
+					<?php
+					// Footer-Zeile: Kategorie, Genre, Länge
+					$audio_id = $track['id'];
+					$genres = get_the_terms( $audio_id, 'dbp_audio_genre' );
+					$genre_names = is_array($genres) ? join(', ', wp_list_pluck($genres, 'name')) : '';
+					$categories = get_the_terms( $audio_id, 'dbp_audio_category' );
+					$category_names = is_array($categories) ? join(', ', wp_list_pluck($categories, 'name')) : '';
+					$duration = !empty($track['duration']) ? $track['duration'] : '';
+					?>
+					
 					<div class="dbp-track-info">
-						<div class="dbp-track-title"><?php echo esc_html( $track['title'] ); ?></div>
-						<?php if ( ! empty( $track['artist'] ) ) : ?>
-						<div class="dbp-track-artist"><?php echo esc_html( $track['artist'] ); ?></div>
-						<?php endif; ?>
+						<div class="dbp-track-title"><?php echo esc_html( $track['title'] ); ?></div>						
+						<div class="dbp-track-footer-row" style="font-size:0.95em;opacity:0.85;margin-top:2px;">
+						<table class="dbp-track-meta-table">
+							<tr>
+								<?php if ( ! empty( $track['artist'] ) ) : ?>
+									<td><i class="dashicons dashicons-admin-users"></i> <strong>Künstler:</strong> <?php echo esc_html( $track['artist'] ); ?></td>
+								<?php endif; ?>
+								<?php if ( $category_names ) : ?>
+									<td><i class="dashicons dashicons-category"></i> <strong>Kategorie:</strong> <?php echo esc_html($category_names); ?></td>
+								<?php endif; ?>
+								<?php if ( $genre_names ) : ?>
+									<td><i class="dashicons dashicons-format-audio"></i> <strong>Genre:</strong> <?php echo esc_html($genre_names); ?></td>
+								<?php endif; ?>
+								<?php if ( $duration ) : ?>
+									<td><i class="dashicons dashicons-clock"></i> <strong>Länge:</strong> <?php echo esc_html($duration); ?></td>
+								<?php endif; ?>
+									<td style="width:30px;">
+										<div class="dbp-track-actions">
+											<?php
+											// Add to Cart Button
+											if ( class_exists( 'WooCommerce' ) ) :
+												// Support both legacy and current meta keys
+												$product_id = get_post_meta( $track['id'], '_dbp_wc_product_id', true );
+												if ( ! $product_id ) {
+													$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
+												}
+												if ( $product_id ) :
+											?>
+												<button type="button" 
+													class="dbp-track-cart-btn dbp-open-license-modal" 
+													data-audio-id="<?php echo esc_attr( $track['id'] ); ?>"
+													title="<?php esc_attr_e( 'In den Warenkorb', 'dbp-music-hub' ); ?>">
+													<span class="dashicons dashicons-cart"></span>
+													<span class="btn-text"><?php esc_html_e( '', 'dbp-music-hub' ); ?></span>
+												</button>
+											<?php
+												endif;
+											endif;
+											?>
+										</div>
+									</td>
+							</tr>
+						</table>
+					</div>
 					</div>
 
-					<?php if ( ! empty( $track['duration'] ) ) : ?>
-					<div class="dbp-track-duration"><?php echo esc_html( $track['duration'] ); ?></div>
-					<?php endif; ?>
+					   
 
-					<div class="dbp-track-actions">
-						<?php
-						// Add to Cart Button
-						if ( class_exists( 'WooCommerce' ) ) :
-							// Support both legacy and current meta keys
-							$product_id = get_post_meta( $track['id'], '_dbp_wc_product_id', true );
-							if ( ! $product_id ) {
-								$product_id = get_post_meta( $track['id'], '_dbp_product_id', true );
-							}
-							if ( $product_id ) :
-						?>
-							<button type="button" 
-								class="dbp-track-cart-btn dbp-open-license-modal" 
-								data-audio-id="<?php echo esc_attr( $track['id'] ); ?>"
-								title="<?php esc_attr_e( 'In den Warenkorb', 'dbp-music-hub' ); ?>">
-								<span class="dashicons dashicons-cart"></span>
-								<span class="btn-text"><?php esc_html_e( 'In den Warenkorb', 'dbp-music-hub' ); ?></span>
-							</button>
-						<?php
-							endif;
-						endif;
-						?>
-					</div>
+               
 
 					<div class="dbp-track-status">
 						<span class="dbp-track-playing-icon" style="display: none;">🔊</span>

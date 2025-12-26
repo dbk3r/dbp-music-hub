@@ -1,3 +1,85 @@
+/* Tabelle für Track-Metadaten */
+.dbp-track-meta-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	margin-top: 8px;
+	margin-bottom: 2px;
+	background: #f8fafc;
+	border: 1px solid #d0d7de;
+	border-radius: 6px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.dbp-track-meta-table td {
+	border-right: 1px solid #d0d7de;
+	padding: 6px 12px;
+	font-size: 13px;
+	color: #333;
+	vertical-align: middle;
+	background: none;
+}
+.dbp-track-meta-table td:last-child {
+	border-right: none;
+}
+.dbp-playlist-player[data-theme="dark"] .dbp-track-meta-table {
+	background: #23272e;
+	border-color: #444;
+}
+.dbp-playlist-player[data-theme="dark"] .dbp-track-meta-table td {
+	color: #bbb;
+	border-right: 1px solid #444;
+}
+.dbp-playlist-player[data-theme="dark"] .dbp-track-meta-table td:last-child {
+	border-right: none;
+}
+.dbp-track-meta-table i.dashicons {
+	font-size: 15px;
+	color: #3498db;
+	margin-right: 2px;
+}
+/* Meta-Infozeile für Playlist-Track */
+.dbp-track-meta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 18px;
+	margin: 4px 0 0 0;
+	font-size: 13px;
+	color: #3a3a3a;
+	align-items: center;
+}
+.dbp-playlist-player[data-theme="dark"] .dbp-track-meta-row {
+	color: #bbb;
+}
+.dbp-track-meta-item {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	background: #f3f6fa;
+	border-radius: 4px;
+	padding: 2px 8px;
+	font-size: 13px;
+}
+.dbp-playlist-player[data-theme="dark"] .dbp-track-meta-item {
+	background: #23272e;
+}
+.dbp-track-meta-item i.dashicons {
+	font-size: 15px;
+	color: #3498db;
+	margin-right: 2px;
+}
+/* Footer-Zeile für Playlist-Track: Kategorie, Genre, Länge */
+.dbp-track-footer-row {
+	display: flex;
+	gap: 16px;
+	margin: 4px 0 0 0;
+	font-size: 13px;
+	color: #555;
+	width: 100%;
+	flex-wrap: wrap;
+}
+.dbp-playlist-player[data-theme="dark"] .dbp-track-footer-row {
+	color: #bbb;
+}
 /**
  * Playlist Player Styles
  * Styling für Playlist-Player und Tracklists
@@ -116,19 +198,20 @@
 	flex-wrap: wrap;
 }
 
+
 .dbp-playlist-btn {
 	background: var(--dbp-primary-color, #3498db);
-	color: #fff;
+	color: var(--dbp-btn-color, #fff);
 	border: none;
 	border-radius: 50%;
-	width: 40px;
-	height: 40px;
+	width: 32px;
+	height: 32px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	font-size: 16px;
+	font-size: 14px;
 }
 
 .dbp-playlist-btn:hover {
@@ -137,13 +220,20 @@
 }
 
 .dbp-playlist-play-pause {
-	width: 50px;
-	height: 50px;
-	font-size: 20px;
+	width: 38px;
+	height: 38px;
+	font-size: 16px;
 }
 
 .dbp-playlist-btn.active {
 	background: var(--dbp-hover-color, #2980b9);
+	color: var(--dbp-btn-active-color, #fff);
+}
+:root {
+	--dbp-primary-color: #3498db;
+	--dbp-hover-color: #2980b9;
+	--dbp-btn-color: #fff;
+	--dbp-btn-active-color: #fff;
 }
 
 /* Progress Wrapper */

@@ -77,7 +77,17 @@ class DBP_Audio_Player {
 		}
 
 		// Wenn Waveform aktiviert und verfügbar, Waveform-Player nutzen
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$req = $_SERVER['DBP_REQUEST_ID'] ?? uniqid( 'dbp_', true );
+			$ajax = ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ? '1' : '0';
+			$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '(none)';
+			error_log( '[DBP] get_player_html req=' . $req . ' ajax=' . $ajax . ' action=' . $action . ' audio_id=' . $audio_id . ' use_waveform=' . ( $use_waveform ? '1' : '0' ) );
+		}
 		if ( $use_waveform && DBP_Waveform_Generator::is_waveform_available( $audio_id ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$req = $_SERVER['DBP_REQUEST_ID'] ?? uniqid( 'dbp_', true );
+				error_log( '[DBP] get_player_html req=' . $req . ' : waveform available, rendering waveform player for audio_id=' . $audio_id );
+			}
 			return $this->get_waveform_player_html( $audio_id, $show_download );
 		}
 
@@ -182,11 +192,16 @@ class DBP_Audio_Player {
 		$artist   = get_post_meta( $audio_id, '_dbp_audio_artist', true );
 		$show_download = $show_download && get_option( 'dbp_show_download_button', true );
 
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[DBP] get_waveform_player_html called for audio_id=' . $audio_id );
+		}
 		// Cached Peaks abrufen wenn verfügbar
 		$peaks_data = '';
 		if ( class_exists( 'DBP_Waveform_Generator' ) ) {
-			$waveform_gen = new DBP_Waveform_Generator();
-			$waveform_data = $waveform_gen->get_waveform_data( $audio_id );
+			$waveform_data = DBP_Waveform_Generator::get_waveform_data( $audio_id );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[DBP] get_waveform_player_html: waveform_data for audio_id=' . $audio_id . ' => ' . print_r( $waveform_data, true ) );
+			}
 			if ( $waveform_data && ! empty( $waveform_data['peaks'] ) ) {
 				$peaks_data = ' data-peaks="' . esc_attr( wp_json_encode( $waveform_data['peaks'] ) ) . '"';
 			}

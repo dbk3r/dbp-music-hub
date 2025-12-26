@@ -62,6 +62,7 @@
 		this.currentTrackTitle = container.querySelector('.dbp-current-track-title');
 		this.currentTrackArtist = container.querySelector('.dbp-current-track-artist');
 		this.currentTrackThumbnail = container.querySelector('.dbp-current-track-thumbnail');
+		this.waveformContainer = container.querySelector('.dbp-waveform-player');
 
 		this.init();
 	}
@@ -144,6 +145,47 @@
 
 		// Ersten Track laden (aber nicht abspielen)
 		this.loadTrack(0);
+
+		// Waveform initialisieren (zentraler Player)
+		if (this.waveformContainer) {
+			// Setze initiale audio-URL für den Waveform-Initializer
+			this.waveformContainer.dataset.audioUrl = this.tracks[this.currentIndex] ? this.tracks[this.currentIndex].url : '';
+			if (typeof window.initWaveformPlayer === 'function') {
+				try {
+					window.initWaveformPlayer(this.waveformContainer);
+					// Wenn WaveSurfer-Instanz bereits verfügbar, Wire Sync-Events
+					const self = this;
+					setTimeout(function() {
+						const ws = self.waveformContainer && self.waveformContainer.wavesurfer;
+						if (ws && self.audio) {
+							// Seek vom WaveSurfer -> Audio
+							try {
+								ws.on('seek', function(progress) {
+									if (self.audio.duration && typeof progress === 'number') {
+										self.audio.currentTime = progress * self.audio.duration;
+									}
+								});
+							} catch (e) {
+								// ignore
+							}
+
+							// Audio -> WaveSurfer sync (throttled)
+							let lastSync = 0;
+							self.audio.addEventListener('timeupdate', function() {
+								if (!ws || !self.audio.duration) return;
+								const now = Date.now();
+								if (now - lastSync < 200) return;
+								lastSync = now;
+								const pos = self.audio.currentTime / self.audio.duration;
+								try { if (typeof ws.seekTo === 'function') ws.seekTo(pos); } catch (e) {}
+							});
+						}
+					}, 50);
+				} catch (e) {
+					console.warn('Waveform init failed:', e);
+				}
+			}
+		}
 	};
 
 	/**
@@ -160,6 +202,20 @@
 		// Audio-Quelle setzen
 		this.audio.src = track.url;
 		this.audio.load();
+
+		// Waveform für aktuellen Track nachladen / synchronisieren
+		if (this.waveformContainer) {
+			this.waveformContainer.dataset.audioId = track.id || '';
+			this.waveformContainer.dataset.audioUrl = track.url || '';
+			const ws = this.waveformContainer.wavesurfer;
+			if (ws && typeof ws.load === 'function') {
+				try {
+					ws.load(track.url);
+				} catch (e) {
+					// ignore
+				}
+			}
+		}
 
 		// UI aktualisieren
 		if ( this.currentTrackTitle ) {

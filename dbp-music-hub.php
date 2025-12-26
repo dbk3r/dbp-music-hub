@@ -139,6 +139,8 @@ class DBP_Music_Hub {
 				}
 			}
 		}
+
+		require_once dirname(__FILE__) . '/includes/template-loader.php';
 	}
 
 	/**
