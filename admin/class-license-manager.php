@@ -18,6 +18,11 @@ class DBP_License_Manager {
 	 * Konstruktor
 	 */
 	public function __construct() {
+			error_log('[DBP][DBP_License_Manager] Konstruktor aufgerufen');
+			error_log('[DBP][DBP_License_Manager] add_action: admin_enqueue_scripts registriert');
+			error_log('[DBP][DBP_License_Manager] add_action: wp_ajax_dbp_save_license registriert');
+			error_log('[DBP][DBP_License_Manager] add_action: wp_ajax_dbp_delete_license registriert');
+			error_log('[DBP][DBP_License_Manager] add_action: wp_ajax_dbp_update_license_order registriert');
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_ajax_dbp_save_license', array( $this, 'ajax_save_license' ) );
 		add_action( 'wp_ajax_dbp_delete_license', array( $this, 'ajax_delete_license' ) );
@@ -554,29 +559,42 @@ class DBP_License_Manager {
 	 * AJAX: Lizenzmodell speichern
 	 */
 	public function ajax_save_license() {
-		check_ajax_referer( 'dbp_license_manager_nonce', 'nonce' );
+				error_log('[DBP][ajax_save_license] Handler betreten');
+				error_log('[DBP][ajax_save_license] Handler wurde aufgerufen');
+				error_log('[DBP][ajax_save_license] POST: ' . print_r($_POST, true));
+				error_log('[DBP][ajax_save_license] Nonce im POST: ' . ( isset($_POST['nonce']) ? $_POST['nonce'] : 'NICHT GESETZT' ));
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Keine Berechtigung.', 'dbp-music-hub' ) ) );
-		}
+				   $nonce_check = check_ajax_referer( 'dbp_license_manager_nonce', 'nonce', false );
+				   error_log('[DBP][ajax_save_license] Nonce-Check Ergebnis: ' . ( $nonce_check ? 'OK' : 'FEHLER' ));
+				   if ( ! $nonce_check ) {
+					   error_log('[DBP][ajax_save_license] Nonce-Check fehlgeschlagen!');
+					   wp_send_json_error( array( 'message' => __( 'Nonce ungültig.', 'dbp-music-hub' ) ) );
+					   exit;
+				   }
+				   if ( ! current_user_can( 'manage_options' ) ) {
+					   error_log('[DBP][ajax_save_license] Keine Berechtigung!');
+					   wp_send_json_error( array( 'message' => __( 'Keine Berechtigung.', 'dbp-music-hub' ) ) );
+					   exit;
+				   }
 
-		// Daten abrufen und sanitizen
-		$license_id   = isset( $_POST['license_id'] ) ? sanitize_text_field( wp_unslash( $_POST['license_id'] ) ) : '';
-		$name         = isset( $_POST['license_name'] ) ? sanitize_text_field( wp_unslash( $_POST['license_name'] ) ) : '';
-		$price_type   = isset( $_POST['license_price_type'] ) ? sanitize_text_field( wp_unslash( $_POST['license_price_type'] ) ) : 'fixed';
-		$price        = isset( $_POST['license_price'] ) ? floatval( wp_unslash( $_POST['license_price'] ) ) : 0;
-		$description  = isset( $_POST['license_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['license_description'] ) ) : '';
-		$features     = isset( $_POST['license_features'] ) ? sanitize_textarea_field( wp_unslash( $_POST['license_features'] ) ) : '';
-		$icon         = isset( $_POST['license_icon'] ) ? sanitize_text_field( wp_unslash( $_POST['license_icon'] ) ) : '⚡';
-		$color        = isset( $_POST['license_color'] ) ? sanitize_hex_color( wp_unslash( $_POST['license_color'] ) ) : '#2ea563';
-		$popular      = isset( $_POST['license_popular'] ) && '1' === $_POST['license_popular'];
-		$is_default   = isset( $_POST['license_default'] ) && '1' === $_POST['license_default'];
-		$active       = isset( $_POST['license_active'] ) && '1' === $_POST['license_active'];
+				   // Daten abrufen und sanitizen
+				   $license_id   = isset( $_POST['license_id'] ) ? sanitize_text_field( wp_unslash( $_POST['license_id'] ) ) : '';
+				   $name         = isset( $_POST['license_name'] ) ? sanitize_text_field( wp_unslash( $_POST['license_name'] ) ) : '';
+				   $price_type   = isset( $_POST['license_price_type'] ) ? sanitize_text_field( wp_unslash( $_POST['license_price_type'] ) ) : 'fixed';
+				   $price        = isset( $_POST['license_price'] ) ? floatval( wp_unslash( $_POST['license_price'] ) ) : 0;
+				   $description  = isset( $_POST['license_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['license_description'] ) ) : '';
+				   $features     = isset( $_POST['license_features'] ) ? sanitize_textarea_field( wp_unslash( $_POST['license_features'] ) ) : '';
+				   $icon         = isset( $_POST['license_icon'] ) ? sanitize_text_field( wp_unslash( $_POST['license_icon'] ) ) : '⚡';
+				   $color        = isset( $_POST['license_color'] ) ? sanitize_hex_color( wp_unslash( $_POST['license_color'] ) ) : '#2ea563';
+				   $popular      = isset( $_POST['license_popular'] ) && '1' === $_POST['license_popular'];
+				   $is_default   = isset( $_POST['license_default'] ) && '1' === $_POST['license_default'];
+				   $active       = isset( $_POST['license_active'] ) && '1' === $_POST['license_active'];
 
-		// Validierung
-		if ( empty( $name ) ) {
-			wp_send_json_error( array( 'message' => __( 'Name ist erforderlich.', 'dbp-music-hub' ) ) );
-		}
+				   // Validierung
+				   if ( empty( $name ) ) {
+					   error_log('[DBP][ajax_save_license] Name fehlt!');
+					   wp_send_json_error( array( 'message' => __( 'Name ist erforderlich.', 'dbp-music-hub' ) ) );
+				   }
 
 		// Lizenzmodelle abrufen
 		$licenses = get_option( 'dbp_license_models', array() );

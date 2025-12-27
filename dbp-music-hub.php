@@ -1,4 +1,5 @@
 <?php
+error_log('[DBP] Plugin-Hauptdatei ausgeführt!');
 /**
  * Plugin Name: DBP Music Hub
  * Plugin URI: https://github.com/dbk3r/dbp-music-hub
@@ -128,17 +129,17 @@ class DBP_Music_Hub {
 		}
 
 		// Admin-Klassen später laden (bei admin_menu), damit WP-Admin-Funktionen vorhanden sind
-		if ( is_admin() ) {
-			add_action( 'admin_menu', array( $this, 'load_admin_dependencies' ) );
-
-			// Also load the WooCommerce Sync UI during AJAX requests so its wp_ajax handlers are registered.
-			if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-				require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
-				if ( class_exists( 'DBP_WooCommerce_Sync_UI' ) ) {
-					new DBP_WooCommerce_Sync_UI();
-				}
-			}
-		}
+		   if ( is_admin() ) {
+			   add_action( 'admin_menu', array( $this, 'load_admin_dependencies' ) );
+		   }
+		   // License Manager nach WooCommerce laden (Admin & AJAX)
+		   add_action( 'plugins_loaded', function() {
+			   if ( ( is_admin() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) && class_exists( 'WooCommerce' ) ) {
+				   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-license-manager.php';
+				   new DBP_License_Manager();
+				   error_log('[DBP] License Manager instanziiert! (plugins_loaded)');
+			   }
+		   }, 20 );
 
 		require_once dirname(__FILE__) . '/includes/template-loader.php';
 	}
@@ -146,55 +147,38 @@ class DBP_Music_Hub {
 	/**
 	 * Admin-Abhängigkeiten laden (auf admin_menu)
 	 */
-	public function load_admin_dependencies() {
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-menu.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-dashboard.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-audio-manager.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
-		require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
-
-		// Lizenz-Manager (v1.3.0) nur laden, wenn WooCommerce aktiv ist
-		if ( class_exists( 'WooCommerce' ) ) {
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-license-manager.php';
-		}
-
-		// Product Audio Manager (v1.4.0) - Load wenn WooCommerce aktiv ist
-		if ( class_exists( 'WooCommerce' ) ) {
-			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-product-audio-manager.php';
-		}
-
-		// Admin-Instanzen erstellen (erst nach Laden der Klassen)
-		new DBP_Admin_Settings();
-
-
-		// Dashboard initialisieren (v1.3.6)
-		new DBP_Admin_Dashboard();
-
-		// WooCommerce Sync UI initialisieren (registriert admin assets early)
-		if ( class_exists( 'DBP_WooCommerce_Sync_UI' ) ) {
-			new DBP_WooCommerce_Sync_UI();
-		}
-
-		// DBP_Admin_Menu muss das Menü sofort registrieren. Wir instanziieren
-		// und rufen `register_menu()` direkt auf, damit die Seiten in
-		// der laufenden Anfrage sichtbar werden.
-		$admin_menu = new DBP_Admin_Menu();
-		if ( method_exists( $admin_menu, 'register_menu' ) ) {
-			$admin_menu->register_menu();
-		}
-
-		// License Manager initialisieren (v1.3.6) - nach Menu-Registrierung! 
-		if ( class_exists( 'WooCommerce' ) ) {
-			new DBP_License_Manager();
-		}
-
-		// Product Audio Manager initialisieren (v1.4.0)
-		if ( class_exists( 'WooCommerce' ) && class_exists( 'DBP_Product_Audio_Manager' ) ) {
-			new DBP_Product_Audio_Manager();
-		}
-	}
+	   public function load_admin_dependencies() {
+		   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-settings.php';
+		   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-admin-menu.php';
+		   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-dashboard.php';
+		   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-audio-manager.php';
+		   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-bulk-upload.php';
+		   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
+		   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-taxonomy-manager.php';
+		   if ( class_exists( 'WooCommerce' ) ) {
+			   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-license-manager.php';
+		   }
+		   if ( class_exists( 'WooCommerce' ) ) {
+			   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-product-audio-manager.php';
+		   }
+		   // Admin-Instanzen erstellen (erst nach Laden der Klassen)
+		   new DBP_Admin_Settings();
+		   new DBP_Admin_Dashboard();
+		   if ( class_exists( 'DBP_WooCommerce_Sync_UI' ) ) {
+			   new DBP_WooCommerce_Sync_UI();
+		   }
+		   $admin_menu = new DBP_Admin_Menu();
+		   if ( method_exists( $admin_menu, 'register_menu' ) ) {
+			   $admin_menu->register_menu();
+		   }
+		   if ( class_exists( 'WooCommerce' ) ) {
+			   new DBP_License_Manager();
+			   error_log('[DBP] License Manager instanziiert! (admin_menu)');
+		   }
+		   if ( class_exists( 'WooCommerce' ) && class_exists( 'DBP_Product_Audio_Manager' ) ) {
+			   new DBP_Product_Audio_Manager();
+		   }
+	   }
 
 	/**
 	 * Hooks initialisieren
