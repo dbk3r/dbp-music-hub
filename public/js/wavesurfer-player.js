@@ -44,10 +44,11 @@
 	 * Waveform Player initialisieren
 	 */
 	function initWaveformPlayer(container) {
+
 		const audioUrl = container.dataset.audioUrl;
 		const audioId = container.dataset.audioId;
 		const cachedPeaks = container.dataset.peaks;
-		
+
 		if (!audioUrl || typeof WaveSurfer === 'undefined') {
 			console.error('WaveSurfer not loaded or audio URL missing');
 			return;
@@ -73,10 +74,14 @@
 			return;
 		}
 
-		// Prüfen ob bereits initialisiert
-		if (waveformDiv.dataset.wsInitialized === 'true' || container.dataset.wsInitialized === 'true') {
-			return;
+		// Vorherige Instanz zerstören, falls vorhanden
+		if (container.wavesurfer && typeof container.wavesurfer.destroy === 'function') {
+			container.wavesurfer.destroy();
+			container.wavesurfer = null;
 		}
+		waveformDiv.dataset.wsInitialized = '';
+		container.dataset.wsInitialized = '';
+		waveformDiv.innerHTML = '';
 
 		// Als initialisiert markieren
 		container.dataset.wsInitialized = 'true';

@@ -148,8 +148,21 @@
 
 		// Waveform initialisieren (zentraler Player)
 		if (this.waveformContainer) {
-			// Setze initiale audio-URL für den Waveform-Initializer
+			// Vorherige Instanz zerstören, falls vorhanden
+			if (this.waveformContainer.wavesurfer && typeof this.waveformContainer.wavesurfer.destroy === 'function') {
+				this.waveformContainer.wavesurfer.destroy();
+				this.waveformContainer.wavesurfer = null;
+				this.waveformContainer.dataset.wsInitialized = '';
+				const wfDiv = this.waveformContainer.querySelector('.dbp-waveform-container');
+				if (wfDiv) {
+					wfDiv.innerHTML = '';
+					wfDiv.dataset.wsInitialized = '';
+				}
+			}
+			// Setze neue audio-URL und Peaks für den Waveform-Initializer
+			this.waveformContainer.dataset.audioId = this.tracks[this.currentIndex] ? this.tracks[this.currentIndex].id : '';
 			this.waveformContainer.dataset.audioUrl = this.tracks[this.currentIndex] ? this.tracks[this.currentIndex].url : '';
+			this.waveformContainer.dataset.peaks = this.tracks[this.currentIndex] && this.tracks[this.currentIndex].peaks ? (typeof this.tracks[this.currentIndex].peaks === 'string' ? this.tracks[this.currentIndex].peaks : JSON.stringify(this.tracks[this.currentIndex].peaks)) : '';
 			if (typeof window.initWaveformPlayer === 'function') {
 				try {
 					window.initWaveformPlayer(this.waveformContainer);

@@ -411,8 +411,10 @@ class DBP_Playlist_Player {
 				   $first_track = !empty($data['tracks'][0]) ? $data['tracks'][0] : null;
 				   $peaks_attr = $first_track && !empty($first_track['peaks']) ? esc_attr( is_string($first_track['peaks']) ? $first_track['peaks'] : wp_json_encode($first_track['peaks']) ) : '';
 				   ?>
-				   <div class="dbp-waveform-player" data-audio-id="<?php echo esc_attr( $first_track ? $first_track['id'] : '' ); ?>" data-peaks="<?php echo $peaks_attr; ?>">
-					   <div class="dbp-waveform-container"></div>
+				   <div class="dbp-waveform-player-wrapper">
+					   <div class="dbp-waveform-player" data-audio-id="<?php echo esc_attr( $first_track ? $first_track['id'] : '' ); ?>" data-peaks="<?php echo $peaks_attr; ?>">
+						   <div class="dbp-waveform-container"></div>
+					   </div>
 				   </div>
 
 				<div class="dbp-playlist-controls">
