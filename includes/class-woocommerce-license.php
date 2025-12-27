@@ -17,6 +17,58 @@ class DBP_WooCommerce_License {
 	/**
 	 * Konstruktor
 	 */
+
+		/**
+	 * Legt das Attribut "Lizenz" für ein Produkt an, falls nicht vorhanden.
+	 *
+	 * @param int $product_id Die Produkt-ID.
+	 */
+	private function add_license_attribute( $product_id ) {
+		$attribute_label = 'Lizenz';
+		$attribute_name = 'pa_lizenz';
+
+		// Attribut global anlegen, falls nicht vorhanden
+		if ( ! taxonomy_exists( $attribute_name ) ) {
+			register_taxonomy(
+				$attribute_name,
+				'product',
+				array(
+					'label'        => $attribute_label,
+					'public'       => false,
+					'hierarchical' => false,
+					'show_ui'      => false,
+					'query_var'    => false,
+				)
+			);
+		}
+
+		// Produkt laden
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return;
+		}
+
+		// Attribute holen
+		$attributes = $product->get_attributes();
+
+		// Prüfen, ob das Attribut schon gesetzt ist
+		if ( isset( $attributes[ $attribute_name ] ) ) {
+			return;
+		}
+
+		// Attribut hinzufügen
+		$attributes[ $attribute_name ] = new WC_Product_Attribute();
+		$attributes[ $attribute_name ]->set_id( 0 );
+		$attributes[ $attribute_name ]->set_name( $attribute_name );
+		$attributes[ $attribute_name ]->set_options( array() );
+		$attributes[ $attribute_name ]->set_position( 0 );
+		$attributes[ $attribute_name ]->set_visible( true );
+		$attributes[ $attribute_name ]->set_variation( true );
+
+		$product->set_attributes( $attributes );
+		$product->save();
+	}
+	
 	public function __construct() {
 		// Nur aktiv wenn WooCommerce installiert ist
 		if ( ! class_exists( 'WooCommerce' ) ) {
