@@ -127,13 +127,74 @@ class DBP_Waveform_Generator {
 			return;
 		}
 
-		// Waveform-Daten als Meta speichern (wird Client-seitig generiert)
-		// Hier können wir grundlegende Meta-Daten speichern für spätere Verwendung
-		update_post_meta( $post_id, '_dbp_waveform_enabled', true );
-		update_post_meta( $post_id, '_dbp_waveform_generated_at', current_time( 'mysql' ) );
+		   // Serverseitige Waveform-Generierung mit audiowaveform
+		   $peaks = '';
+		   $error = '';
+		   $tmp_wav = '';
+		   $tmp_json = '';
+		   $audio_path = '';
 
-		// Hook für Erweiterungen (z.B. Server-seitige Generierung)
-		do_action( 'dbp_waveform_generated', $post_id, $audio_file );
+		   // Versuche lokalen Pfad zur Datei zu ermitteln
+		   if ( strpos( $audio_file, 'http' ) === 0 ) {
+			   $upload_dir = wp_get_upload_dir();
+			   if ( strpos( $audio_file, $upload_dir['baseurl'] ) === 0 ) {
+				   $audio_path = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $audio_file );
+			   }
+		   } else {
+			   $audio_path = $audio_file;
+		   }
+
+		   if ( file_exists( $audio_path ) ) {
+			   // Temporäre JSON-Datei für Peaks
+			   $tmp_json = tempnam( sys_get_temp_dir(), 'awf_' ) . '.json';
+			   // Optional: WAV-Konvertierung falls nötig (hier nur mp3/wav supportiert)
+			   $ext = strtolower( pathinfo( $audio_path, PATHINFO_EXTENSION ) );
+			   $input_path = $audio_path;
+			   if ( $ext !== 'wav' ) {
+				   $tmp_wav = tempnam( sys_get_temp_dir(), 'awf_' ) . '.wav';
+				   // ffmpeg zur Konvertierung nutzen
+				   $cmd = 'ffmpeg -y -i ' . escapeshellarg( $audio_path ) . ' -ar 44100 -ac 1 ' . escapeshellarg( $tmp_wav ) . ' 2>&1';
+				   @exec( $cmd, $out, $ret );
+				   if ( $ret === 0 && file_exists( $tmp_wav ) ) {
+					   $input_path = $tmp_wav;
+				   } else {
+					   $error = 'ffmpeg-Konvertierung fehlgeschlagen';
+				   }
+			   }
+			   // audiowaveform aufrufen
+			   if ( empty( $error ) ) {
+				   $cmd = 'audiowaveform -i ' . escapeshellarg( $input_path ) . ' -o ' . escapeshellarg( $tmp_json ) . ' --pixels-per-second 10 -b 8 --output-format json 2>&1';
+				   @exec( $cmd, $out, $ret );
+				   if ( $ret === 0 && file_exists( $tmp_json ) ) {
+					   $json = file_get_contents( $tmp_json );
+					   $data = json_decode( $json, true );
+					   if ( isset( $data['data'] ) ) {
+						   $peaks = $data['data'];
+					   }
+				   } else {
+					   $error = 'audiowaveform-Fehler: ' . implode( '\n', $out );
+				   }
+			   }
+			   // Aufräumen
+			   if ( $tmp_wav && file_exists( $tmp_wav ) ) @unlink( $tmp_wav );
+			   if ( $tmp_json && file_exists( $tmp_json ) ) @unlink( $tmp_json );
+		   } else {
+			   $error = 'Datei nicht gefunden: ' . $audio_path;
+		   }
+
+		   update_post_meta( $post_id, '_dbp_waveform_enabled', true );
+		   update_post_meta( $post_id, '_dbp_waveform_generated_at', current_time( 'mysql' ) );
+		   if ( ! empty( $peaks ) ) {
+			   update_post_meta( $post_id, '_dbp_waveform_peaks', $peaks );
+		   } else {
+			   delete_post_meta( $post_id, '_dbp_waveform_peaks' );
+		   }
+		   if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! empty( $error ) ) {
+			   error_log( '[DBP] Waveform-Fehler: ' . $error );
+		   }
+
+		   // Hook für Erweiterungen (z.B. Client-seitige Generierung)
+		   do_action( 'dbp_waveform_generated', $post_id, $audio_file );
 	}
 
 	/**

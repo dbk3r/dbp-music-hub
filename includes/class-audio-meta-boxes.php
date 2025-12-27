@@ -86,6 +86,8 @@ class DBP_Audio_Meta_Boxes {
 		$audio_file        = get_post_meta( $post->ID, '_dbp_audio_file', true );
 		$audio_file_url    = get_post_meta( $post->ID, '_dbp_audio_file_url', true );
 		$artist            = get_post_meta( $post->ID, '_dbp_audio_artist', true );
+			// AJAX-Handler für manuelle Waveform-Generierung
+			add_action( 'wp_ajax_dbp_regenerate_waveform', array( $this, 'ajax_regenerate_waveform' ) );
 		$album             = get_post_meta( $post->ID, '_dbp_audio_album', true );
 		$release_year      = get_post_meta( $post->ID, '_dbp_audio_release_year', true );
 		$duration          = get_post_meta( $post->ID, '_dbp_audio_duration', true );
