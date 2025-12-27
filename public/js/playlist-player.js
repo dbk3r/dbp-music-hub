@@ -174,6 +174,7 @@
 							// Seek vom WaveSurfer -> Audio
 							try {
 								ws.on('seek', function(progress) {
+									console.log('[WaveSurfer SEEK]', progress);
 									if (self.audio.duration && typeof progress === 'number') {
 										self.audio.currentTime = progress * self.audio.duration;
 									}
@@ -187,7 +188,7 @@
 							self.audio.addEventListener('timeupdate', function() {
 								if (!ws || !self.audio.duration) return;
 								const now = Date.now();
-								if (now - lastSync < 200) return;
+								if (now - lastSync < 50) return;
 								lastSync = now;
 								const pos = self.audio.currentTime / self.audio.duration;
 								try { if (typeof ws.seekTo === 'function') ws.seekTo(pos); } catch (e) {}

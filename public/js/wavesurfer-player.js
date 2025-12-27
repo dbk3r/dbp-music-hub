@@ -107,44 +107,25 @@
 				interact: true,
 				hideScrollbar: true,
 				autoCenter: true,
-				minPxPerSec: 50
+				minPxPerSec: 0,
+				backgroundColor: 'rgba(0,0,0,0)'
 			};
 
 			// Cached Peaks hinzufügen wenn verfügbar
-			if (cachedPeaks) {
-				try {
-					wavesurferOptions.peaks = JSON.parse(cachedPeaks);
-					wavesurferOptions.backend = 'MediaElement'; // Verwende MediaElement für gecachte Peaks
-				} catch (e) {
-					console.warn('Failed to parse cached peaks:', e);
-				}
-			}
+			   if (cachedPeaks) {
+				   try {
+					   wavesurferOptions.peaks = JSON.parse(cachedPeaks);
+				   } catch (e) {
+					   console.warn('Failed to parse cached peaks:', e);
+				   }
+			   }
 
 			const wavesurfer = WaveSurfer.create(wavesurferOptions);
 
 			// Als initialisiert markieren
 			waveformDiv.dataset.wsInitialized = 'true';
 
-			// Timeline Plugin (optional)
-			if (typeof WaveSurfer.Timeline !== 'undefined') {
-				try {
-					wavesurfer.registerPlugin(
-						WaveSurfer.Timeline.create({
-							height: 20,
-							insertPosition: 'beforebegin',
-							timeInterval: 5,
-							primaryLabelInterval: 10,
-							secondaryLabelInterval: 5,
-							style: {
-								fontSize: '10px',
-								color: '#999'
-							}
-						})
-					);
-				} catch (e) {
-					console.warn('Timeline plugin failed to load:', e);
-				}
-			}
+			// Timeline Plugin (Lineal) wird nicht mehr initialisiert
 
 			// Audio laden
 			wavesurfer.load(audioUrl);

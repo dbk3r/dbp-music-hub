@@ -1,3 +1,19 @@
+/* Container der Waveform explizit transparent */
+.dbp-waveform-container {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+/* Canvas der Waveform explizit transparent */
+.dbp-waveform-container canvas {
+	background: transparent !important;
+}
+.dbp-waveform-player,
+.dbp-waveform-player-wrapper {
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
+}
 /* Waveform-Player-Wrapper für Playlist-Player: Breite begrenzen */
 .dbp-waveform-player-wrapper {
 	max-width: 800px;

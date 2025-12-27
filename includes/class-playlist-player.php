@@ -171,22 +171,33 @@ class DBP_Playlist_Player {
 					</span>
 				</div>
 			</div>
-					<div class="dbp-playlist-current-track">
-				<audio class="dbp-playlist-audio-element" preload="metadata">
-					<source src="" type="audio/mpeg">
-					<?php esc_html_e( 'Ihr Browser unterstützt das Audio-Element nicht.', 'dbp-music-hub' ); ?>
-				</audio>
+					   <!-- Waveform-Player jetzt ganz oben, volle Breite -->
+					   <?php
+					   $first_track = !empty($data['tracks'][0]) ? $data['tracks'][0] : null;
+					   $peaks_attr = $first_track && !empty($first_track['peaks']) ? esc_attr( is_string($first_track['peaks']) ? $first_track['peaks'] : wp_json_encode($first_track['peaks']) ) : '';
+					   ?>
+					   <div class="dbp-waveform-player-wrapper">
+						   <div class="dbp-waveform-player" data-audio-id="<?php echo esc_attr( $first_track ? $first_track['id'] : '' ); ?>" data-peaks="<?php echo $peaks_attr; ?>">
+							   <div class="dbp-waveform-container"></div>
+						   </div>
+					   </div>
 
-				<div class="dbp-current-track-info">
-					<div class="dbp-current-track-thumbnail"></div>
-					<div class="dbp-current-track-details">
-						<div class="dbp-current-track-title"><?php esc_html_e( 'Kein Track geladen', 'dbp-music-hub' ); ?></div>
-						<div class="dbp-current-track-artist"></div>
-					</div>
-				</div>
+					   <div class="dbp-playlist-current-track">
+						   <audio class="dbp-playlist-audio-element" preload="metadata">
+							   <source src="" type="audio/mpeg">
+							   <?php esc_html_e( 'Ihr Browser unterstützt das Audio-Element nicht.', 'dbp-music-hub' ); ?>
+						   </audio>
 
-				<?php if ( $args['show_controls'] ) : ?>
-				<div class="dbp-playlist-controls">
+						   <div class="dbp-current-track-info">
+							   <div class="dbp-current-track-thumbnail"></div>
+							   <div class="dbp-current-track-details">
+								   <div class="dbp-current-track-title"><?php esc_html_e( 'Kein Track geladen', 'dbp-music-hub' ); ?></div>
+								   <div class="dbp-current-track-artist"></div>
+							   </div>
+						   </div>
+
+					   <?php if ( $args['show_controls'] ) : ?>
+						   <div class="dbp-playlist-controls">
 					<button class="dbp-playlist-btn dbp-playlist-previous" type="button" aria-label="<?php esc_attr_e( 'Vorheriger Track', 'dbp-music-hub' ); ?>">
 						<span>⏮</span>
 					</button>
