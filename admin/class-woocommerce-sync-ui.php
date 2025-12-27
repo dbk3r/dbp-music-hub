@@ -346,6 +346,9 @@ class DBP_WooCommerce_Sync_UI {
 			error_log( '[DBP] ajax_sync_single_product called. POST: ' . json_encode( $_POST ) );
 		}
 
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log('[DBP][SYNC] === ajax_create_missing_products wurde aufgerufen ===');
+		}
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 
 		// Validate nonce manually so we can return a structured error and log
@@ -410,7 +413,17 @@ class DBP_WooCommerce_Sync_UI {
 	 * AJAX: Alle Produkte synchronisieren
 	 */
 	public function ajax_sync_all_products() {
-		check_ajax_referer( 'dbp_wc_sync_nonce', 'nonce' );
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+		$nonce_check = wp_verify_nonce( $nonce, 'dbp_wc_sync_nonce' );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log('[DBP][SYNC] ajax_create_missing_products: nonce=' . $nonce . ' check=' . var_export($nonce_check, true) . ' user=' . get_current_user_id());
+		}
+		if ( ! $nonce_check ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log('[DBP][SYNC] ajax_create_missing_products: Nonce-Prüfung fehlgeschlagen!');
+			}
+			wp_send_json_error( __( 'Ungültiges Nonce.', 'dbp-music-hub' ) );
+		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( __( 'Keine Berechtigung.', 'dbp-music-hub' ) );
@@ -450,7 +463,10 @@ class DBP_WooCommerce_Sync_UI {
 	 * AJAX: Fehlende Produkte erstellen
 	 */
 	public function ajax_create_missing_products() {
-		check_ajax_referer( 'dbp_wc_sync_nonce', 'nonce' );
+		   if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			   error_log('[DBP][SYNC] === ajax_create_missing_products wurde aufgerufen ===');
+		   }
+		   check_ajax_referer( 'dbp_wc_sync_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( __( 'Keine Berechtigung.', 'dbp-music-hub' ) );

@@ -97,28 +97,28 @@ class DBP_WooCommerce_Integration {
 			$new_product_id = $product->get_id();
 
 			if ( $new_product_id ) {
-				// Add attribute for license variations
-				// Create or ensure a global product attribute taxonomy 'pa_license' exists
-				$attribute_slug = 'license';
-				$attribute_tax = 'pa_' . $attribute_slug;
+				   // Add attribute for license variations
+				   // Create or ensure a global product attribute taxonomy 'pa_lizenz' exists (deutsch)
+				   $attribute_slug = 'lizenz';
+				   $attribute_tax = 'pa_' . $attribute_slug;
 
-				if ( ! taxonomy_exists( $attribute_tax ) ) {
-					if ( function_exists( 'wc_create_attribute' ) ) {
-						try {
-							wc_create_attribute( array(
-								'name'        => 'License',
-								'slug'        => $attribute_slug,
-								'type'        => 'select',
-								'order_by'    => 'menu_order',
-								'has_archives'=> false,
-							) );
-							// register taxonomy after creation
-							register_taxonomy( $attribute_tax, apply_filters( 'woocommerce_taxonomy_objects_' . $attribute_tax, array( 'product' ) ), apply_filters( 'woocommerce_taxonomy_args_' . $attribute_tax, array( 'hierarchical' => false, 'show_ui' => false ) ) );
-						} catch ( Exception $e ) {
-							// ignore - fallback to product-level attribute below
-						}
-					}
-				}
+				   if ( ! taxonomy_exists( $attribute_tax ) ) {
+					   if ( function_exists( 'wc_create_attribute' ) ) {
+						   try {
+							   wc_create_attribute( array(
+								   'name'        => 'Lizenz',
+								   'slug'        => $attribute_slug,
+								   'type'        => 'select',
+								   'order_by'    => 'menu_order',
+								   'has_archives'=> false,
+							   ) );
+							   // register taxonomy after creation
+							   register_taxonomy( $attribute_tax, apply_filters( 'woocommerce_taxonomy_objects_' . $attribute_tax, array( 'product' ) ), apply_filters( 'woocommerce_taxonomy_args_' . $attribute_tax, array( 'hierarchical' => false, 'show_ui' => false ) ) );
+						   } catch ( Exception $e ) {
+							   // ignore - fallback to product-level attribute below
+						   }
+					   }
+				   }
 
 				// Ensure terms exist and collect slugs
 				$term_slugs = array();
@@ -136,74 +136,94 @@ class DBP_WooCommerce_Integration {
 
 				$product = wc_get_product( $new_product_id );
 
-				if ( taxonomy_exists( $attribute_tax ) ) {
-					// assign taxonomy-based attribute to product
-					$attribute = new WC_Product_Attribute();
-					$attribute->set_id( 0 );
-					$attribute->set_name( $attribute_tax );
-					$attribute->set_options( $term_slugs );
-					$attribute->set_position( 0 );
-					$attribute->set_visible( true );
-					$attribute->set_variation( true );
+				   if ( taxonomy_exists( $attribute_tax ) ) {
+					   // assign taxonomy-based attribute to product
+					   $attribute = new WC_Product_Attribute();
+					   $attribute->set_id( 0 );
+					   $attribute->set_name( $attribute_tax );
+					   $attribute->set_options( $term_slugs );
+					   $attribute->set_position( 0 );
+					   $attribute->set_visible( true );
+					   $attribute->set_variation( true );
 
-					$product->set_attributes( array( $attribute ) );
-					$product->save();
-				} else {
-					// fallback: product-level attribute with names
-					$license_names = array();
-					foreach ( $active_licenses as $lic ) {
-						$license_names[] = $lic['name'];
-					}
-					$attribute = new WC_Product_Attribute();
-					$attribute->set_id( 0 );
-					$attribute->set_name( 'License' );
-					$attribute->set_options( $license_names );
-					$attribute->set_position( 0 );
-					$attribute->set_visible( true );
-					$attribute->set_variation( true );
+					   $product->set_attributes( array( $attribute ) );
+					   $product->save();
+				   } else {
+					   // fallback: product-level attribute with names
+					   $license_names = array();
+					   foreach ( $active_licenses as $lic ) {
+						   $license_names[] = $lic['name'];
+					   }
+					   $attribute = new WC_Product_Attribute();
+					   $attribute->set_id( 0 );
+					   $attribute->set_name( 'Lizenz' );
+					   $attribute->set_options( $license_names );
+					   $attribute->set_position( 0 );
+					   $attribute->set_visible( true );
+					   $attribute->set_variation( true );
 
-					$product->set_attributes( array( $attribute ) );
-					$product->save();
-					// map term_slugs empty in this fallback
-					$term_slugs = array();
-				}
+					   $product->set_attributes( array( $attribute ) );
+					   $product->save();
+					   // map term_slugs empty in this fallback
+					   $term_slugs = array();
+				   }
 
-				// Create variations for each license
-				foreach ( $active_licenses as $lic ) {
-					$variation = new WC_Product_Variation();
-					$variation->set_parent_id( $new_product_id );
-					$variation->set_status( 'publish' );
+				   // Create variations for each license
+				   foreach ( $active_licenses as $lic ) {
+					   $variation = new WC_Product_Variation();
+					   $variation->set_parent_id( $new_product_id );
+					   $variation->set_status( 'publish' );
 
-					// Calculate price using license manager helper if available
-					$variation_price = $price;
-					if ( $license_manager ) {
-						$variation_price = $license_manager->calculate_price( (float) $price, $lic['id'] );
-					}
-					if ( ! empty( $variation_price ) ) {
-						$variation->set_regular_price( $variation_price );
-						$variation->set_price( $variation_price );
-					}
+					   // Calculate price using license manager helper if available
+					   $variation_price = $price;
+					   if ( $license_manager ) {
+						   $variation_price = $license_manager->calculate_price( (float) $price, $lic['id'] );
+					   }
+					   // Preis immer auf mindestens 0 setzen, falls leer oder null
+					   if ( $variation_price === null || $variation_price === '' || $variation_price === false ) {
+						   $variation_price = 0;
+					   }
+					   $variation->set_regular_price( $variation_price );
+					   $variation->set_price( $variation_price );
 
-					// Mark as virtual/downloadable and assign download
-					$variation->set_virtual( true );
-					$variation->set_downloadable( true );
 
-					$download_name = $artist ? $artist . ' - ' . $title : $title;
-					$download = new WC_Product_Download();
-					$download->set_name( $download_name );
-					$download->set_file( $audio_file );
-					$variation->set_downloads( array( $download ) );
+					   // Mark as virtual/downloadable and assign download
+					   $variation->set_virtual( true );
+					   $variation->set_downloadable( true );
 
-					// Set variation attributes to the human-readable name
-					$variation->set_attributes( array( 'License' => $lic['name'] ) );
+					   // Lagerverwaltung deaktivieren und als auf Lager markieren
+					   $variation->set_manage_stock( false );
+					   $variation->set_stock_status( 'instock' );
 
-					$variation_id = $variation->save();
+					   $download_name = $artist ? $artist . ' - ' . $title : $title;
+					   $download = new WC_Product_Download();
+					   $download->set_name( $download_name );
+					   $download->set_file( $audio_file );
+					   $variation->set_downloads( array( $download ) );
 
-					// Store meta linking variation -> audio post
-					if ( $variation_id ) {
-						update_post_meta( $variation_id, '_dbp_audio_post_id', $post_id );
-					}
-				}
+					   // Set variation attributes to the license slug for pa_lizenz
+					   $variation->set_attributes( array( 'pa_lizenz' => $lic['slug'] ) );
+
+					   $variation_id = $variation->save();
+
+					   // Debug: Alle kaufrelevanten Felder loggen
+					   if ( defined('WP_DEBUG') && WP_DEBUG && $variation_id ) {
+						   $v = wc_get_product($variation_id);
+						   error_log('[DBP][VARIATION] ID: ' . $variation_id
+							   . ' Preis: ' . $v->get_price()
+							   . ' Status: ' . $v->get_status()
+							   . ' Sichtbar: ' . ($v->get_catalog_visibility() ?: 'default')
+							   . ' Download: ' . print_r($v->get_downloads(), true)
+							   . ' ManageStock: ' . ($v->get_manage_stock() ? 'ja' : 'nein')
+							   . ' StockStatus: ' . $v->get_stock_status()
+						   );
+					   }
+
+					   // Store meta linking variation -> audio post
+					   if ( $variation_id ) {
+						   update_post_meta( $variation_id, '_dbp_audio_post_id', $post_id );
+					   }
+				   }
 
 				// Produktbild setzen (Featured Image)
 				$thumbnail_id = get_post_thumbnail_id( $post_id );

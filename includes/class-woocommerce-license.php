@@ -110,8 +110,15 @@ class DBP_WooCommerce_License {
 			wp_send_json_error( array( 'message' => __( 'Kein verknüpftes Produkt gefunden.', 'dbp-music-hub' ) ) );
 		}
 
-		// Variation-ID ermitteln (pass audio_id for price-based fallback)
-		$variation_id = $this->get_variation_id( $product_id, $license_id, $audio_id );
+
+		   // Debug: POST-Daten und Lizenz-IDs loggen
+		   if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			   error_log('[DBP][CART] POST: ' . print_r($_POST, true));
+			   error_log('[DBP][CART] audio_id=' . $audio_id . ' license_id=' . $license_id);
+		   }
+
+		   // Variation-ID ermitteln (pass audio_id for price-based fallback)
+		   $variation_id = $this->get_variation_id( $product_id, $license_id, $audio_id );
 
 		// Find license label/name for payload (if available)
 		$license_label = '';
@@ -144,31 +151,35 @@ class DBP_WooCommerce_License {
 			// 3) Final fallback: build from license slug/label
 			$variation_data = array();
 
-			// 1) Try variation product attributes
-			$variation_product = wc_get_product( $variation_id );
-			if ( $variation_product ) {
-				if ( method_exists( $variation_product, 'get_variation_attributes' ) ) {
-					$var_attrs = $variation_product->get_variation_attributes();
-				} else {
-					$var_attrs = $variation_product->get_attributes();
-				}
+			   // 1) Try variation product attributes
+			   $variation_product = wc_get_product( $variation_id );
+			   if ( $variation_product ) {
+				   if ( method_exists( $variation_product, 'get_variation_attributes' ) ) {
+					   $var_attrs = $variation_product->get_variation_attributes();
+				   } else {
+					   $var_attrs = $variation_product->get_attributes();
+				   }
 
-				if ( ! empty( $var_attrs ) && is_array( $var_attrs ) ) {
-					foreach ( $var_attrs as $k => $v ) {
-						$key = $k;
-						// normalize key to 'attribute_<key>' if not already
-						if ( 0 !== strpos( $key, 'attribute_' ) ) {
-							$key = 'attribute_' . $key;
-						}
-						$val = is_array( $v ) ? $v[0] : $v;
-						// ignore empty values here (they can mask valid post-meta labels)
-						if ( '' === trim( (string) $val ) ) {
-							continue;
-						}
-						$variation_data[ $key ] = $val;
-					}
-				}
-			}
+				   if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					   error_log('[DBP][CART] Variation-Objekt Attribute: ' . print_r($var_attrs, true));
+				   }
+
+				   if ( ! empty( $var_attrs ) && is_array( $var_attrs ) ) {
+					   foreach ( $var_attrs as $k => $v ) {
+						   $key = $k;
+						   // normalize key to 'attribute_<key>' if not already
+						   if ( 0 !== strpos( $key, 'attribute_' ) ) {
+							   $key = 'attribute_' . $key;
+						   }
+						   $val = is_array( $v ) ? $v[0] : $v;
+						   // ignore empty values here (they can mask valid post-meta labels)
+						   if ( '' === trim( (string) $val ) ) {
+							   continue;
+						   }
+						   $variation_data[ $key ] = $val;
+					   }
+				   }
+			   }
 
 			// 2) Use variation post meta attribute_* values for any missing keys
 			$meta = get_post_meta( $variation_id );
@@ -204,24 +215,35 @@ class DBP_WooCommerce_License {
 					$variation_data['attribute_License'] = $license_label;
 				}
 			}
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( '[DBP] variation_data final: ' . print_r( $variation_data, true ) );
-			}
+
+			   if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				   error_log( '[DBP][CART] variation_data final: ' . print_r( $variation_data, true ) );
+			   }
 
 			// First attempt: use exact variation attribute_* meta values.
 			$cart_item_key = WC()->cart->add_to_cart( $product_id, 1, $variation_id, $variation_data );
 
-			// If it failed, try a defensive fallback using slug/label like before.
+			// If it failed, try a defensive fallback using den exakten Attributwert aus dem Variation-Post-Meta.
 			if ( ! $cart_item_key ) {
 				if ( function_exists( 'wc_clear_notices' ) ) {
 					wc_clear_notices();
 				}
 
 				$fallback_data = array();
-				$slug = $license_id;
-				if ( $slug ) {
-					$fallback_data['attribute_pa_license'] = $slug;
-					$fallback_data['attribute_license'] = $slug;
+				// Hole alle attribute_* Werte aus dem Variation-Post-Meta
+				$meta = get_post_meta( $variation_id );
+				foreach ( $meta as $m_key => $m_val ) {
+					if ( 0 === strpos( $m_key, 'attribute_' ) ) {
+						$m_val_single = is_array( $m_val ) ? $m_val[0] : $m_val;
+						if ( '' !== trim( (string) $m_val_single ) ) {
+							$fallback_data[$m_key] = $m_val_single;
+						}
+					}
+				}
+
+				// Wenn attribute_license vorhanden, setze auch attribute_pa_lizenz (WooCommerce Pflichtfeld)
+				if ( isset($fallback_data['attribute_license']) && !isset($fallback_data['attribute_pa_lizenz']) ) {
+					$fallback_data['attribute_pa_lizenz'] = $fallback_data['attribute_license'];
 				}
 				if ( $license_label ) {
 					$fallback_data['attribute_License'] = $license_label;
@@ -248,6 +270,19 @@ class DBP_WooCommerce_License {
 				error_log( '[DBP] WC notices: ' . print_r( $notices, true ) );
 				if ( function_exists( 'wc_clear_notices' ) ) {
 					wc_clear_notices();
+				}
+			}
+			// Debug: Erlaubte Werte für pa_lizenz ausgeben
+			if ( class_exists( 'WC_Product_Variable' ) ) {
+				$product = wc_get_product( $product_id );
+				if ( $product && $product->is_type( 'variable' ) ) {
+					$attributes = $product->get_attributes();
+					if ( isset($attributes['pa_lizenz']) ) {
+						$options = $attributes['pa_lizenz']->get_options();
+						error_log('[DBP] Erlaubte Werte für pa_lizenz: ' . print_r($options, true));
+					} else {
+						error_log('[DBP] Attribut pa_lizenz nicht im Produkt gefunden.');
+					}
 				}
 			}
 			wp_send_json_error( array( 'message' => __( 'Fehler beim Hinzufügen zum Warenkorb.', 'dbp-music-hub' ) ) );

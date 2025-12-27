@@ -128,9 +128,16 @@ class DBP_Music_Hub {
 			require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'includes/class-license-verification.php';
 		}
 
-		// Admin-Klassen später laden (bei admin_menu), damit WP-Admin-Funktionen vorhanden sind
+		   // Admin-Klassen später laden (bei admin_menu), damit WP-Admin-Funktionen vorhanden sind
 		   if ( is_admin() ) {
 			   add_action( 'admin_menu', array( $this, 'load_admin_dependencies' ) );
+		   }
+		   // WooCommerce Sync UI auch bei AJAX-Requests instanziieren, damit die Handler registriert werden
+		   if ( is_admin() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+			   require_once DBP_MUSIC_HUB_PLUGIN_DIR . 'admin/class-woocommerce-sync-ui.php';
+			   if ( class_exists( 'DBP_WooCommerce_Sync_UI' ) ) {
+				   new DBP_WooCommerce_Sync_UI();
+			   }
 		   }
 		   // License Manager nach WooCommerce laden (Admin & AJAX)
 		   add_action( 'plugins_loaded', function() {
